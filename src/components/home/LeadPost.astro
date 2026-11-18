@@ -1,0 +1,91 @@
+---
+/**
+ * Latest post, larger, with its series list beside it when the center column is >= 640px.
+ * Spec: docs/redesign/03-components.md C3
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+import { padChapter } from '../../lib/toc';
+import type { Post, Series } from '../../lib/posts';
+
+interface Props {
+  post: Post;
+  series?: Series<Post>;
+}
+
+const { post, series } = Astro.props;
+---
+
+<div class:list={['lead', series && 'lead--series']}>
+  <a href={post.url} class="group block min-w-0">
+    <span class="text-xs font-semibold text-accent">最新 · {post.category}</span>
+    <h3 class="lead-title m-0 mb-2 mt-1.5 leading-tight tracking-tight text-fg transition-colors duration-base group-hover:text-accent">
+      {post.title}
+    </h3>
+    <p class="m-0 line-clamp-5 text-base leading-relaxed text-fg-body">{post.description}</p>
+    <p class="m-0 mt-3 text-xs tabular-nums text-fg-muted">
+      <time datetime={post.isoDate}>{post.dateText}</time> · {post.readingMinutes} 分鐘 · <span class="text-accent">閱讀 ›</span>
+    </p>
+  </a>
+  {
+    series && (
+      <aside class="lead-side" aria-label="所屬系列">
+        <SectionLabel text={`${series.tag} 系列 · 第 ${series.index} 篇`} />
+        <ol class="m-0 list-none p-0 text-sm">
+          {series.posts.map((p, i) => (
+            <li
+              class:list={['flex gap-2.5 border-t border-line-muted py-2', p.slug === post.slug && 'font-semibold']}
+              aria-current={p.slug === post.slug ? 'true' : undefined}
+            >
+              <i class="not-italic tabular-nums text-fg-subtle">{padChapter(i + 1)}</i>
+              {p.slug === post.slug ? (
+                <span class="text-fg">{p.title}</span>
+              ) : (
+                <a href={p.url} class="text-fg hover:text-accent">
+                  {p.title}
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </aside>
+    )
+  }
+</div>
+
+<style>
+  .lead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: 22px 0;
+    border-bottom: 1px solid var(--color-border-muted);
+  }
+  .lead-title {
+    font-size: var(--text-2xl);
+  }
+  .lead-side {
+    display: none;
+  }
+  @container center (min-width: 640px) {
+    .lead--series {
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: var(--space-7);
+      align-items: start;
+    }
+    .lead-side {
+      display: block;
+    }
+  }
+  @container center (min-width: 1080px) {
+    .lead {
+      padding: var(--space-8) 0;
+    }
+    .lead--series {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: var(--space-10);
+    }
+    .lead-title {
+      font-size: clamp(1.75rem, 1.2rem + 1.2vw, 2.5rem);
+    }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+/**
+ * One post in a list: meta, title, two-line excerpt, thumbnail only when the post has a cover.
+ * Thumbnail size follows the center column width (container `center`).
+ * Spec: docs/redesign/03-components.md C5
+ */
+import { Image } from 'astro:assets';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+---
+
+<a href={post.url} class="row group flex min-w-0 items-start gap-4 border-b border-line-muted py-5">
+  <div class="min-w-0 flex-1">
+    <p class="m-0 mb-1.5 text-xs tabular-nums text-fg-muted">
+      <b class="font-semibold text-accent">{post.category}</b> · <time datetime={post.isoDate}>{post.dateText}</time> ·
+      {post.readingMinutes} 分鐘
+    </p>
+    <h3 class="m-0 mb-1.5 text-lg leading-snug tracking-[-0.2px] text-fg transition-colors duration-base group-hover:text-accent">
+      {post.title}
+    </h3>
+    <p class="m-0 line-clamp-2 text-sm leading-relaxed text-fg-body">{post.description}</p>
+  </div>
+  {
+    post.cover && (
+      <div class="thumb shrink-0 overflow-hidden rounded-md bg-bg-subtle">
+        <Image src={post.cover} alt="" width={288} height={180} format="webp" quality={80} loading="lazy" class="h-full w-full object-cover" />
+      </div>
+    )
+  }
+</a>
+
+<style>
+  .thumb {
+    width: 84px;
+    aspect-ratio: 4 / 3;
+  }
+  @container center (min-width: 640px) {
+    .thumb {
+      width: 144px;
+      aspect-ratio: 16 / 10;
+    }
+  }
+</style>

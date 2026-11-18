@@ -1,0 +1,55 @@
+---
+/**
+ * Post list that adapts to the center column width: 1 column, 2 from 1080px, 3 from 1600px,
+ * with vertical rules between columns.
+ * Spec: docs/redesign/03-components.md C4
+ */
+import PostRow from './PostRow.astro';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+---
+
+<div class="post-grid">
+  {posts.map((post) => <PostRow post={post} />)}
+</div>
+
+<style>
+  .post-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @container center (min-width: 1080px) {
+    .post-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .post-grid > :global(.row:nth-child(odd)) {
+      padding-right: var(--space-7);
+    }
+    .post-grid > :global(.row:nth-child(even)) {
+      padding-left: var(--space-7);
+      border-left: 1px solid var(--color-border-muted);
+    }
+  }
+  @container center (min-width: 1600px) {
+    .post-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .post-grid > :global(.row) {
+      padding-left: var(--space-7) !important;
+      padding-right: var(--space-7) !important;
+      border-left: 1px solid var(--color-border-muted) !important;
+    }
+    .post-grid > :global(.row:nth-child(3n + 1)) {
+      padding-left: 0 !important;
+      border-left: 0 !important;
+    }
+    .post-grid > :global(.row:nth-child(3n)) {
+      padding-right: 0 !important;
+    }
+  }
+</style>

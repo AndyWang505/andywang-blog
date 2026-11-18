@@ -1,0 +1,21 @@
+---
+/** Static pagination links under a post list. Spec: docs/redesign/03-components.md C6 */
+import PillButton from '../ui/PillButton.astro';
+
+interface Props {
+  prevHref?: string;
+  nextHref?: string;
+  /** Show "第 N / M 頁" between the buttons. */
+  page?: { current: number; total: number };
+  /** Home uses a single "更多文章" link. */
+  moreLabel?: string;
+}
+
+const { prevHref, nextHref, page, moreLabel } = Astro.props;
+---
+
+<nav aria-label="分頁" class="flex items-center justify-center gap-4 pb-11 pt-7">
+  {prevHref && <PillButton href={prevHref} label="‹ 上一頁" />}
+  {page && <span class="text-xs tabular-nums text-fg-muted">第 {page.current} / {page.total} 頁</span>}
+  {nextHref && <PillButton href={nextHref} label={moreLabel ?? '下一頁 ›'} />}
+</nav>
