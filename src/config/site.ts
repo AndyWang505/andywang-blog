@@ -21,3 +21,22 @@ export const DEFAULT_BLOG_IMAGE = IMAGES.defaultBlog;
 export const DEFAULT_AVATAR = IMAGES.defaultAvatar;
 export const FOOTER_BG_LIGHT = IMAGES.footerBgLight;
 export const FOOTER_BG_DARK = IMAGES.footerBgDark;
+
+// v2 author block (docs/redesign/03-components.md B2)
+export const AUTHOR = {
+  name: 'Andy Wang',
+  role: 'Web Developer · Hsinchu',
+  bio: '記錄開發經驗與技術筆記，偶爾分享技術議題。',
+  avatar: IMAGES.defaultAvatar,
+  links: {
+    github: 'https://github.com/AndyWang505',
+    x: 'https://x.com/andywang890505',
+    rss: '/rss.xml',
+  },
+} as const;
+
+/** GitHub account shown in the "GitHub 最近更新" rail section. */
+export const GITHUB_USER = 'AndyWang505';
+
+/** Tags treated as article series, in priority order (docs/redesign/05-data.md §2). */
+export const SITE_SERIES: readonly string[] = ['X-Driven'];
