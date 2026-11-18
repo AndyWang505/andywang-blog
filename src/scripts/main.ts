@@ -6,6 +6,7 @@ import { initPhotoSwipe } from './photoswipe';
 import { initProgress } from './progress';
 import { initMobileMenu } from './mobile-menu';
 import { initCategoryBar } from './category-bar';
+import { initToc } from './toc';
 
 type SwupLike = { hooks: { on: (hook: string, handler: () => void) => void } };
 
@@ -13,6 +14,7 @@ function initPage(): void {
   initProgress();
   initMobileMenu();
   initCategoryBar();
+  initToc();
 }
 
 initPage();
