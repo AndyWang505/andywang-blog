@@ -1,133 +1,20 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../../layouts/Layout.astro';
-import Section from '../../../components/Section.astro';
+import NavRail from '../../../components/rail/NavRail.astro';
+import FeedHeader from '../../../components/home/FeedHeader.astro';
+import Chip from '../../../components/ui/Chip.astro';
+import { getTagCounts } from '../../../lib/posts';
 
-interface TagCount {
-  [tag: string]: {
-    tag: string;
-    count: number;
-  };
-}
-
-const blog = await getCollection('blog');
-// get tags data with counts
-const tagsCount = blog.reduce((acc: TagCount, post) => {
-  post.data.tags.forEach((tag) => {
-    if (acc[tag]) {
-      acc[tag].count++;
-    } else {
-      acc[tag] = {
-        tag: tag,
-        count: 1,
-      };
-    }
-  });
-  return acc;
-}, {});
-
-const tagsArray = Object.values(tagsCount).sort((a, b) => b.count - a.count);
+const tags = await getTagCounts();
 ---
 
-<Layout>
-  <div class="onload-animation">
-          <section class="space-y-3 sm:space-y-4">
-            <!-- Header -->
-            <Section class="p-3 sm:p-4 md:p-6">
-              <nav class="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-3 sm:mb-4">
-                <a href="/archive/" class="hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                  Archive
-                </a>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="sm:w-4 sm:h-4">
-                  <path d="M8.59 16.58L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.58Z"/>
-                </svg>
-                <span class="text-zinc-900 dark:text-zinc-100 font-medium">Tags</span>
-              </nav>
-              
-              <div class="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                <div class="p-1.5 sm:p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-green-600 dark:text-green-400 sm:w-6 sm:h-6">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-zinc-100">Tags</h1>
-                  <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{tagsArray.length} tags available</p>
-                </div>
-              </div>
-            </Section>
-
-            <!-- Popular Tags -->
-            <Section class="p-3 sm:p-4 md:p-6">
-              <h2 class="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-3 sm:mb-4 flex items-center gap-2">
-                <div class="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-green-100 dark:bg-green-900/20 rounded-md">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-green-600 dark:text-green-400 sm:w-4 sm:h-4">
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <span class="text-sm sm:text-base">Most Popular Tags</span>
-              </h2>
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                {tagsArray.slice(0, 6).map((tagData, index) => (
-                  <a href={`/archive/tag/${tagData.tag.replace(/\s+/g, '-')}/`}
-                     class="group flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-green-50 dark:bg-green-900/10 hover:bg-gradient-to-r hover:from-green-100 hover:to-green-200 dark:hover:from-green-900/20 dark:hover:to-green-800/30 transition-all duration-300">
-                    <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-green-200 dark:bg-green-800/30 rounded-full flex items-center justify-center">
-                      <span class="text-green-700 dark:text-green-300 text-xs sm:text-sm font-bold">#{index + 1}</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="text-green-800 dark:text-green-200 text-sm sm:text-base font-medium group-hover:text-green-900 dark:group-hover:text-green-100 transition-colors truncate">
-                        {tagData.tag}
-                      </div>
-                      <div class="text-green-600 dark:text-green-400 text-xs">
-                        {tagData.count} {tagData.count === 1 ? 'post' : 'posts'}
-                      </div>
-                    </div>
-                    <div class="text-green-500 group-hover:text-green-700 transition-colors">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="sm:w-4 sm:h-4">
-                        <path d="M8.59 16.58L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.58Z"/>
-                      </svg>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </Section>
-
-
-            <!-- Alternative Grid View -->
-            <Section class="p-6">
-              <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
-                <div class="flex items-center justify-center w-6 h-6 bg-green-100 dark:bg-green-900/20 rounded-md">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-green-600 dark:text-green-400">
-                    <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                All Tags
-              </h2>
-              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {tagsArray.map((tagData) => (
-                  <a href={`/archive/tag/${tagData.tag.replace(/\s+/g, '-')}/`}
-                     class="group flex flex-col items-center p-4 rounded-lg border-2 border-green-100 dark:border-green-900/30 hover:border-green-300 dark:hover:border-green-700/50 hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100 dark:hover:from-green-900/10 dark:hover:to-green-800/20 transition-all duration-300">
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-2 group-hover:bg-green-200 dark:group-hover:bg-green-800/30 transition-colors">
-                      <span class="text-green-600 dark:text-green-400 font-bold text-lg">#</span>
-                    </div>
-                    <div class="text-center">
-                      <div class="text-sm font-medium text-green-800 dark:text-green-200 group-hover:text-green-900 dark:group-hover:text-green-100 transition-colors truncate max-w-full">
-                        {tagData.tag}
-                      </div>
-                      <div class="text-xs text-green-600 dark:text-green-400 mt-1">
-                        {tagData.count} {tagData.count === 1 ? 'post' : 'posts'}
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </Section>
-
-
-          </section>
+<Layout variant="list" current="tags" title="標籤">
+  <NavRail slot="left" />
+  <div class="px-4 pb-12 lg:px-10 wide:px-12">
+    <FeedHeader as="h1" title="標籤" />
+    <p class="m-0 mt-4 text-sm text-fg-muted">共 {tags.length} 個標籤</p>
+    <div class="mt-5 flex flex-wrap gap-2">
+      {tags.map((t) => <Chip href={t.href} label={`#${t.name}`} count={t.count} />)}
+    </div>
   </div>
 </Layout>
