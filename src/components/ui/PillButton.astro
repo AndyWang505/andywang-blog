@@ -1,0 +1,36 @@
+---
+/**
+ * Outlined pill action: "更多文章", "訂閱 RSS", "複製連結", pagination.
+ * Renders <a> when `href` is given, otherwise <button type="button">.
+ * Extra attributes (target, rel, data-*, aria-*) are passed through.
+ * Spec: docs/redesign/03-components.md A3
+ */
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  href?: string;
+  label: string;
+  icon?: IconName;
+  size?: 'md' | 'sm';
+  class?: string;
+  [attr: string]: unknown;
+}
+
+const { href, label, icon, size = 'md', class: className, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  href={href}
+  type={href ? undefined : 'button'}
+  class:list={[
+    'inline-flex items-center gap-2 rounded-full border border-line bg-transparent font-medium transition-colors duration-fast hover:bg-bg-muted',
+    size === 'md' ? 'min-h-touch px-6 text-sm' : 'min-h-10 px-4 text-sm',
+    className,
+  ]}
+  {...rest}
+>
+  {icon && <Icon name={icon} size={14} />}
+  <span>{label}</span>
+</Tag>
