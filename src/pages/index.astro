@@ -3,6 +3,8 @@ import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import Layout from '../layouts/Layout.astro';
 import CardItem from '../components/CardItem.astro';
+import NavRail from '../components/rail/NavRail.astro';
+import HomeRightRail from '../components/rail/HomeRightRail.astro';
 
 const blog = await getCollection('blog');
 
@@ -26,7 +28,9 @@ const endIndex = startIndex + postsPerPage;
 const paginatedPosts = posts.slice(startIndex, endIndex);
 ---
 
-<Layout>
+<Layout variant="home" current="home">
+  <NavRail slot="left" />
+  <HomeRightRail slot="right" />
   <div class="onload-animation">
     <section>
       <ul>

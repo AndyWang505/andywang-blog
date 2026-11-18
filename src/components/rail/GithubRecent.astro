@@ -1,0 +1,35 @@
+---
+/**
+ * Recently pushed public repos (fetched at build time). Renders nothing when the fetch fails.
+ * Spec: docs/redesign/03-components.md B5
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getGithubRecent } from '../../lib/github';
+
+interface Props {
+  user: string;
+  limit?: number;
+}
+
+const { user, limit = 3 } = Astro.props;
+const repos = await getGithubRecent(user, limit);
+---
+
+{
+  repos.length > 0 && (
+    <section>
+      <SectionLabel as="h2" text="GitHub 最近更新" />
+      {repos.map((repo) => (
+        <a href={repo.url} target="_blank" rel="noopener" class="group block border-t border-line-muted py-2.5">
+          <span class="block text-sm font-semibold text-fg group-hover:underline">{repo.name}</span>
+          {repo.description && <span class="mt-0.5 block truncate text-xs text-fg-body">{repo.description}</span>}
+          <span class="mt-1 flex items-center gap-1.5 text-xs text-fg-muted">
+            <span class="h-2 w-2 rounded-full" style={`background:${repo.langColor}`} aria-hidden="true" />
+            {repo.language && <span>{repo.language} ·</span>}
+            <time datetime={repo.pushedAt.toISOString()}>{repo.relative}</time>
+          </span>
+        </a>
+      ))}
+    </section>
+  )
+}

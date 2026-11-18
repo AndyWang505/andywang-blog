@@ -1,0 +1,54 @@
+---
+/**
+ * Home/list right rail. Sits under the center column at 1024–1439px (3 columns),
+ * becomes a sticky side column from 1440px.
+ * Spec: docs/redesign/03-components.md B8
+ */
+import GithubRecent from './GithubRecent.astro';
+import ArchiveYears from './ArchiveYears.astro';
+import RssCta from './RssCta.astro';
+import { GITHUB_USER } from '../../config/site';
+
+interface Props {
+  /** List pages show only the archive. */
+  archiveOnly?: boolean;
+}
+
+const { archiveOnly = false } = Astro.props;
+---
+
+<div class="r-in">
+  {!archiveOnly && <GithubRecent user={GITHUB_USER} />}
+  <ArchiveYears />
+  {!archiveOnly && <RssCta />}
+</div>
+
+<style>
+  .r-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+    padding: var(--space-7) var(--space-4) var(--space-10);
+  }
+  @media (min-width: 768px) {
+    .r-in {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .r-in {
+      padding: var(--space-8) var(--space-10) var(--space-12);
+    }
+  }
+  @media (min-width: 1440px) {
+    .r-in {
+      position: sticky;
+      top: var(--header-height);
+      max-height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      scrollbar-width: thin;
+      grid-template-columns: minmax(0, 1fr);
+      padding: var(--space-7) var(--space-7) var(--space-10);
+    }
+  }
+</style>

@@ -1,0 +1,12 @@
+---
+/** RSS subscribe call-to-action. Spec: docs/redesign/03-components.md B7 */
+import SectionLabel from '../ui/SectionLabel.astro';
+import PillButton from '../ui/PillButton.astro';
+import { AUTHOR } from '../../config/site';
+---
+
+<section>
+  <SectionLabel as="h2" text="訂閱" />
+  <p class="m-0 mb-3 text-sm leading-relaxed text-fg-body">新文章發布時，用 RSS 閱讀器收到通知。</p>
+  <PillButton href={AUTHOR.links.rss} label="訂閱 RSS" icon="rss" size="sm" />
+</section>

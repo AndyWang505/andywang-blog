@@ -1,0 +1,29 @@
+---
+/**
+ * Most-used tags (from 1024px). Current tags are highlighted and always shown.
+ * Spec: docs/redesign/03-components.md B4
+ */
+import Chip from '../ui/Chip.astro';
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getTagCounts } from '../../lib/posts';
+
+interface Props {
+  current?: string[];
+  limit?: number;
+  /** Article rail spacing (outer padding is provided by the rail). */
+  compact?: boolean;
+}
+
+const { current = [], limit = 10, compact = false } = Astro.props;
+const all = await getTagCounts();
+const pinned = all.filter((t) => current.includes(t.name));
+const rest = all.filter((t) => !current.includes(t.name)).slice(0, Math.max(0, limit - pinned.length));
+const tags = [...pinned, ...rest];
+---
+
+<div class:list={['hidden border-t border-line-muted lg:block', compact ? 'mt-5 pt-5' : 'mt-4 px-6 pb-8 pt-5']}>
+  <SectionLabel as="h2" text="標籤" />
+  <div class="flex flex-wrap gap-1.5">
+    {tags.map((t) => <Chip href={t.href} label={t.name} size="sm" active={current.includes(t.name)} current="true" />)}
+  </div>
+</div>

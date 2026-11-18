@@ -1,0 +1,25 @@
+---
+/**
+ * Post counts per year, linking to the year anchors on /archive/.
+ * Spec: docs/redesign/03-components.md B6
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getYearCounts } from '../../lib/posts';
+
+const years = await getYearCounts();
+---
+
+<section>
+  <SectionLabel as="h2" text="歸檔" />
+  {
+    years.map(({ year, count }) => (
+      <a
+        href={`/archive/#y${year}`}
+        class="flex min-h-10 items-center justify-between border-t border-line-muted text-sm tabular-nums text-fg transition-colors duration-fast hover:text-accent"
+      >
+        {year}
+        <span class="text-fg-muted">{count} 篇</span>
+      </a>
+    ))
+  }
+</section>

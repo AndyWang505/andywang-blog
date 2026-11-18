@@ -26,6 +26,10 @@
 .shell[data-left='wide'] .shell-left {
   display: none;
 }
+/* Home/list rail children join the grid so the mobile category bar can stay sticky all page long. */
+.shell[data-left='lg'] .shell-left {
+  display: contents;
+}
 .shell[data-right='toc'] .shell-right {
   order: -1;
 }
@@ -56,6 +60,7 @@
     --shell-left: var(--rail-left-width);
   }
   .shell[data-left='lg'] .shell-left {
+    display: block;
     border-right: 1px solid var(--color-border-default);
   }
 

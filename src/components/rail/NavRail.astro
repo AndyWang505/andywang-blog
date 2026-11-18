@@ -1,0 +1,53 @@
+---
+/**
+ * Left rail shared by home, list and article pages.
+ * Spec: docs/redesign/03-components.md B1
+ */
+import AuthorBlock from './AuthorBlock.astro';
+import CategoryNav from './CategoryNav.astro';
+import TagCloud from './TagCloud.astro';
+
+interface Props {
+  variant?: 'full' | 'compact';
+  currentCategory?: string;
+  currentTags?: string[];
+}
+
+const { variant = 'full', currentCategory, currentTags } = Astro.props;
+---
+
+{
+  variant === 'compact' ? (
+    <div class="nav-rail nav-rail--compact">
+      <AuthorBlock variant="compact" />
+      <CategoryNav current={currentCategory} listOnly />
+      <TagCloud current={currentTags} compact />
+    </div>
+  ) : (
+    <div class="nav-rail">
+      <AuthorBlock />
+      <CategoryNav current={currentCategory} />
+      <TagCloud current={currentTags} />
+    </div>
+  )
+}
+
+<style>
+  /* Below 1024px the rail's children join the page grid so the category bar can stay sticky. */
+  .nav-rail {
+    display: contents;
+  }
+  .nav-rail--compact {
+    padding: var(--space-7) var(--space-6) var(--space-8);
+  }
+  @media (min-width: 1024px) {
+    .nav-rail {
+      display: block;
+      position: sticky;
+      top: var(--header-height);
+      max-height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+  }
+</style>
