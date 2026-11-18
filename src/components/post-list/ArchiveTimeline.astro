@@ -1,8 +1,8 @@
 ---
 /**
- * Archive timeline (carried over from v1): year headings, then date · dot on a
- * vertical line · title · tags. The dot grows and turns accent on hover.
- * Year headings carry id="y{year}" for the ArchiveYears rail links.
+ * Archive tree: year → month → posts, joined by connector lines.
+ * Evolved from the v1 timeline (date · dot on a line · title · tags).
+ * Year nodes carry id="y{year}" for the ArchiveYears rail links.
  */
 import type { Post } from '../../lib/posts';
 
@@ -11,160 +11,190 @@ interface Props {
 }
 
 const { groups } = Astro.props;
-const monthDay = (p: Post) => p.dateText.slice(5);
+
+const tree = groups.map((g) => {
+  const months = new Map<string, Post[]>();
+  for (const p of g.posts) {
+    const month = p.dateText.slice(5, 7);
+    months.set(month, [...(months.get(month) ?? []), p]);
+  }
+  return { ...g, months: [...months].map(([month, posts]) => ({ month: Number(month), posts })) };
+});
 ---
 
-<div class="timeline">
+<ol class="tree">
   {
-    groups.map((group) => (
-      <section aria-labelledby={`y${group.year}`} class="year">
-        <h2 id={`y${group.year}`} class="year-head">
-          <span class="year-num">{group.year}</span>
-          <span class="axis" aria-hidden="true">
-            <span class="ring" />
-          </span>
-          <span class="year-count">{group.count} 篇</span>
+    tree.map((year) => (
+      <li class="year">
+        <h2 id={`y${year.year}`} class="node year-node">
+          <span class="ring" aria-hidden="true" />
+          <span class="year-num">{year.year}</span>
+          <span class="count">{year.count} 篇</span>
         </h2>
-        <ol class="m-0 list-none p-0">
-          {group.posts.map((post) => (
+        <ol class="branch">
+          {year.months.map((m) => (
             <li>
-              <a href={post.url} class="entry group">
-                <time datetime={post.isoDate} class="date">
-                  {monthDay(post)}
-                </time>
-                <span class="axis" aria-hidden="true">
-                  <span class="dot" />
-                </span>
-                <span class="title">{post.title}</span>
-                <span class="tags">{post.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}</span>
-              </a>
+              <p class="node month-node">
+                {m.month} 月<span class="count">{m.posts.length} 篇</span>
+              </p>
+              <ol class="branch">
+                {m.posts.map((post) => (
+                  <li class="leaf">
+                    <a href={post.url} class="entry">
+                      <time datetime={post.isoDate} class="date">
+                        {post.dateText.slice(5)}
+                      </time>
+                      <span class="title">{post.title}</span>
+                      {post.tags.length > 0 && <span class="tags">{post.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}</span>}
+                    </a>
+                  </li>
+                ))}
+              </ol>
             </li>
           ))}
         </ol>
-      </section>
+      </li>
     ))
   }
-</div>
+</ol>
 
 <style>
-  .timeline {
-    --date-col: 3.5rem;
-    --axis-col: 2rem;
-    padding-top: var(--space-4);
+  .tree,
+  .branch {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tree {
+    --row: 2.5rem;
+    --indent: 1.5rem;
+    --connector: var(--color-border-default);
+    padding-top: var(--space-6);
   }
   .year + .year {
-    margin-top: var(--space-6);
+    margin-top: var(--space-8);
   }
-  .year-head,
-  .entry {
-    display: grid;
-    grid-template-columns: var(--date-col) var(--axis-col) minmax(0, 1fr);
+
+  .node {
+    display: flex;
     align-items: center;
-  }
-  .year-head {
-    height: 3.25rem;
+    gap: var(--space-3);
+    min-height: var(--row);
     margin: 0;
+  }
+  .year-node {
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
   }
+  .ring {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-default);
+  }
   .year-num {
-    text-align: right;
     font-size: var(--text-xl);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     color: var(--color-fg-default);
   }
-  .year-count {
+  .month-node {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-fg-default);
+  }
+  .count {
+    margin-left: var(--space-2);
     font-size: var(--text-xs);
     font-weight: 400;
     color: var(--color-fg-muted);
   }
-  .axis {
-    position: relative;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+  /* Tree connectors: a vertical trunk per branch, an elbow into every child */
+  .branch {
+    margin-left: 5px; /* centre of the year ring */
   }
-  .entry .axis::before {
+  .branch .branch {
+    margin-left: 0;
+  }
+  .branch > li {
+    position: relative;
+    padding-left: var(--indent);
+  }
+  .branch > li::before {
     content: '';
     position: absolute;
+    left: 0;
     top: 0;
     bottom: 0;
-    left: 50%;
-    width: 1px;
-    background: var(--color-border-default);
-    transform: translateX(-50%);
+    border-left: 1px solid var(--connector);
   }
-  .ring {
-    width: 10px;
-    height: 10px;
-    border: 2px solid var(--color-accent);
-    border-radius: var(--radius-full);
+  .branch > li:last-child::before {
+    bottom: auto;
+    height: calc(var(--row) / 2);
   }
+  .branch > li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(var(--row) / 2);
+    width: calc(var(--indent) - 6px);
+    border-top: 1px solid var(--connector);
+  }
+
   .entry {
-    min-height: 2.5rem;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: var(--space-3);
+    align-items: baseline;
+    padding: 9px var(--space-2);
+    margin-left: -8px;
     border-radius: var(--radius-md);
     transition: background var(--duration-fast);
   }
   .entry:hover {
     background: var(--color-bg-muted);
   }
+  .leaf:hover::after {
+    border-top-color: var(--color-accent);
+  }
   .date {
-    text-align: right;
     font-size: var(--text-sm);
     font-variant-numeric: tabular-nums;
     color: var(--color-fg-muted);
   }
-  .dot {
-    position: relative;
-    width: 4px;
-    height: 4px;
-    border-radius: var(--radius-full);
-    background: var(--color-fg-subtle);
-    outline: 2px solid var(--color-bg-default);
-    transition:
-      height var(--duration-base) var(--ease-standard),
-      background var(--duration-base);
-  }
-  .entry:hover .dot {
-    height: 18px;
-    background: var(--color-accent);
-    outline-color: var(--color-bg-muted);
-  }
   .title {
-    padding-right: var(--space-4);
     font-size: var(--text-base);
     font-weight: 500;
+    line-height: var(--leading-snug);
     color: var(--color-fg-default);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition:
-      transform var(--duration-base) var(--ease-standard),
-      color var(--duration-fast);
+    transition: color var(--duration-fast);
   }
   .entry:hover .title {
-    transform: translateX(4px);
     color: var(--color-accent);
   }
   .tags {
-    display: none;
-    font-size: var(--text-sm);
+    grid-column: 2;
+    margin-top: 2px;
+    font-size: var(--text-xs);
     color: var(--color-fg-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
+
   @container center (min-width: 768px) {
-    .timeline {
-      --date-col: 4.5rem;
-      --axis-col: 3rem;
+    .tree {
+      --indent: 2rem;
     }
     .entry {
-      grid-template-columns: var(--date-col) var(--axis-col) minmax(0, 1fr) minmax(0, 14rem);
+      grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 14rem);
     }
     .tags {
-      display: block;
+      grid-column: 3;
+      margin-top: 0;
+      font-size: var(--text-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 </style>
