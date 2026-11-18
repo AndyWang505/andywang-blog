@@ -1,0 +1,95 @@
+/*
+ * App shell grid: flush side rails separated from the center column by 1px lines.
+ * Rails are described by data attributes set in Layout.astro:
+ *   data-left  = "lg"   left rail from 1024px (home, lists)
+ *              | "wide" left rail from 1440px (article)
+ *              | "none"
+ *   data-right = "rail" right rail; below the center column at 1024–1439px, beside it from 1440px (home, lists)
+ *              | "toc"  chapter TOC; sticky bar above the article below 1024px, column from 1024px (article)
+ *              | "none"
+ * Spec: docs/redesign/02-layout.md §2
+ */
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.shell-left,
+.shell-center,
+.shell-right {
+  min-width: 0;
+}
+.shell-center {
+  container: center / inline-size;
+}
+
+/* < 1024: single column */
+.shell[data-left='wide'] .shell-left {
+  display: none;
+}
+.shell[data-right='toc'] .shell-right {
+  order: -1;
+}
+.shell[data-right='rail'] .shell-right {
+  border-top: 1px solid var(--color-border-default);
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --shell-left: 0px;
+    --shell-right: 0px;
+    grid-template-columns: var(--shell-left) minmax(0, 1fr) var(--shell-right);
+  }
+  .shell-left {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .shell-center {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .shell-right {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .shell[data-left='lg'] {
+    --shell-left: var(--rail-left-width);
+  }
+  .shell[data-left='lg'] .shell-left {
+    border-right: 1px solid var(--color-border-default);
+  }
+
+  .shell[data-right='toc'] {
+    --shell-right: var(--toc-width);
+  }
+  .shell[data-right='toc'] .shell-right {
+    order: 0;
+    border-left: 1px solid var(--color-border-default);
+  }
+
+  /* right rail content sits under the center column until there is room for a third column */
+  .shell[data-right='rail'] .shell-right {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (min-width: 1440px) {
+  .shell[data-left='wide'] {
+    --shell-left: var(--rail-left-width);
+  }
+  .shell[data-left='wide'] .shell-left {
+    display: block;
+    border-right: 1px solid var(--color-border-default);
+  }
+
+  .shell[data-right='rail'] {
+    --shell-right: var(--rail-right-width);
+  }
+  .shell[data-right='rail'] .shell-right {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    border-top: 0;
+    border-left: 1px solid var(--color-border-default);
+  }
+}

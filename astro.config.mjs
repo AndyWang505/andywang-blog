@@ -21,7 +21,7 @@ export default defineConfig({
   integrations: [swup({
     theme: false,
     animationClass: "transition-swup-",
-    containers: ["main"],
+    containers: ["#swup-header", "#swup-shell"],
     smoothScrolling: false,
     cache: true,
     preload: true,

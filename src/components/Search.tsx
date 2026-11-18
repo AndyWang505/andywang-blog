@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IoSearch, IoClose } from 'react-icons/io5';
 
@@ -14,14 +14,17 @@ interface SearchPost {
 
 interface SearchProps {
   posts: SearchPost[];
+  /** v2 header: pill button from 1024px, icon button below (docs/redesign/02-layout.md §4). */
+  trigger?: 'legacy' | 'responsive';
 }
 
-export default function Search({ posts }: SearchProps) {
+export default function Search({ posts, trigger = 'legacy' }: SearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchPost[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const lastTrigger = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -62,9 +65,7 @@ export default function Search({ posts }: SearchProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsOpen(false);
-        setQuery('');
-        setResults([]);
+        closeSearch();
       }
     };
 
@@ -82,6 +83,7 @@ export default function Search({ posts }: SearchProps) {
   }, [isOpen]);
 
   const openSearch = () => {
+    lastTrigger.current = document.activeElement as HTMLElement | null;
     setIsOpen(true);
   };
 
@@ -89,7 +91,21 @@ export default function Search({ posts }: SearchProps) {
     setIsOpen(false);
     setQuery('');
     setResults([]);
+    lastTrigger.current?.focus();
   };
+
+  // Cmd/Ctrl + K opens search
+  useEffect(() => {
+    if (trigger !== 'responsive') return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [trigger]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('zh-TW', {
@@ -141,7 +157,7 @@ export default function Search({ posts }: SearchProps) {
                     {results.map((post) => (
                       <a
                         key={post.slug}
-                        href={`/blog/${post.slug}/`}
+                        href={`/post/${post.slug}/`}
                         className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b last:border-b-0 dark:border-gray-700"
                         onClick={closeSearch}
                       >
@@ -176,6 +192,32 @@ export default function Search({ posts }: SearchProps) {
         </div>,
     document.body
   ) : null;
+
+  if (trigger === 'responsive') {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={openSearch}
+          aria-label="搜尋文章"
+          className="hidden lg:flex h-[34px] min-w-[200px] items-center gap-2 rounded-full bg-bg-muted px-3 text-sm text-fg-muted transition-colors duration-fast hover:text-fg"
+        >
+          <IoSearch className="h-3.5 w-3.5" aria-hidden="true" />
+          <span>搜尋文章</span>
+          <span className="ml-auto text-[11px]" aria-hidden="true">⌘K</span>
+        </button>
+        <button
+          type="button"
+          onClick={openSearch}
+          aria-label="搜尋文章"
+          className="flex lg:hidden h-11 w-11 items-center justify-center rounded-full text-fg transition-colors duration-fast hover:bg-bg-muted"
+        >
+          <IoSearch className="h-[18px] w-[18px]" aria-hidden="true" />
+        </button>
+        {searchModal}
+      </>
+    );
+  }
 
   return (
     <>

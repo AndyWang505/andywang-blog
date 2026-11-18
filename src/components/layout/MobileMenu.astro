@@ -1,0 +1,68 @@
+---
+/**
+ * Full-height glass menu below the header for screens narrower than 1024px.
+ * Opened by the header's [data-menu-toggle]; behaviour in src/scripts/mobile-menu.ts.
+ * Spec: docs/redesign/02-layout.md §6
+ */
+import Chip from '../ui/Chip.astro';
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getCategoryCounts, getTagCounts } from '../../lib/posts';
+import { NAV_ITEMS, type NavKey } from './nav';
+
+interface Props {
+  current?: NavKey;
+}
+
+const { current } = Astro.props;
+const [categories, tags] = await Promise.all([getCategoryCounts(), getTagCounts()]);
+---
+
+<div id="mobile-menu" class="mobile-menu glass" data-mobile-menu hidden>
+  <nav aria-label="主要導覽（行動版）">
+    <ul class="m-0 list-none p-0">
+      {
+        NAV_ITEMS.map((item) => (
+          <li class="border-b border-line-muted">
+            <a
+              href={item.href}
+              aria-current={item.key === current ? 'page' : undefined}
+              class:list={['flex min-h-12 items-center text-[17px] text-fg', item.key === current && 'font-semibold']}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <div class="mt-8">
+    <SectionLabel as="h2" text="分類" />
+    <div class="flex flex-wrap gap-2">
+      {categories.map((c) => <Chip href={c.href} label={c.name} count={c.count} />)}
+    </div>
+  </div>
+  <div class="mt-8 pb-8">
+    <SectionLabel as="h2" text="標籤" />
+    <div class="flex flex-wrap gap-1.5">
+      {tags.map((t) => <Chip href={t.href} label={t.name} size="sm" />)}
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: var(--header-height) 0 0 0;
+    z-index: var(--z-overlay);
+    overflow-y: auto;
+    padding: var(--space-4);
+  }
+  .mobile-menu[hidden] {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .mobile-menu {
+      display: none !important;
+    }
+  }
+</style>

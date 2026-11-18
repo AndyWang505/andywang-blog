@@ -1,0 +1,19 @@
+---
+/**
+ * Header search: pill (>=1024px) / icon (<1024px) trigger for the existing Search modal.
+ * Spec: docs/redesign/02-layout.md §4
+ */
+import Search from '../Search';
+import { getSortedPosts } from '../../lib/posts';
+
+const searchData = (await getSortedPosts()).map((post) => ({
+  slug: post.slug,
+  title: post.title,
+  description: post.description,
+  category: post.category,
+  tags: post.tags,
+  pubDate: post.isoDate,
+}));
+---
+
+<Search client:load posts={searchData} trigger="responsive" />

@@ -1,18 +1,22 @@
-import { initBannerAndTransitions, ensureBannerDisplay } from './banner';
-import { initScrollHandling } from './scroll';
-import { initResizeHandling } from './resize';
+/**
+ * Client entry. Page-level features re-initialise after every swup page view.
+ * Spec: docs/redesign/02-layout.md §8
+ */
 import { initPhotoSwipe } from './photoswipe';
+import { initProgress } from './progress';
+import { initMobileMenu } from './mobile-menu';
 
-export function initializeApp(): void {
-  initBannerAndTransitions();
-  initScrollHandling();
-  initResizeHandling();
-  initPhotoSwipe();
+type SwupLike = { hooks: { on: (hook: string, handler: () => void) => void } };
+
+function initPage(): void {
+  initProgress();
+  initMobileMenu();
 }
 
-initializeApp();
+initPage();
+// PhotoSwipe registers its own swup hooks.
+initPhotoSwipe();
 
-// ensure that the DOM is loaded and execute once
-document.addEventListener('DOMContentLoaded', () => {
-  ensureBannerDisplay();
-});
+const bindSwup = () => (window as unknown as { swup?: SwupLike }).swup?.hooks.on('page:view', initPage);
+if ((window as unknown as { swup?: SwupLike }).swup?.hooks) bindSwup();
+else document.addEventListener('swup:enable', bindSwup, { once: true });
