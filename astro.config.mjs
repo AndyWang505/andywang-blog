@@ -14,6 +14,7 @@ import ExpressiveCode from 'astro-expressive-code';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 import { pluginLanguageBadge } from './plugins/expressive-code/language-badge';
+import rehypeWrapTables from './plugins/rehype/wrap-tables';
 
 // https://astro.build/config
 export default defineConfig({
@@ -104,6 +105,7 @@ export default defineConfig({
       [remarkToc, { heading: 'Table of Contents', maxDepth: 3 }],
     ],
     rehypePlugins: [
+      rehypeWrapTables,
       rehypeSlug,
       [rehypeAutolinkHeadings, {
         behavior: 'append',

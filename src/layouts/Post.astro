@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import Layout from './Layout.astro';
 import RelatedPosts from '../components/RelatedPosts.astro';
+import PostBody from '../components/post/PostBody.astro';
 import { getWordCount, getReadingTime } from '../lib/utils/readingTime';
 
 interface Props {
@@ -225,11 +226,7 @@ const { headings } = await entry.render();
           )
         }
       </div>
-      <div
-        class="prose max-w-none prose-headings:scroll-mt-20 prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-zinc-100 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-code:text-pink-600 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50/50 dark:prose-blockquote:bg-blue-900/10 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
-      >
-        <slot />
-      </div>
+      <PostBody><slot /></PostBody>
 
       <!-- CC BY-SA 4.0 License -->
       <div class="mt-8 pt-6 border-t border-gray-200 dark:border-zinc-700">
