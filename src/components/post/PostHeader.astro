@@ -1,0 +1,42 @@
+---
+/** Article header: breadcrumb, title, lead, byline. Spec: docs/redesign/03-components.md D1 */
+import { AUTHOR } from '../../config/site';
+import { formatLongDate } from '../../lib/posts-core';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  post: Post;
+  chapterCount: number;
+}
+
+const { post, chapterCount } = Astro.props;
+const updated =
+  post.updatedDate && post.updatedDate.valueOf() !== post.pubDate.valueOf() ? formatLongDate(post.updatedDate) : undefined;
+---
+
+<header class="mx-auto max-w-measure pt-6 lg:pt-12">
+  <nav aria-label="麵包屑" class="flex gap-1.5 text-[13px] text-fg-muted">
+    <a href="/archive/" class="hover:text-accent">文章</a>
+    <span aria-hidden="true">›</span>
+    <a href={post.categoryHref} class="hover:text-accent">{post.category}</a>
+  </nav>
+  <h1 class="m-0 mt-3 text-3xl font-bold leading-tight tracking-tight text-fg">{post.title}</h1>
+  <p class="m-0 mt-3.5 text-lg leading-normal text-fg-body">{post.description}</p>
+  <div class="mt-5 flex flex-wrap items-center gap-2.5 text-sm text-fg-muted">
+    <img src={AUTHOR.avatar} alt="" width="32" height="32" class="h-8 w-8 rounded-full object-cover" />
+    <b class="font-semibold text-fg">{AUTHOR.name}</b>
+    <span aria-hidden="true">·</span>
+    <time datetime={post.isoDate}>{post.longDate}</time>
+    {updated && <span>（更新於 {updated}）</span>}
+    <span aria-hidden="true">·</span>
+    <span>{post.readingMinutes} 分鐘閱讀</span>
+    {
+      chapterCount >= 2 && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>{chapterCount} 個章節</span>
+        </>
+      )
+    }
+  </div>
+</header>

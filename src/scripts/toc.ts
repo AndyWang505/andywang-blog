@@ -5,8 +5,11 @@
  */
 import { readingRatio } from './progress';
 
-/** Headings whose top has passed this line (header + mobile TOC bar) count as read. */
-const ACTIVE_OFFSET = 130;
+/**
+ * A heading becomes current once its top passes this line: below the header and
+ * mobile TOC bar (130px), or the upper 30% of the viewport on tall screens.
+ */
+const activeLine = () => Math.max(130, window.innerHeight * 0.3);
 
 let cleanup: (() => void) | undefined;
 
@@ -39,8 +42,9 @@ export function initToc(): void {
   const update = () => {
     frame = 0;
     let active = targets[0];
+    const line = activeLine();
     for (const t of targets) {
-      if (t.el.getBoundingClientRect().top - ACTIVE_OFFSET <= 1) active = t;
+      if (t.el.getBoundingClientRect().top - line <= 1) active = t;
       else break;
     }
     const chapterNo = Number(active?.link.dataset.chapter) || 1;

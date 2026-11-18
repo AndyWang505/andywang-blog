@@ -1,0 +1,99 @@
+---
+/**
+ * Article footer: licence, previous/next (by publish date) and related posts.
+ * Spec: docs/redesign/03-components.md D5
+ */
+import { Image } from 'astro:assets';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  prev?: Post;
+  next?: Post;
+  related: Post[];
+}
+
+const { prev, next, related } = Astro.props;
+---
+
+<footer class="mx-auto max-w-measure pb-14 pt-4">
+  <p class="m-0 mb-6 text-xs text-fg-muted">
+    本文採用
+    <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license" class="text-fg hover:underline">CC BY-SA 4.0</a>
+    授權，轉載請註明出處。
+  </p>
+
+  {
+    (prev || next) && (
+      <nav aria-label="上一篇與下一篇" class="pn border-y border-line">
+        {prev ? (
+          <a href={prev.url} class="pn-prev group block py-4">
+            <small class="block text-xs text-fg-muted">‹ 上一篇</small>
+            <span class="mt-1 block font-semibold text-fg group-hover:text-accent">{prev.title}</span>
+          </a>
+        ) : (
+          <span class="pn-prev" />
+        )}
+        {next && (
+          <a href={next.url} class="pn-next group block py-4">
+            <small class="block text-xs text-fg-muted">下一篇 ›</small>
+            <span class="mt-1 block font-semibold text-fg group-hover:text-accent">{next.title}</span>
+          </a>
+        )}
+      </nav>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <section aria-label="延伸閱讀">
+        <h2 class="m-0 mb-1 mt-9 text-[13px] font-semibold text-fg">延伸閱讀</h2>
+        {related.map((p) => (
+          <a href={p.url} class="group flex items-center gap-3.5 border-b border-line-muted py-3">
+            {p.cover && (
+              <span class="block w-[72px] shrink-0 overflow-hidden rounded-md bg-bg-subtle">
+                <Image src={p.cover} alt="" width={144} height={90} format="webp" quality={80} loading="lazy" class="aspect-[16/10] w-full object-cover" />
+              </span>
+            )}
+            <span class="min-w-0">
+              <small class="block text-xs text-fg-muted">
+                {p.category} · {p.dateText}
+              </small>
+              <b class="mt-1 block text-sm font-semibold leading-normal text-fg group-hover:text-accent">{p.title}</b>
+            </span>
+          </a>
+        ))}
+      </section>
+    )
+  }
+</footer>
+
+<style>
+  .pn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pn-next {
+    border-top: 1px solid var(--color-border-muted);
+  }
+  .pn-prev:empty {
+    display: none;
+  }
+  @media (min-width: 640px) {
+    .pn {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .pn-prev:empty {
+      display: block;
+    }
+    .pn-prev {
+      padding-right: var(--space-5);
+    }
+    .pn-next {
+      grid-column: 2;
+      border-top: 0;
+      border-left: 1px solid var(--color-border-muted);
+      padding-left: var(--space-5);
+      text-align: right;
+    }
+  }
+</style>
