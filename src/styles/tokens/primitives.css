@@ -1,0 +1,31 @@
+/*
+ * Layer 1 — primitives.
+ * Raw palette values only. Never reference these from components;
+ * semantic.css is the only consumer.
+ * Spec: docs/redesign/01-foundations.md §2
+ */
+:root {
+  /* Apple-style neutrals */
+  --palette-gray-0: #ffffff;
+  --palette-gray-50: #f5f5f7;
+  --palette-gray-100: #ebebef;
+  --palette-gray-150: #e8e8ed;
+  --palette-gray-300: #d2d2d7;
+  --palette-gray-500: #86868b;
+  --palette-gray-600: #6e6e73;
+  --palette-gray-700: #424245;
+  --palette-gray-900: #1d1d1f;
+  --palette-blue-600: #0066cc;
+
+  /* Tokyo Night (night variant) */
+  --palette-tokyo-bg: #1a1b26;
+  --palette-tokyo-bg-dark: #16161e;
+  --palette-tokyo-bg-float: #1f2335;
+  --palette-tokyo-bg-line: #232433;
+  --palette-tokyo-bg-highlight: #292e42;
+  --palette-tokyo-bg-surface: #24283b;
+  --palette-tokyo-fg: #c0caf5;
+  --palette-tokyo-fg-dark: #a9b1d6;
+  --palette-tokyo-comment: #737aa2;
+  --palette-tokyo-blue: #7aa2f7;
+}

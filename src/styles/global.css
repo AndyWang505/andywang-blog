@@ -1,0 +1,64 @@
+/*
+ * Global base styles for the v2 layout. Uses semantic tokens only.
+ * Imported by the new Layout in T5 (docs/redesign/07-tasks.md); not loaded by the current pages.
+ * Spec: docs/redesign/01-foundations.md §3
+ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--color-bg-default);
+  color: var(--color-fg-default);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+img { max-width: 100%; display: block; }
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+::selection { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+
+/* Glass: navigation layer only (header, mobile category bar, mobile TOC bar, mobile menu) */
+.glass { background: var(--color-surface-glass-fallback); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--color-surface-glass);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+  }
+}
+
+/* Sticky rail content that scrolls inside its column */
+.rail-scroll {
+  position: sticky;
+  top: var(--header-height);
+  max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: var(--space-2);
+  z-index: var(--z-skip-link);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-default);
+  color: var(--color-fg-default);
+  border-radius: var(--radius-md);
+}
+.skip-link:focus { left: var(--space-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
