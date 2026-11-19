@@ -132,20 +132,21 @@ const { left, right, current, progress = false } = Astro.props;
       grid-template-columns: var(--hdr-left) minmax(0, 1fr) var(--hdr-right);
       padding: 0;
     }
+    /* Each segment sets its own display so the brand can stay hidden without overrides. */
     .hdr > div {
       height: 100%;
-      display: flex;
       align-items: center;
       min-width: 0;
     }
     .hdr-brand {
       grid-column: 1;
-      display: none !important;
+      display: none;
       padding: 0 var(--space-6);
       border-right: 1px solid var(--color-border-default);
     }
     .hdr-nav {
       grid-column: 2;
+      display: flex;
       gap: var(--space-10);
       padding: 0 var(--space-8);
     }
@@ -165,7 +166,7 @@ const { left, right, current, progress = false } = Astro.props;
       --hdr-left: var(--rail-left-width);
     }
     .hdr[data-left='lg'] .hdr-brand {
-      display: flex !important;
+      display: flex;
     }
     .hdr[data-left='lg'] .brand-inline {
       display: none;
@@ -185,7 +186,7 @@ const { left, right, current, progress = false } = Astro.props;
       --hdr-left: var(--rail-left-width);
     }
     .hdr[data-left='wide'] .hdr-brand {
-      display: flex !important;
+      display: flex;
     }
     .hdr[data-left='wide'] .brand-inline {
       display: none;

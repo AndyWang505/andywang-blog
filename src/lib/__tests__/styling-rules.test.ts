@@ -78,12 +78,9 @@ describe('styling ownership rules', () => {
   });
 
   it('no !important or Tailwind ! prefix in v2 files', () => {
-    const KNOWN = [
-      'components/layout/MobileMenu.astro',
-      'components/layout/SiteHeader.astro',
-    ];
+    const KNOWN: string[] = [];
     const found = offenders(v2Files, (s) => /!important/.test(s) || classStrings(s).some((c) => /(?:^|\s)!\S/.test(c)));
-    expect(found).toEqual(KNOWN.sort());
+    expect(found).toEqual(KNOWN);
   });
 
   it('no raw Tailwind palette colours or dark: variants in v2 files', () => {
