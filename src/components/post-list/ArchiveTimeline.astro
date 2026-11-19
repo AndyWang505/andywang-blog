@@ -2,8 +2,9 @@
 /**
  * Archive timeline: one spine per year with a dot per post and the month in a left gutter
  * (shown on the month's first post). Year headings carry id="y{year}" for the rail links,
- * a month's first row id="m{year}-{MM}" for the heatmap. Scroll state (passed dots),
- * reveal and the hover preview card live in scripts/archive.ts.
+ * a month's first row id="m{year}-{MM}" for the heatmap. From a 960px centre column the
+ * spine moves mid-column with a reader card on the left. Scroll state (passed dots), the
+ * reader card, reveal and the hover preview card live in scripts/archive.ts.
  */
 import { getImage } from 'astro:assets';
 import type { Post } from '../../lib/posts';
@@ -34,9 +35,29 @@ await Promise.all(
       peekCovers.set(p.slug, img.src);
     }),
 );
+/** The reader card starts on the newest post (no-JS and first paint). */
+const first = groups[0]?.posts[0];
 ---
 
 <div class="timeline" data-archive>
+  <aside class="reader" aria-label="文章預覽" data-archive-reader>
+    <a class="reader-card" href={first?.url} data-reader-link>
+      <img
+        class="reader-cover"
+        alt=""
+        width="240"
+        height="150"
+        src={first && peekCovers.get(first.slug)}
+        hidden={!(first && peekCovers.get(first.slug))}
+        data-reader-img
+      />
+      <p class="reader-meta" data-reader-meta>{first && `${first.category} · ${first.dateText} · ${first.readingMinutes} 分鐘`}</p>
+      <p class="reader-title" data-reader-title>{first?.title}</p>
+      <p class="reader-desc" data-reader-desc>{first?.description}</p>
+      <span class="reader-go">閱讀文章 ›</span>
+    </a>
+  </aside>
+  <div class="years">
   {
     years.map((year) => (
       <section class="year" aria-labelledby={`y${year.year}`}>
@@ -73,6 +94,7 @@ await Promise.all(
       </section>
     ))
   }
+  </div>
 </div>
 
 <div class="peek" aria-hidden="true" hidden data-archive-peek>
@@ -110,7 +132,7 @@ await Promise.all(
     .year-head {
       position: sticky;
       top: var(--header-height);
-      z-index: 1;
+      z-index: 2; /* above the dots (z-index 1) */
       background: var(--color-bg-default);
     }
   }
@@ -328,6 +350,129 @@ await Promise.all(
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+
+  /*
+   * Wide layout (centre column 960px+): the spine sits mid-column with the post list on the
+   * right and a reader card on the left. The card sticks at the reading line (35% of the
+   * viewport, see scripts/archive.ts) and shows the post being read or hovered; a connector
+   * runs from the card to that post's dot.
+   */
+  .reader {
+    display: none;
+  }
+  @container center (min-width: 960px) {
+    .timeline {
+      --reader-gap: var(--space-6);
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      column-gap: var(--reader-gap);
+    }
+    .reader {
+      display: block;
+    }
+    .reader-card {
+      position: sticky;
+      top: calc(35vh - 1.75rem);
+      display: block;
+      max-width: 280px;
+      margin-left: auto; /* hug the spine */
+      margin-top: calc(var(--space-12) + var(--space-6));
+      padding: var(--space-3);
+      border: 1px solid var(--color-border-muted);
+      border-radius: var(--radius-lg);
+      background: var(--color-bg-default);
+      transition: border-color var(--duration-fast);
+    }
+    .reader-card:hover {
+      border-color: var(--color-accent);
+    }
+    /* Connector from the card to the shown post's dot; --link-y is set by scripts/archive.ts. */
+    .reader-card::after {
+      content: '';
+      position: absolute;
+      top: var(--link-y, 1.75rem);
+      left: 100%;
+      opacity: var(--link-on, 1);
+      transition:
+        top var(--duration-base) var(--ease-standard),
+        opacity var(--duration-fast);
+      width: calc(var(--reader-gap) + var(--month-w) + var(--spine-w) / 2 - var(--dot) / 2);
+      border-top: 1px dashed var(--color-accent);
+    }
+    .reader-card.swap {
+      animation: reader-swap var(--duration-base) var(--ease-standard);
+    }
+    .reader-cover {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 21 / 9;
+      margin-bottom: var(--space-2);
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--color-bg-subtle);
+    }
+    .reader-cover[hidden] {
+      display: none;
+    }
+    .reader-meta {
+      margin: 0;
+      font-size: var(--text-xs);
+      color: var(--color-fg-muted);
+    }
+    /* Secondary to the list: smaller than the list titles. */
+    .reader-title {
+      margin: var(--space-1) 0 0;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      line-height: var(--leading-snug);
+      color: var(--color-fg-default);
+    }
+    .reader-desc {
+      display: -webkit-box;
+      margin: var(--space-2) 0 0;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      font-size: var(--text-xs);
+      line-height: var(--leading-normal);
+      color: var(--color-fg-body);
+    }
+    .reader-go {
+      display: inline-block;
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-accent);
+    }
+    /* Month labels sit above the connector so it does not run through the text. */
+    .month {
+      position: relative;
+      z-index: 1;
+      justify-self: start;
+      height: fit-content;
+      padding-right: var(--space-1);
+      background: var(--color-bg-default);
+    }
+    .row.current .dot {
+      transform: scale(1.5);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    }
+    /* The list column is narrower here: tags go under the title. */
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+    }
+    .tags {
+      grid-column: 2;
+      margin-top: 2px;
+      font-size: var(--text-xs);
+    }
+  }
+  @keyframes reader-swap {
+    from {
+      opacity: 0.4;
+      translate: 0 3px;
     }
   }
 </style>

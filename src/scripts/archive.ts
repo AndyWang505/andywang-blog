@@ -3,7 +3,8 @@
  * - posts above the reading line marked as passed (accent dot and spine), current year in the rail
  * - smooth jumps for rail years and heatmap cells (handled here, not as swup visits)
  * - rows below the fold fade in as they scroll into view
- * - hover preview card beside the list on pointer devices from 1024px
+ * - wide layout: a reader card that follows the reading line, or the hovered post
+ * - narrower layouts: hover preview card beside the list on pointer devices from 1024px
  * Safe to call on every page view; previous listeners are removed first.
  */
 let cleanup: (() => void) | undefined;
@@ -23,16 +24,84 @@ export function initArchive(): void {
   const rows = [...tree.querySelectorAll<HTMLElement>('[data-archive-row]')];
   const railLinks = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="/archive/#y"]')];
 
-  // Scroll progress and current year
+  // Reader card (wide layout): shows the current row, or the hovered one
+  const reader = tree.querySelector<HTMLElement>('[data-archive-reader]');
+  const readerLink = reader?.querySelector<HTMLAnchorElement>('[data-reader-link]');
+  const readerImg = reader?.querySelector<HTMLImageElement>('[data-reader-img]');
+  const readerMeta = reader?.querySelector<HTMLElement>('[data-reader-meta]');
+  const readerTitle = reader?.querySelector<HTMLElement>('[data-reader-title]');
+  const readerDesc = reader?.querySelector<HTMLElement>('[data-reader-desc]');
+  const readerShown = () => !!reader && getComputedStyle(reader).display !== 'none';
+  let readerFor: HTMLElement | null = null;
+  let hovered: HTMLElement | null = null;
+  let currentRow: HTMLElement | null = null;
+
+  const dotY = (row: Element) => {
+    const r = (row.querySelector('.dot') ?? row).getBoundingClientRect();
+    return r.top + r.height / 2;
+  };
+  /** Aim the card's connector at the shown post's dot; hide it when the dot is beside neither card edge. */
+  const pointConnector = () => {
+    if (!readerLink || !readerFor || !readerShown()) return;
+    const row = readerFor.closest('[data-archive-row]');
+    if (!row) return;
+    const card = readerLink.getBoundingClientRect();
+    const y = dotY(row) - card.top;
+    const inside = y >= 12 && y <= card.height - 12;
+    readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
+    readerLink.style.setProperty('--link-on', inside ? '1' : '0');
+  };
+
+  /** Ring, connector and card always point at the same post. */
+  const setFocus = (row: HTMLElement | null) => {
+    if (row !== currentRow) {
+      currentRow?.classList.remove('current');
+      row?.classList.add('current');
+      currentRow = row;
+    }
+    if (readerShown()) showInReader(currentRow?.querySelector<HTMLElement>('.entry') ?? null);
+    pointConnector();
+  };
+
+  const showInReader = (entry: HTMLElement | null) => {
+    if (!entry || entry === readerFor || !readerLink) return;
+    readerFor = entry;
+    readerLink.href = entry.getAttribute('href') ?? '#';
+    const cover = entry.dataset.peekCover;
+    if (readerImg) {
+      readerImg.hidden = !cover;
+      if (cover) readerImg.src = cover;
+    }
+    if (readerMeta) readerMeta.textContent = entry.dataset.peekMeta ?? '';
+    if (readerTitle) readerTitle.textContent = entry.dataset.peekTitle ?? '';
+    if (readerDesc) readerDesc.textContent = entry.dataset.peekDesc ?? '';
+    if (!reduceMotion.matches) {
+      readerLink.classList.remove('swap');
+      void readerLink.offsetWidth; // restart the swap animation
+      readerLink.classList.add('swap');
+    }
+  };
+
+  // Scroll progress, current row and current year
   let frame = 0;
   const update = () => {
     frame = 0;
     const line = readingLine();
+    // Passed: dot above the reading line. Current: the dot closest to it.
+    let nearest: HTMLElement | null = rows[0] ?? null;
+    let nearestDistance = Infinity;
     for (const row of rows) {
-      const dot = row.querySelector<HTMLElement>('.dot');
-      const r = (dot ?? row).getBoundingClientRect();
-      row.classList.toggle('passed', r.top + r.height / 2 <= line);
+      const y = dotY(row);
+      row.classList.toggle('passed', y <= line);
+      const distance = Math.abs(y - line);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearest = row;
+      }
     }
+    // One focus at a time: the hovered post while the pointer is on the list, else the reading line.
+    const hoveredRow = readerShown() ? (hovered?.closest<HTMLElement>('[data-archive-row]') ?? null) : null;
+    setFocus(hoveredRow ?? nearest);
 
     let current = years[0]?.id;
     for (const y of years) {
@@ -114,8 +183,16 @@ export function initArchive(): void {
     peek.style.top = top + 'px';
   };
   const onOver = (e: MouseEvent) => {
-    if (!peek || !canHover.matches) return;
     const entry = (e.target as Element).closest<HTMLElement>('.entry');
+    // Wide layout: the reader card shows the hovered post instead of a floating card.
+    if (readerShown()) {
+      if (entry && canHover.matches && entry !== hovered) {
+        hovered = entry;
+        setFocus(entry.closest<HTMLElement>('[data-archive-row]'));
+      }
+      return;
+    }
+    if (!peek || !canHover.matches) return;
     if (!entry || entry === shownFor) return;
     shownFor = entry;
     const cover = entry.dataset.peekCover;
@@ -133,6 +210,11 @@ export function initArchive(): void {
   const onOut = (e: MouseEvent) => {
     const to = e.relatedTarget as Element | null;
     if (shownFor && (!to || !shownFor.contains(to))) hidePeek();
+    // Leaving the list hands the reader card back to the scroll position.
+    if (hovered && (!to || !to.closest('.years'))) {
+      hovered = null;
+      onScroll();
+    }
   };
 
   update();
