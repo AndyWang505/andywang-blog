@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import NavRail from '../../../components/rail/NavRail.astro';
+import HomeRightRail from '../../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../../components/home/FeedHeader.astro';
 import Chip from '../../../components/ui/Chip.astro';
 import { getTagCounts } from '../../../lib/posts';
@@ -17,4 +18,5 @@ const tags = await getTagCounts();
       {tags.map((t) => <Chip href={t.href} label={`#${t.name}`} count={t.count} />)}
     </div>
   </div>
+  <HomeRightRail slot="right" />
 </Layout>

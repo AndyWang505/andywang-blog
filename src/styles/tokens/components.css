@@ -13,7 +13,7 @@
   --header-height: 56px;
   --rail-left-width: 280px;
   --rail-right-width: 320px;
-  --toc-width: 300px;
+  --toc-width: var(--rail-right-width); /* same as the list rail so the header does not shift between page types */
   --content-measure: 720px;
   --content-wide: 960px;
   --chip-height: 36px;
@@ -25,7 +25,6 @@
   :root {
     --rail-left-width: 300px;
     --rail-right-width: 360px;
-    --toc-width: 340px;
     --content-measure: 880px; /* ~46 CJK chars per line at 19px */
   }
 }
