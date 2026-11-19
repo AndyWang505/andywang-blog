@@ -77,6 +77,16 @@ export function initArchive(): void {
   let glide = 0;
   /** Share of the remaining distance covered per frame: ~300ms to settle at 60fps. */
   const EASE = 0.1;
+  /**
+   * Farther than this (about half a card), the card does not travel: it fades out, reappears at
+   * the target and fades in. Entering the list far from the reading line, or leaving it, would
+   * otherwise drag the card across half the screen.
+   */
+  const HOP = 150;
+  const HOP_MS = 140;
+  let hopping = false;
+  let hopTimer = 0;
+  let landOnTarget = false;
   const tick = () => {
     glide = 0;
     if (!readerLink || !readerShown()) return;
@@ -99,7 +109,23 @@ export function initArchive(): void {
       // Already resting: follow the sticky place exactly (no lag while the page scrolls).
       if (cardTop === null || Math.abs(shift) < 0.5) cardTop = rest;
     }
+    if (hopping) return; // the hop's timeout lands the card at the latest target
+    if (landOnTarget) {
+      cardTop = target;
+      landOnTarget = false;
+    }
     if (cardTop === null) cardTop = rest;
+    if (!reduceMotion.matches && Math.abs(target - cardTop) > HOP) {
+      hopping = true;
+      readerLink.classList.add('hop');
+      hopTimer = window.setTimeout(() => {
+        hopping = false;
+        landOnTarget = true; // land straight on the latest target
+        readerLink.classList.remove('hop');
+        tick();
+      }, HOP_MS);
+      return;
+    }
     cardTop = reduceMotion.matches ? target : cardTop + (target - cardTop) * EASE;
     if (Math.abs(target - cardTop) < 0.5) cardTop = target;
     else settling = true;
@@ -260,6 +286,7 @@ export function initArchive(): void {
       if (reader?.contains(e.target as Node)) {
         onCard = true;
         window.clearTimeout(release);
+    window.clearTimeout(hopTimer);
         return;
       }
       if (entry) {

@@ -387,7 +387,13 @@ const first = groups[0]?.posts[0];
       border-radius: var(--radius-lg);
       background: var(--color-bg-default);
       /* Position is eased per frame by scripts/archive.ts, not by a CSS transition. */
-      transition: border-color var(--duration-fast);
+      transition:
+        border-color var(--duration-fast),
+        opacity var(--duration-fast) var(--ease-standard);
+    }
+    /* Long moves: fade out, reposition, fade in (see HOP in scripts/archive.ts). */
+    .reader-card.hop {
+      opacity: 0;
     }
     .reader-card:hover {
       border-color: var(--color-accent);
