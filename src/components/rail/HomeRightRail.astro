@@ -21,6 +21,7 @@ const { archiveOnly = false } = Astro.props;
   {!archiveOnly && <GithubRecent user={GITHUB_USER} />}
   <ArchiveYears />
   {!archiveOnly && <RssCta />}
+  <slot />
 </div>
 
 <style>

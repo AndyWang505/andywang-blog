@@ -1,9 +1,9 @@
 /**
  * Archive page behaviour (components/post-list/ArchiveTimeline.astro):
- * - scroll progress line over the tree and the current year highlighted in the rail
+ * - posts above the reading line marked as passed (accent dot and spine), current year in the rail
  * - smooth jumps for rail years and heatmap cells (handled here, not as swup visits)
  * - rows below the fold fade in as they scroll into view
- * - hover preview card on pointer devices
+ * - hover preview in the right rail on pointer devices from 1440px
  * Safe to call on every page view; previous listeners are removed first.
  */
 let cleanup: (() => void) | undefined;
@@ -19,8 +19,8 @@ export function initArchive(): void {
   if (!tree) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const fill = tree.querySelector<HTMLElement>('[data-archive-fill]');
-  const years = [...tree.querySelectorAll<HTMLElement>('[id^="y"]')];
+  const years = [...tree.querySelectorAll<HTMLElement>('h2[id^="y"]')];
+  const rows = [...tree.querySelectorAll<HTMLElement>('[data-archive-row]')];
   const railLinks = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="/archive/#y"]')];
 
   // Scroll progress and current year
@@ -28,9 +28,11 @@ export function initArchive(): void {
   const update = () => {
     frame = 0;
     const line = readingLine();
-    const rect = tree.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (line - rect.top) / rect.height));
-    fill?.style.setProperty('--fill', ratio.toFixed(4));
+    for (const row of rows) {
+      const dot = row.querySelector<HTMLElement>('.dot');
+      const r = (dot ?? row).getBoundingClientRect();
+      row.classList.toggle('passed', r.top + r.height / 2 <= line);
+    }
 
     let current = years[0]?.id;
     for (const y of years) {
@@ -60,11 +62,10 @@ export function initArchive(): void {
   };
 
   // Reveal rows that start below the fold
-  const leaves = [...tree.querySelectorAll<HTMLElement>('.leaf')];
   let observer: IntersectionObserver | undefined;
   if (!reduceMotion.matches && 'IntersectionObserver' in window) {
     const fold = window.innerHeight;
-    const pending = leaves.filter((el) => el.getBoundingClientRect().top > fold);
+    const pending = rows.filter((el) => el.getBoundingClientRect().top > fold);
     pending.forEach((el) => el.classList.add('pre-reveal'));
     observer = new IntersectionObserver(
       (entries) => {
@@ -80,35 +81,19 @@ export function initArchive(): void {
     pending.forEach((el) => observer?.observe(el));
   }
 
-  // Hover preview (mouse and trackpad only)
+  // Hover preview in the right rail (ArchivePeek; shown from 1440px on pointer devices)
   const peek = document.querySelector<HTMLElement>('[data-archive-peek]');
-  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const card = peek?.querySelector<HTMLElement>('[data-peek-card]');
+  const hint = peek?.querySelector<HTMLElement>('[data-peek-hint]');
   const img = peek?.querySelector<HTMLImageElement>('[data-peek-img]');
   const metaOut = peek?.querySelector<HTMLElement>('[data-peek-meta-out]');
   const titleOut = peek?.querySelector<HTMLElement>('[data-peek-title-out]');
   const descOut = peek?.querySelector<HTMLElement>('[data-peek-desc-out]');
   let shownFor: HTMLElement | null = null;
 
-  const hidePeek = () => {
-    shownFor = null;
-    peek?.classList.remove('show');
-  };
-  const placePeek = (entry: HTMLElement) => {
-    if (!peek) return;
-    const title = entry.querySelector<HTMLElement>('.title') ?? entry;
-    const r = title.getBoundingClientRect();
-    const gap = 16;
-    const width = peek.offsetWidth;
-    const height = peek.offsetHeight;
-    let left = Math.min(r.left + Math.min(r.width, 420) + gap, window.innerWidth - width - gap);
-    left = Math.max(gap, left);
-    let top = r.top + r.height / 2 - height / 2;
-    top = Math.max(gap + 56, Math.min(top, window.innerHeight - height - gap));
-    peek.style.left = `${left}px`;
-    peek.style.top = `${top}px`;
-  };
+  /** Keeps the last hovered post until another one is hovered, so the panel does not flicker. */
   const onOver = (e: MouseEvent) => {
-    if (!peek || !canHover.matches) return;
+    if (!peek || !card || peek.offsetParent === null) return;
     const entry = (e.target as Element).closest<HTMLElement>('.entry');
     if (!entry || entry === shownFor) return;
     shownFor = entry;
@@ -120,30 +105,23 @@ export function initArchive(): void {
     if (metaOut) metaOut.textContent = entry.dataset.peekMeta ?? '';
     if (titleOut) titleOut.textContent = entry.dataset.peekTitle ?? '';
     if (descOut) descOut.textContent = entry.dataset.peekDesc ?? '';
-    peek.hidden = false;
-    placePeek(entry);
-    requestAnimationFrame(() => peek.classList.add('show'));
-  };
-  const onOut = (e: MouseEvent) => {
-    const to = e.relatedTarget as Element | null;
-    if (shownFor && (!to || !shownFor.contains(to))) hidePeek();
+    if (hint) hint.hidden = true;
+    card.hidden = true;
+    void card.offsetWidth; // restart the enter animation
+    card.hidden = false;
   };
 
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('scroll', hidePeek, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
   document.addEventListener('click', onClick, true);
   tree.addEventListener('mouseover', onOver);
-  tree.addEventListener('mouseout', onOut);
 
   cleanup = () => {
     window.removeEventListener('scroll', onScroll);
-    window.removeEventListener('scroll', hidePeek);
     window.removeEventListener('resize', onScroll);
     document.removeEventListener('click', onClick, true);
     tree.removeEventListener('mouseover', onOver);
-    tree.removeEventListener('mouseout', onOut);
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));

@@ -5,6 +5,7 @@ import HomeRightRail from '../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../components/home/FeedHeader.astro';
 import ArchiveTimeline from '../../components/post-list/ArchiveTimeline.astro';
 import ArchiveHeatmap from '../../components/post-list/ArchiveHeatmap.astro';
+import ArchivePeek from '../../components/post-list/ArchivePeek.astro';
 import { getSortedPosts, getYearCounts } from '../../lib/posts';
 
 const [posts, years] = await Promise.all([getSortedPosts(), getYearCounts()]);
@@ -22,5 +23,7 @@ const byYear = years.map(({ year, count }) => ({
     <ArchiveHeatmap posts={posts} />
     <ArchiveTimeline groups={byYear} />
   </div>
-  <HomeRightRail slot="right" archiveOnly />
+  <HomeRightRail slot="right" archiveOnly>
+    <ArchivePeek />
+  </HomeRightRail>
 </Layout>

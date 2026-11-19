@@ -1,9 +1,9 @@
 ---
 /**
- * Archive tree: year → month → posts, joined by connector lines.
- * Evolved from the v1 timeline (date · dot on a line · title · tags).
- * Year nodes carry id="y{year}" for the ArchiveYears rail links, month nodes id="m{year}-{MM}"
- * for the heatmap. Scroll progress, reveal and hover preview live in scripts/archive.ts.
+ * Archive timeline: one spine per year with a dot per post and the month in a left gutter
+ * (shown on the month's first post). Year headings carry id="y{year}" for the rail links,
+ * a month's first row id="m{year}-{MM}" for the heatmap. Scroll state (passed dots),
+ * reveal and the rail preview (ArchivePeek) live in scripts/archive.ts.
  */
 import { getImage } from 'astro:assets';
 import type { Post } from '../../lib/posts';
@@ -14,14 +14,14 @@ interface Props {
 
 const { groups } = Astro.props;
 
-const tree = groups.map((g) => {
-  const months = new Map<string, Post[]>();
-  for (const p of g.posts) {
-    const month = p.dateText.slice(5, 7);
-    months.set(month, [...(months.get(month) ?? []), p]);
-  }
-  return { ...g, months: [...months].map(([month, posts]) => ({ month: Number(month), key: month, posts })) };
-});
+const years = groups.map((g) => ({
+  ...g,
+  rows: g.posts.map((post, i) => {
+    const month = post.dateText.slice(5, 7);
+    const firstOfMonth = i === 0 || g.posts[i - 1].dateText.slice(5, 7) !== month;
+    return { post, month, firstOfMonth };
+  }),
+}));
 
 /** Small cover thumbnails for the hover preview, generated at build time. */
 const peekCovers = new Map<string, string>();
@@ -30,126 +30,80 @@ await Promise.all(
     .flatMap((g) => g.posts)
     .filter((p) => p.cover)
     .map(async (p) => {
-      const img = await getImage({ src: p.cover!, width: 320, height: 200, format: 'webp', inferSize: false });
+      const img = await getImage({ src: p.cover!, width: 240, height: 150, format: 'webp', inferSize: false });
       peekCovers.set(p.slug, img.src);
     }),
 );
 ---
 
-<ol class="tree" data-archive>
-  <span class="fill" aria-hidden="true" data-archive-fill></span>
+<div class="timeline" data-archive>
   {
-    tree.map((year) => (
-      <li class="year">
-        <h2 id={`y${year.year}`} class="node year-node">
-          <span class="ring" aria-hidden="true" />
+    years.map((year) => (
+      <section class="year" aria-labelledby={`y${year.year}`}>
+        <h2 id={`y${year.year}`} class="year-head">
           <span class="year-num">{year.year}</span>
           <span class="count">{year.count} 篇</span>
         </h2>
-        <ol class="branch">
-          {year.months.map((m) => (
-            <li>
-              <p id={`m${year.year}-${m.key}`} class="node month-node">
-                {m.month} 月<span class="count">{m.posts.length} 篇</span>
-              </p>
-              <ol class="branch">
-                {m.posts.map((post) => (
-                  <li class="leaf">
-                    <a
-                      href={post.url}
-                      class="entry"
-                      data-peek-title={post.title}
-                      data-peek-desc={post.description}
-                      data-peek-meta={`${post.category} · ${post.dateText} · ${post.readingMinutes} 分鐘`}
-                      data-peek-cover={peekCovers.get(post.slug)}
-                    >
-                      <time datetime={post.isoDate} class="date">
-                        {post.dateText.slice(5)}
-                      </time>
-                      <span class="title">{post.title}</span>
-                      {post.tags.length > 0 && <span class="tags">{post.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}</span>}
-                    </a>
-                  </li>
-                ))}
-              </ol>
+        <ol class="rows">
+          {year.rows.map(({ post, month, firstOfMonth }) => (
+            <li
+              class:list={['row', firstOfMonth && 'month-start']}
+              id={firstOfMonth ? `m${year.year}-${month}` : undefined}
+              data-archive-row
+            >
+              <span class="month">{firstOfMonth && `${Number(month)} 月`}</span>
+              <span class="dot" aria-hidden="true" />
+              <a
+                href={post.url}
+                class="entry"
+                data-peek-title={post.title}
+                data-peek-desc={post.description}
+                data-peek-meta={`${post.category} · ${post.dateText} · ${post.readingMinutes} 分鐘`}
+                data-peek-cover={peekCovers.get(post.slug)}
+              >
+                <time datetime={post.isoDate} class="date">
+                  {post.dateText.slice(5)}
+                </time>
+                <span class="title">{post.title}</span>
+                {post.tags.length > 0 && <span class="tags">{post.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}</span>}
+              </a>
             </li>
           ))}
         </ol>
-      </li>
+      </section>
     ))
   }
-</ol>
-
-<div class="peek" aria-hidden="true" hidden data-archive-peek>
-  <img class="peek-cover" alt="" width="320" height="200" data-peek-img />
-  <div class="peek-body">
-    <p class="peek-meta" data-peek-meta-out></p>
-    <p class="peek-title" data-peek-title-out></p>
-    <p class="peek-desc" data-peek-desc-out></p>
-  </div>
 </div>
 
 <style>
-  .tree,
-  .branch {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .tree {
-    --row: 2.5rem;
-    --indent: 1.5rem;
-    --connector: var(--color-border-default);
-    position: relative;
-    padding-top: var(--space-6);
-  }
-  /* Scroll progress: an accent line over the trunk, grown by scripts/archive.ts via --fill. */
-  .fill {
-    position: absolute;
-    left: 5px;
-    top: calc(var(--space-6) + var(--row) / 2);
-    bottom: 0;
-    width: 2px;
-    margin-left: -0.5px;
-    background: var(--color-accent);
-    transform: scaleY(var(--fill, 0));
-    transform-origin: top;
-    pointer-events: none;
+  .timeline {
+    --month-w: 2.75rem;
+    --spine-w: 1.5rem;
+    --dot: 9px;
+    /* Vertical centre of the title's first line inside a row (entry padding + half a line). */
+    --dot-y: 1.25rem;
+    padding-top: var(--space-4);
   }
   .year + .year {
     margin-top: var(--space-8);
   }
 
-  .node {
+  .year-head {
     display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    min-height: var(--row);
+    align-items: baseline;
+    gap: var(--space-2);
     margin: 0;
-  }
-  .year-node {
-    position: relative;
-    z-index: 1;
-    scroll-margin-top: calc(var(--header-height) + var(--space-4));
-  }
-  .month-node {
-    scroll-margin-top: calc(var(--header-height) + var(--row) + var(--space-4));
+    padding: var(--space-3) 0;
+    scroll-margin-top: var(--header-height);
   }
   /* From 1024px the current year sticks under the header (below that the category bar is sticky). */
   @media (min-width: 1024px) {
-    .year-node {
+    .year-head {
       position: sticky;
       top: var(--header-height);
+      z-index: 1;
       background: var(--color-bg-default);
     }
-  }
-  .ring {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-    border: 2px solid var(--color-accent);
-    border-radius: var(--radius-full);
-    background: var(--color-bg-default);
   }
   .year-num {
     font-size: var(--text-xl);
@@ -157,48 +111,87 @@ await Promise.all(
     font-variant-numeric: tabular-nums;
     color: var(--color-fg-default);
   }
-  .month-node {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-fg-default);
-  }
   .count {
-    margin-left: var(--space-2);
     font-size: var(--text-xs);
-    font-weight: 400;
     color: var(--color-fg-muted);
   }
 
-  /* Tree connectors: a vertical trunk per branch, an elbow into every child */
-  .branch {
-    margin-left: 5px; /* centre of the year ring */
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-  .branch .branch {
-    margin-left: 0;
-  }
-  .branch > li {
+  .row {
+    --pad: 0px;
     position: relative;
-    padding-left: var(--indent);
+    display: grid;
+    grid-template-columns: var(--month-w) var(--spine-w) minmax(0, 1fr);
+    padding-top: var(--pad);
+    scroll-margin-top: calc(var(--header-height) + 3.5rem);
+    transition:
+      opacity 0.45s var(--ease-standard),
+      translate 0.45s var(--ease-standard);
   }
-  .branch > li::before {
+  .row.month-start:not(:first-child) {
+    --pad: var(--space-4);
+  }
+
+  /* Spine: one segment per row; segments of passed rows turn accent. */
+  .row::before {
     content: '';
     position: absolute;
-    left: 0;
+    left: calc(var(--month-w) + var(--spine-w) / 2);
     top: 0;
     bottom: 0;
-    border-left: 1px solid var(--connector);
+    width: 2px;
+    margin-left: -1px;
+    background: color-mix(in srgb, var(--color-fg-subtle) 40%, transparent);
+    transition: background var(--duration-base) var(--ease-standard);
   }
-  .branch > li:last-child::before {
+  .row:first-child::before {
+    top: calc(var(--pad) + var(--dot-y));
+  }
+  .row:last-child::before {
     bottom: auto;
-    height: calc(var(--row) / 2);
+    height: calc(var(--pad) + var(--dot-y));
   }
-  .branch > li::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: calc(var(--row) / 2);
-    width: calc(var(--indent) - 6px);
-    border-top: 1px solid var(--connector);
+  .row:first-child:last-child::before {
+    display: none;
+  }
+  .row.passed::before {
+    background: var(--color-accent);
+  }
+
+  .month {
+    padding-top: 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .dot {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    width: var(--dot);
+    height: var(--dot);
+    margin-top: calc(var(--dot-y) - var(--dot) / 2);
+    border: 2px solid var(--color-fg-subtle);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-default);
+    transition:
+      border-color var(--duration-base) var(--ease-standard),
+      background var(--duration-base) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+  .row.passed .dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+  .row:hover .dot {
+    transform: scale(1.35);
+    border-color: var(--color-accent);
   }
 
   .entry {
@@ -206,16 +199,12 @@ await Promise.all(
     grid-template-columns: 3rem minmax(0, 1fr);
     column-gap: var(--space-3);
     align-items: baseline;
-    padding: 9px var(--space-2);
-    margin-left: -8px;
+    padding: 0.5rem var(--space-2);
     border-radius: var(--radius-md);
     transition: background var(--duration-fast);
   }
   .entry:hover {
     background: var(--color-bg-muted);
-  }
-  .leaf:hover::after {
-    border-top-color: var(--color-accent);
   }
   .date {
     font-size: var(--text-sm);
@@ -232,75 +221,6 @@ await Promise.all(
   .entry:hover .title {
     color: var(--color-accent);
   }
-  /* Reveal: scripts/archive.ts hides rows below the fold, then shows them as they scroll in. */
-  .leaf {
-    transition:
-      opacity 0.45s var(--ease-standard),
-      translate 0.45s var(--ease-standard);
-  }
-  .leaf.pre-reveal {
-    opacity: 0;
-    translate: 0 10px;
-  }
-
-  /* Hover preview card (pointer devices only; positioned by scripts/archive.ts). */
-  .peek {
-    position: fixed;
-    z-index: var(--z-overlay);
-    width: 300px;
-    overflow: hidden;
-    border: 1px solid var(--color-border-muted);
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-default);
-    box-shadow: var(--shadow-popover);
-    pointer-events: none;
-    opacity: 0;
-    translate: 0 4px;
-    transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      translate var(--duration-fast) var(--ease-standard);
-  }
-  .peek.show {
-    opacity: 1;
-    translate: 0 0;
-  }
-  .peek-cover {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-    background: var(--color-bg-subtle);
-  }
-  .peek-cover[hidden] {
-    display: none;
-  }
-  .peek-body {
-    padding: var(--space-3) var(--space-4) var(--space-4);
-  }
-  .peek-meta {
-    margin: 0;
-    font-size: var(--text-xs);
-    color: var(--color-fg-muted);
-  }
-  .peek-title {
-    margin: var(--space-1) 0 0;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    line-height: var(--leading-snug);
-    color: var(--color-fg-default);
-  }
-  .peek-desc {
-    display: -webkit-box;
-    margin: var(--space-1) 0 0;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    font-size: var(--text-xs);
-    line-height: var(--leading-normal);
-    color: var(--color-fg-body);
-  }
-
   .tags {
     grid-column: 2;
     margin-top: 2px;
@@ -308,9 +228,16 @@ await Promise.all(
     color: var(--color-fg-muted);
   }
 
+  /* Reveal: scripts/archive.ts hides rows below the fold, then shows them as they scroll in. */
+  .row.pre-reveal {
+    opacity: 0;
+    translate: 0 10px;
+  }
+
   @container center (min-width: 768px) {
-    .tree {
-      --indent: 2rem;
+    .timeline {
+      --month-w: 3.5rem;
+      --spine-w: 2rem;
     }
     .entry {
       grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 14rem);

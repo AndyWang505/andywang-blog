@@ -1,0 +1,82 @@
+---
+/**
+ * Archive preview panel for the right rail (side column from 1440px only).
+ * Filled by scripts/archive.ts with the post under the pointer; never overlaps the list.
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+---
+
+<section class="peek" aria-live="polite" data-archive-peek>
+  <SectionLabel as="h2" text="預覽" />
+  <p class="hint" data-peek-hint>將滑鼠移到文章上，這裡會顯示封面與摘要。</p>
+  <div class="card" hidden data-peek-card>
+    <img class="cover" alt="" width="240" height="150" data-peek-img />
+    <p class="meta" data-peek-meta-out></p>
+    <p class="title" data-peek-title-out></p>
+    <p class="desc" data-peek-desc-out></p>
+  </div>
+</section>
+
+<style>
+  .peek {
+    display: none;
+  }
+  @media (min-width: 1440px) and (hover: hover) and (pointer: fine) {
+    .peek {
+      display: block;
+    }
+  }
+  .hint {
+    margin: 0;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-muted);
+  }
+  .card {
+    animation: peek-in var(--duration-base) var(--ease-standard);
+  }
+  .card[hidden] {
+    display: none;
+  }
+  @keyframes peek-in {
+    from {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+  .cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    margin-bottom: var(--space-3);
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    background: var(--color-bg-subtle);
+  }
+  .cover[hidden] {
+    display: none;
+  }
+  .meta {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .title {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .desc {
+    display: -webkit-box;
+    margin: var(--space-2) 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-body);
+  }
+</style>
