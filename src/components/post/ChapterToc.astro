@@ -30,7 +30,7 @@ const first = chapters[0];
         <span class="text-xs tabular-nums text-fg-muted" data-toc-count>
           1 / {total}
         </span>
-        <Icon name="chevron-down" size={14} class="chev text-fg-muted" />
+        <span class="chev text-fg-muted"><Icon name="chevron-down" size={14} /></span>
       </button>
 
       <div id="toc-panel" class="toc-panel" data-toc-panel>
@@ -89,14 +89,19 @@ const first = chapters[0];
     position: sticky;
     top: var(--header-height);
     z-index: var(--z-sticky);
-    background: var(--color-surface-glass-fallback);
     border-bottom: 1px solid var(--color-border-default);
   }
-  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  /* Glass only for the mobile sticky bar; the desktop column stays transparent. */
+  @media (max-width: 1023.98px) {
     .toc {
-      background: var(--color-surface-glass);
-      backdrop-filter: var(--blur-glass);
-      -webkit-backdrop-filter: var(--blur-glass);
+      background: var(--color-surface-glass-fallback);
+    }
+    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .toc {
+        background: var(--color-surface-glass);
+        backdrop-filter: var(--blur-glass);
+        -webkit-backdrop-filter: var(--blur-glass);
+      }
     }
   }
   .toc-bar {
@@ -120,7 +125,10 @@ const first = chapters[0];
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .toc-bar[aria-expanded='true'] :global(.chev) {
+  .chev {
+    display: inline-flex;
+  }
+  .toc-bar[aria-expanded='true'] .chev {
     transform: rotate(180deg);
   }
   .toc-panel {
@@ -207,9 +215,6 @@ const first = chapters[0];
       overflow-y: auto;
       scrollbar-width: thin;
       padding: var(--space-8) var(--space-5);
-      background: transparent !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
       border-bottom: 0;
     }
     .toc-bar {

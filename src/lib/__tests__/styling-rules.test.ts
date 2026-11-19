@@ -68,15 +68,14 @@ describe('styling ownership rules', () => {
   });
 
   it('no :global( in v2 files', () => {
-    const KNOWN = ['components/post/ChapterToc.astro'];
-    expect(offenders(v2Files, (s) => s.includes(':global('))).toEqual(KNOWN.sort());
+    const KNOWN: string[] = [];
+    expect(offenders(v2Files, (s) => s.includes(':global('))).toEqual(KNOWN);
   });
 
   it('no !important or Tailwind ! prefix in v2 files', () => {
     const KNOWN = [
       'components/layout/MobileMenu.astro',
       'components/layout/SiteHeader.astro',
-      'components/post/ChapterToc.astro',
     ];
     const found = offenders(v2Files, (s) => /!important/.test(s) || classStrings(s).some((c) => /(?:^|\s)!\S/.test(c)));
     expect(found).toEqual(KNOWN.sort());
