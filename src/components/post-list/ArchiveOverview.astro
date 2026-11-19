@@ -1,7 +1,7 @@
 ---
 /**
  * Archive overview above the timeline: a KPI row and a stacked bar per year showing which
- * themes (ARCHIVE_THEMES in config/site.ts) the year's posts were about. Years run newest
+ * themes (ARCHIVE_THEMES in config/site.ts: tags first, then category) the year's posts were about. Years run newest
  * first like the timeline; a year's row jumps to it (scripts/archive.ts handles the scroll).
  * Series colours are the validated categorical tokens (--color-series-*); every segment is
  * labelled with its count and a table view backs the chart for screen readers.
@@ -15,8 +15,14 @@ interface Props {
 
 const { posts } = Astro.props;
 const OTHER = '其他';
-const themeOf = (category: string) => ARCHIVE_THEMES.find((t) => t.categories.includes(category))?.name ?? OTHER;
-const hasOther = posts.some((p) => themeOf(p.category) === OTHER);
+const lower = (list: readonly string[] = []) => list.map((v) => v.toLowerCase());
+const themeOf = (post: Post) => {
+  const tags = lower(post.tags);
+  const byTag = ARCHIVE_THEMES.find((t) => lower(t.tags).some((tag) => tags.includes(tag)));
+  const byCategory = ARCHIVE_THEMES.find((t) => t.categories?.includes(post.category));
+  return (byTag ?? byCategory)?.name ?? OTHER;
+};
+const hasOther = posts.some((p) => themeOf(p) === OTHER);
 const series = [...ARCHIVE_THEMES.map((t) => t.name), ...(hasOther ? [OTHER] : [])];
 const slotOf = (name: string) => (name === OTHER ? 'other' : String(series.indexOf(name) + 1));
 
@@ -25,12 +31,12 @@ const years = [...new Set(posts.map(yearOf))].sort((a, b) => b - a);
 const rows = years.map((year) => {
   const inYear = posts.filter((p) => yearOf(p) === year);
   const segments = series
-    .map((name) => ({ name, slot: slotOf(name), count: inYear.filter((p) => themeOf(p.category) === name).length }))
+    .map((name) => ({ name, slot: slotOf(name), count: inYear.filter((p) => themeOf(p) === name).length }))
     .filter((s) => s.count > 0);
   return { year, total: inYear.length, segments };
 });
 const max = Math.max(1, ...rows.map((r) => r.total));
-const totals = series.map((name) => ({ name, slot: slotOf(name), count: posts.filter((p) => themeOf(p.category) === name).length }));
+const totals = series.map((name) => ({ name, slot: slotOf(name), count: posts.filter((p) => themeOf(p) === name).length }));
 
 const busiest = rows.reduce((a, b) => (b.total > a.total ? b : a), rows[0]);
 const avgMinutes = posts.length ? Math.round(posts.reduce((n, p) => n + p.readingMinutes, 0) / posts.length) : 0;
@@ -308,6 +314,9 @@ const describe = (r: (typeof rows)[number]) => `${r.year} 年 ${r.total} 篇：$
   }
   .s5 {
     background: var(--color-series-5);
+  }
+  .s6 {
+    background: var(--color-series-6);
   }
   .sother {
     background: var(--color-fg-subtle);

@@ -95,6 +95,7 @@
   --color-series-3: var(--palette-chart-3-light);
   --color-series-4: var(--palette-chart-4-light);
   --color-series-5: var(--palette-chart-5-light);
+  --color-series-6: var(--palette-chart-6-light);
   --color-on-series: var(--palette-gray-0);
   --color-on-series-4: var(--palette-chart-ink);
   --color-surface-glass: rgba(255, 255, 255, 0.72);
@@ -125,6 +126,7 @@ html.dark {
   --color-series-3: var(--palette-chart-3-dark);
   --color-series-4: var(--palette-chart-4-dark);
   --color-series-5: var(--palette-chart-5-dark);
+  --color-series-6: var(--palette-chart-6-dark);
   --color-on-series: var(--palette-gray-0);
   --color-on-series-4: var(--palette-gray-0);
   --color-surface-glass: rgba(26, 27, 38, 0.75);

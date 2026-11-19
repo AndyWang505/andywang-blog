@@ -37,10 +37,12 @@
   --palette-chart-3-light: #1baf7a; /* aqua */
   --palette-chart-4-light: #eda100; /* yellow */
   --palette-chart-5-light: #e87ba4; /* magenta */
+  --palette-chart-6-light: #008300; /* green */
   --palette-chart-1-dark: #3987e5;
   --palette-chart-2-dark: #d95926;
   --palette-chart-3-dark: #199e70;
   --palette-chart-4-dark: #c98500;
   --palette-chart-5-dark: #d55181;
+  --palette-chart-6-dark: #0ca30c;
   --palette-chart-ink: #0b0b0b; /* label ink on the yellow slot */
 }
