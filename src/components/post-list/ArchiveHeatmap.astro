@@ -1,9 +1,8 @@
 ---
 /**
- * Posting calendar in the style of a GitHub contribution graph: one year at a time,
- * a column per week (Sunday first), a cell per day. A day with one post links to it;
- * a busier day links to its month in the archive timeline (id="m{year}-{MM}").
- * Year switching lives in scripts/archive.ts; without JS the latest year shows.
+ * Posts per month as a year × month grid, styled like a GitHub contribution graph.
+ * Darker cells mean more posts; cells with posts link to the month in the archive
+ * timeline (id="m{year}-{MM}").
  */
 import type { Post } from '../../lib/posts';
 
@@ -13,232 +12,111 @@ interface Props {
 
 const { posts } = Astro.props;
 const pad = (n: number) => String(n).padStart(2, '0');
-
-/** Posts per day, keyed YYYY.MM.DD (dateText is already in the site time zone). */
-const byDay = new Map<string, Post[]>();
-for (const p of posts) byDay.set(p.dateText, [...(byDay.get(p.dateText) ?? []), p]);
-
+const counts = new Map<string, number>();
+for (const p of posts) {
+  const key = p.dateText.slice(0, 7); // YYYY.MM
+  counts.set(key, (counts.get(key) ?? 0) + 1);
+}
 const years = [...new Set(posts.map((p) => Number(p.dateText.slice(0, 4))))].sort((a, b) => b - a);
-const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-const level = (n: number) => Math.min(n + 1, 4); // 0 posts → 0; 1 → 2 so single posts stay visible
-
-const calendars = years.map((year) => {
-  const start = new Date(Date.UTC(year, 0, 1));
-  const lead = start.getUTCDay(); // empty cells before Jan 1
-  const days: { key: string; date: Date }[] = [];
-  for (let d = new Date(start); d.getUTCFullYear() === year; d = new Date(d.getTime() + 86_400_000)) {
-    days.push({ key: `${year}.${pad(d.getUTCMonth() + 1)}.${pad(d.getUTCDate())}`, date: d });
-  }
-  const weeks = Math.ceil((lead + days.length) / 7);
-  // Month label sits on the week column containing the 1st of that month.
-  const monthCols = MONTHS.map((label, m) => ({
-    label,
-    col: Math.floor((lead + days.findIndex((d) => d.date.getUTCMonth() === m)) / 7) + 1,
-  }));
-  const total = posts.filter((p) => p.dateText.startsWith(`${year}.`)).length;
-  return { year, lead, days, weeks, monthCols, total };
-});
+const months = Array.from({ length: 12 }, (_, i) => i + 1);
+const level = (n: number) => (n === 0 ? 0 : Math.min(n, 4));
 ---
 
-<section class="cal" aria-label="發文日曆" data-archive-cal>
-  <div class="cal-head">
-    <p class="summary">
-      {
-        calendars.map((c, i) => (
-          <span data-cal-summary={c.year} hidden={i > 0}>
-            {c.year} 年共 {c.total} 篇文章
-          </span>
-        ))
-      }
-    </p>
-    <div class="years" role="group" aria-label="選擇年份">
-      {
-        calendars.map((c, i) => (
-          <button type="button" class="year-btn" aria-pressed={i === 0 ? 'true' : 'false'} data-cal-year={c.year}>
-            {c.year}
-          </button>
-        ))
-      }
-    </div>
+<section class="cal" aria-label="每月發文數">
+  <p class="summary">{years[years.length - 1]}–{years[0]} 共 {posts.length} 篇文章</p>
+  <div class="graph">
+    <span aria-hidden="true"></span>
+    {
+      months.map((m) => (
+        <span class="month-label" aria-hidden="true">
+          {m}月
+        </span>
+      ))
+    }
+    {
+      years.map((y) => (
+        <>
+          <span class="year-label">{y}</span>
+          {months.map((m) => {
+            const n = counts.get(`${y}.${pad(m)}`) ?? 0;
+            const label = `${y} 年 ${m} 月 · ${n} 篇`;
+            return n > 0 ? (
+              <a href={`#m${y}-${pad(m)}`} class={`cell l${level(n)}`} title={label} aria-label={label} />
+            ) : (
+              <span class="cell" title={label} />
+            );
+          })}
+        </>
+      ))
+    }
   </div>
-
-  {
-    calendars.map((c, i) => (
-      <div class="scroll" data-cal-graph={c.year} hidden={i > 0}>
-        <div class="graph" style={`--weeks:${c.weeks}`}>
-          <div class="months" aria-hidden="true">
-            {c.monthCols.map((m) => (
-              <span style={`grid-column:${m.col}`}>{m.label}</span>
-            ))}
-          </div>
-          <div class="weekdays" aria-hidden="true">
-            <span />
-            <span>一</span>
-            <span />
-            <span>三</span>
-            <span />
-            <span>五</span>
-            <span />
-          </div>
-          <div class="days">
-            {Array.from({ length: c.lead }, () => (
-              <span class="day pad" />
-            ))}
-            {c.days.map(({ key, date }) => {
-              const list = byDay.get(key) ?? [];
-              const label = `${date.getUTCFullYear()} 年 ${date.getUTCMonth() + 1} 月 ${date.getUTCDate()} 日 · ${
-                list.length ? list.map((p) => p.title).join('、') : '沒有文章'
-              }`;
-              if (list.length === 0) return <span class="day" title={label} />;
-              const href = list.length === 1 ? list[0].url : `#m${key.slice(0, 4)}-${key.slice(5, 7)}`;
-              return <a href={href} class={`day l${level(list.length)}`} title={label} aria-label={label} />;
-            })}
-          </div>
-        </div>
-      </div>
-    ))
-  }
-
   <p class="legend" aria-hidden="true">
-    少<span class="day" /><span class="day l1" /><span class="day l2" /><span class="day l3" /><span class="day l4" />多
+    少<span class="cell"></span><span class="cell l1"></span><span class="cell l2"></span><span class="cell l3"></span><span
+      class="cell l4"
+    ></span>多
   </p>
 </section>
 
 <style>
   .cal {
-    --cell: 11px;
-    --gap: 3px;
     margin-top: var(--space-6);
   }
-  .cal-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    margin-bottom: var(--space-3);
-  }
   .summary {
-    margin: 0;
+    margin: 0 0 var(--space-3);
     font-size: var(--text-sm);
     color: var(--color-fg-body);
   }
-  .years {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
+  .graph {
+    display: grid;
+    grid-template-columns: 2.5rem repeat(12, minmax(0, 1.75rem));
+    gap: 4px;
+    align-items: center;
   }
-  .year-btn {
-    height: 28px;
-    padding: 0 var(--space-3);
-    border: 0;
-    border-radius: var(--radius-full);
-    background: transparent;
+  .month-label,
+  .year-label {
     font-size: var(--text-xs);
     font-variant-numeric: tabular-nums;
     color: var(--color-fg-muted);
-    transition:
-      background var(--duration-fast),
-      color var(--duration-fast);
   }
-  .year-btn:hover {
-    color: var(--color-fg-default);
+  .month-label {
+    text-align: center;
   }
-  .year-btn[aria-pressed='true'] {
-    background: var(--color-fg-default);
-    color: var(--color-bg-default);
-  }
-
-  .scroll {
-    overflow-x: auto;
-    padding-bottom: var(--space-1);
-    scrollbar-width: thin;
-  }
-  .scroll[hidden] {
-    display: none;
-  }
-  .graph {
-    display: grid;
-    grid-template-columns: 1.5rem auto;
-    grid-template-rows: auto auto;
-    column-gap: var(--space-2);
-    row-gap: var(--space-1);
-    width: max-content;
-  }
-  /* Axis labels use a fixed 10px like GitHub: they must fit an 11–13px cell grid. */
-  .months {
-    grid-column: 2;
-    display: grid;
-    grid-template-columns: repeat(var(--weeks), var(--cell));
-    column-gap: var(--gap);
-    font-size: 10px;
-    color: var(--color-fg-muted);
-    white-space: nowrap;
-  }
-  .weekdays {
-    display: grid;
-    grid-template-rows: repeat(7, var(--cell));
-    row-gap: var(--gap);
-    font-size: 10px;
-    line-height: var(--cell);
-    color: var(--color-fg-muted);
-  }
-  .days {
-    display: grid;
-    grid-template-rows: repeat(7, var(--cell));
-    grid-auto-columns: var(--cell);
-    grid-auto-flow: column;
-    gap: var(--gap);
-  }
-
-  .day {
+  .cell {
     display: block;
-    width: var(--cell);
-    height: var(--cell);
-    border-radius: 2px;
+    aspect-ratio: 1;
+    border-radius: 3px;
     background: var(--color-bg-muted);
     outline: 1px solid color-mix(in srgb, var(--color-fg-default) 6%, transparent);
     outline-offset: -1px;
   }
-  .day.pad {
-    visibility: hidden;
-  }
   .l1 {
-    background: color-mix(in srgb, var(--color-accent) 25%, var(--color-bg-muted));
+    background: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg-muted));
   }
   .l2 {
-    background: color-mix(in srgb, var(--color-accent) 50%, var(--color-bg-muted));
+    background: color-mix(in srgb, var(--color-accent) 55%, var(--color-bg-muted));
   }
   .l3 {
-    background: color-mix(in srgb, var(--color-accent) 75%, var(--color-bg-muted));
+    background: color-mix(in srgb, var(--color-accent) 78%, var(--color-bg-muted));
   }
   .l4 {
     background: var(--color-accent);
   }
-  a.day {
+  a.cell {
     transition: transform var(--duration-fast) var(--ease-standard);
   }
-  a.day:hover,
-  a.day:focus-visible {
-    transform: scale(1.4);
+  a.cell:hover,
+  a.cell:focus-visible {
+    transform: scale(1.2);
   }
-
   .legend {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: var(--gap);
-    margin: var(--space-2) 0 0;
+    gap: 4px;
+    margin: var(--space-3) 0 0;
     font-size: var(--text-xs);
     color: var(--color-fg-muted);
   }
-  .legend .day {
-    margin: 0 1px;
-  }
-
-  @container center (min-width: 1080px) {
-    .cal {
-      --cell: 13px;
-    }
+  .legend .cell {
+    width: 12px;
   }
 </style>
