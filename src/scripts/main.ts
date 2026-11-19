@@ -8,6 +8,7 @@ import { initMobileMenu } from './mobile-menu';
 import { initCategoryBar } from './category-bar';
 import { initToc } from './toc';
 import { initRailEnter } from './rail-enter';
+import { initTagFilter } from './tag-filter';
 
 type SwupLike = {
   hooks: { before: (hook: string, handler: () => void) => void; on: (hook: string, handler: () => void) => void };
@@ -18,6 +19,7 @@ function initPage(): void {
   initMobileMenu();
   initCategoryBar();
   initToc();
+  initTagFilter();
 }
 
 initPage();

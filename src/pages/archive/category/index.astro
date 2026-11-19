@@ -3,17 +3,19 @@ import Layout from '../../../layouts/Layout.astro';
 import NavRail from '../../../components/rail/NavRail.astro';
 import HomeRightRail from '../../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../../components/home/FeedHeader.astro';
-import CategoryGrid from '../../../components/post-list/CategoryGrid.astro';
-import { getCategoryCounts } from '../../../lib/posts';
+import CategoryFilter from '../../../components/post-list/CategoryFilter.astro';
+import PostGrid from '../../../components/post-list/PostGrid.astro';
+import { getSortedPosts } from '../../../lib/posts';
 
-const categories = await getCategoryCounts();
+const posts = await getSortedPosts();
 ---
 
 <Layout variant="list" current="category" title="分類">
   <NavRail slot="left" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
-    <FeedHeader as="h1" title="分類" count={categories.length} unit="個" />
-    <CategoryGrid />
+    <FeedHeader as="h1" title="分類" count={posts.length} />
+    <CategoryFilter />
+    <PostGrid posts={posts} />
   </div>
   <HomeRightRail slot="right" />
 </Layout>

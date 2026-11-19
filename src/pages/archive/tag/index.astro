@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import NavRail from '../../../components/rail/NavRail.astro';
 import HomeRightRail from '../../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../../components/home/FeedHeader.astro';
-import TagIndex from '../../../components/post-list/TagIndex.astro';
+import TagBrowser from '../../../components/post-list/TagBrowser.astro';
 import { getTagCounts } from '../../../lib/posts';
 
 const tags = await getTagCounts();
@@ -13,7 +13,7 @@ const tags = await getTagCounts();
   <NavRail slot="left" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
     <FeedHeader as="h1" title="標籤" count={tags.length} unit="個" />
-    <TagIndex />
+    <TagBrowser />
   </div>
   <HomeRightRail slot="right" />
 </Layout>
