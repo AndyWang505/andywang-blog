@@ -1,6 +1,7 @@
 /**
  * Chapter TOC behaviour (docs/redesign/03-components.md D4):
- * current/done chapter state, progress, smooth jump, mobile expand/collapse, copy link.
+ * current/done chapter state, progress, smooth jump, mobile expand/collapse, copy link,
+ * back to top (eased, cancellable scroll).
  * Safe to call on every page view; previous listeners are removed first.
  */
 import { readingRatio } from './progress';
@@ -81,7 +82,61 @@ export function initToc(): void {
     if (e.key === 'Escape' && panel?.classList.contains('open')) setOpen(false, true);
   };
 
+  // Back to top: an eased scroll whose length follows the distance, cancelled as soon as the
+  // reader scrolls, touches or presses a key; the arrow launches; focus lands on the title.
+  let toTopFrame = 0;
+  const stopToTop = () => {
+    if (toTopFrame) cancelAnimationFrame(toTopFrame);
+    toTopFrame = 0;
+    window.removeEventListener('wheel', stopToTop);
+    window.removeEventListener('touchstart', stopToTop);
+    window.removeEventListener('keydown', stopToTop);
+  };
+  const focusTitle = () => {
+    const title = document.querySelector<HTMLElement>('#main h1');
+    if (!title) return;
+    if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+    title.focus({ preventScroll: true });
+  };
+  const backToTop = (button: HTMLElement) => {
+    setOpen(false);
+    history.replaceState(history.state, '', location.pathname + location.search);
+    button.classList.remove('launch');
+    void button.offsetWidth; // restart the arrow animation
+    button.classList.add('launch');
+    stopToTop();
+    const from = window.scrollY;
+    if (reduceMotion.matches || from < 2) {
+      window.scrollTo(0, 0);
+      focusTitle();
+      return;
+    }
+    const duration = Math.min(800, 300 + Math.sqrt(from) * 8);
+    const start = performance.now();
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      window.scrollTo(0, Math.round(from * (1 - ease(t))));
+      if (t < 1) toTopFrame = requestAnimationFrame(step);
+      else {
+        stopToTop();
+        focusTitle();
+      }
+    };
+    window.addEventListener('wheel', stopToTop, { passive: true });
+    window.addEventListener('touchstart', stopToTop, { passive: true });
+    window.addEventListener('keydown', stopToTop);
+    toTopFrame = requestAnimationFrame(step);
+  };
+
   const onLinkClick = (e: Event) => {
+    const top = (e.target as Element).closest<HTMLElement>('[data-back-top]');
+    if (top) {
+      e.preventDefault();
+      e.stopPropagation(); // the eased scroll replaces the #main jump (the link also has data-no-swup)
+      backToTop(top);
+      return;
+    }
     const link = (e.target as Element).closest<HTMLAnchorElement>('[data-toc-link]');
     if (!link) return;
     const target = document.getElementById(link.dataset.tocLink ?? '');
@@ -121,6 +176,7 @@ export function initToc(): void {
     root.removeEventListener('click', onLinkClick);
     copyButton?.removeEventListener('click', onCopy);
     if (frame) cancelAnimationFrame(frame);
+    stopToTop();
     window.clearTimeout(copyTimer);
   };
 }

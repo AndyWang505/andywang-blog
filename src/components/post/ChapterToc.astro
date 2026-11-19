@@ -74,8 +74,8 @@ const first = chapters[0];
             <Icon name="link" size={13} />
             <span data-copy-label>複製連結</span>
           </button>
-          <a href="#main" class="act">
-            <Icon name="arrow-up" size={13} />
+          <a href="#main" class="act" data-back-top data-no-swup>
+            <span class="lift" aria-hidden="true"><Icon name="arrow-up" size={13} /></span>
             回到頂端
           </a>
         </div>
@@ -207,6 +207,31 @@ const first = chapters[0];
   }
   .act:hover {
     background: var(--color-bg-muted);
+  }
+  /* Back to top: the arrow nudges up on hover and launches on click (scripts/toc.ts adds .launch). */
+  .lift {
+    display: inline-flex;
+    transition: translate var(--duration-fast) var(--ease-standard);
+  }
+  .act:hover .lift {
+    translate: 0 -2px;
+  }
+  .act.launch .lift {
+    animation: lift-off 460ms var(--ease-standard);
+  }
+  @keyframes lift-off {
+    40% {
+      translate: 0 -10px;
+      opacity: 0;
+    }
+    41% {
+      translate: 0 8px;
+      opacity: 0;
+    }
+    100% {
+      translate: 0 0;
+      opacity: 1;
+    }
   }
 
   @media (min-width: 1024px) {
