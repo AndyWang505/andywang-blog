@@ -63,6 +63,8 @@ const links = [
 ] as const;
 
 const linkClass = 'text-accent underline underline-offset-2 hover:opacity-80';
+const releasesHref = 'https://github.com/AndyWang505/andywang-blog/releases';
+const releaseClass = 'mt-2 inline-flex items-center gap-1.5 text-sm text-accent hover:underline';
 const blogPostHref =
   'https://andywangtw.dev/post/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%83%A8%E8%90%BD%E6%A0%BC%E8%87%AA%E5%B7%B1%E6%9E%B6/';
 ---
@@ -184,6 +186,21 @@ const blogPostHref =
               <a href="https://github.com/saicaca/fuwari" target="_blank" class={linkClass}>Fuwari</a>
               的設計，再搭配一些自己的風格整合而成。讚嘆 AI Agent 幫我省下不少開發時間 :D
             </p>
+            <a href={`${releasesHref}/tag/v1.0.0`} target="_blank" rel="noopener" class={releaseClass}>
+              <Icon name="github" size={14} />
+              Release v1.0.0
+            </a>
+          </li>
+          <li class="stop">
+            <p class="when">2026</p>
+            <p class="what">
+              2026 年，以 v1 為基礎重新設計了整個版面：滿版三欄排版、Apple 風格的淺色主題與 Tokyo Night
+              深色主題，文章頁也加上可以選章節的目錄。
+            </p>
+            <a href={`${releasesHref}/tag/v2.0.0`} target="_blank" rel="noopener" class={releaseClass}>
+              <Icon name="github" size={14} />
+              Release v2.0.0
+            </a>
           </li>
         </ol>
         <p class="m-0 mt-6 rounded-lg bg-bg-subtle p-4 text-base leading-relaxed text-fg">
