@@ -95,7 +95,7 @@ html.dark {
   --color-bg-muted: var(--palette-tokyo-bg-surface);
   --color-fg-default: var(--palette-tokyo-fg);
   --color-fg-body: var(--palette-tokyo-fg-dark);
-  --color-fg-muted: var(--palette-tokyo-fg-dark);
+  --color-fg-muted: var(--palette-tokyo-fg-muted);
   --color-fg-subtle: var(--palette-tokyo-comment);
   --color-border-default: var(--palette-tokyo-bg-highlight);
   --color-border-muted: var(--palette-tokyo-bg-line);

@@ -26,6 +26,7 @@
   --palette-tokyo-bg-surface: #24283b;
   --palette-tokyo-fg: #c0caf5;
   --palette-tokyo-fg-dark: #a9b1d6;
+  --palette-tokyo-fg-muted: #828bb8;  /* tokyonight moon fg_dark */
   --palette-tokyo-comment: #737aa2;
   --palette-tokyo-blue: #7aa2f7;
 }
