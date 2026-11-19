@@ -14,11 +14,15 @@ interface Props {
   collapsedCount?: number;
   /** Render only the desktop list (article page rail). */
   listOnly?: boolean;
+  /** Show the sticky chip bar below 1024px. */
+  mobileBar?: boolean;
+  /** Where "全部" leads. */
+  allHref?: string;
 }
 
-const { current, collapsedCount = 8, listOnly = false } = Astro.props;
+const { current, collapsedCount = 8, listOnly = false, mobileBar = true, allHref = '/' } = Astro.props;
 const [counts, posts] = await Promise.all([getCategoryCounts(), getSortedPosts()]);
-const items = [{ name: '全部', count: posts.length, href: '/' }, ...counts];
+const items = [{ name: '全部', count: posts.length, href: allHref }, ...counts];
 const isCurrent = (name: string) => (current ? name === current : name === '全部');
 
 let visible = items.slice(0, collapsedCount);
@@ -28,7 +32,7 @@ const hiddenCount = counts.length;
 ---
 
 {
-  !listOnly && (
+  !listOnly && mobileBar && (
     <nav aria-label="分類" class="cat-bar glass lg:hidden">
       <div class="flex gap-2 overflow-x-auto px-4 py-2.5 [scrollbar-width:none]" data-scroll-current>
         {items.map((i) => <Chip href={i.href} label={i.name} count={i.count} active={isCurrent(i.name)} />)}

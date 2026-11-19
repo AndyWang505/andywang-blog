@@ -9,9 +9,11 @@ import { AUTHOR } from '../../config/site';
 
 interface Props {
   variant?: 'full' | 'compact';
+  /** `full` only: show the compact row below 1024px (otherwise the block is desktop-only). */
+  mobile?: boolean;
 }
 
-const { variant = 'full' } = Astro.props;
+const { variant = 'full', mobile = true } = Astro.props;
 const socials = [
   { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', size: 17, external: true },
   { href: AUTHOR.links.x, label: 'X', icon: 'x', size: 14, external: true },
@@ -31,7 +33,13 @@ const socials = [
       </span>
     </a>
   ) : (
-    <section aria-label="作者" class="flex items-center gap-3 p-4 lg:block lg:border-b lg:border-line-muted lg:px-6 lg:pb-6 lg:pt-7">
+    <section
+      aria-label="作者"
+      class:list={[
+        mobile ? 'flex' : 'hidden',
+        'items-center gap-3 p-4 lg:block lg:border-b lg:border-line-muted lg:px-6 lg:pb-6 lg:pt-7',
+      ]}
+    >
       <img
         src={AUTHOR.avatar}
         alt={`${AUTHOR.name} 頭像`}

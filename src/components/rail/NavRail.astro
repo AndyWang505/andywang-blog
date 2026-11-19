@@ -1,6 +1,9 @@
 ---
 /**
  * Left rail shared by home, list and article pages.
+ * Below 1024px only what the page opts into shows above its content (the menu already carries
+ * navigation, categories and tags): the author row on the home page, the category bar where it
+ * filters the page (home, category pages).
  * Spec: docs/redesign/03-components.md B1
  */
 import AuthorBlock from './AuthorBlock.astro';
@@ -11,9 +14,22 @@ interface Props {
   variant?: 'full' | 'compact';
   currentCategory?: string;
   currentTags?: string[];
+  /** Phones/tablets: show the author row above the page. */
+  mobileAuthor?: boolean;
+  /** Phones/tablets: show the sticky category bar above the page. */
+  mobileCategories?: boolean;
+  /** Where "全部" leads; category pages point it at the category index. */
+  allHref?: string;
 }
 
-const { variant = 'full', currentCategory, currentTags } = Astro.props;
+const {
+  variant = 'full',
+  currentCategory,
+  currentTags,
+  mobileAuthor = false,
+  mobileCategories = false,
+  allHref,
+} = Astro.props;
 ---
 
 {
@@ -25,8 +41,8 @@ const { variant = 'full', currentCategory, currentTags } = Astro.props;
     </div>
   ) : (
     <div class="nav-rail">
-      <AuthorBlock />
-      <CategoryNav current={currentCategory} />
+      <AuthorBlock mobile={mobileAuthor} />
+      <CategoryNav current={currentCategory} mobileBar={mobileCategories} allHref={allHref} />
       <TagCloud current={currentTags} />
     </div>
   )

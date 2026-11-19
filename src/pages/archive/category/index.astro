@@ -11,7 +11,7 @@ const posts = await getSortedPosts();
 ---
 
 <Layout variant="list" current="category" title="分類">
-  <NavRail slot="left" />
+  <NavRail slot="left" mobileCategories allHref="/archive/category/" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
     <FeedHeader as="h1" title="分類" count={posts.length} />
     <CategoryFilter />

@@ -19,7 +19,7 @@ const posts = (await getSortedPosts()).filter((p) => p.category === name);
 ---
 
 <Layout variant="list" current="category" title={`分類：${name}`}>
-  <NavRail slot="left" currentCategory={name} />
+  <NavRail slot="left" currentCategory={name} mobileCategories allHref="/archive/category/" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
     <FeedHeader as="h1" title={name} count={posts.length} />
     <CategoryFilter current={name} />
