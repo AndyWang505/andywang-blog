@@ -81,6 +81,17 @@ export function initArchive(): void {
     pending.forEach((el) => observer?.observe(el));
   }
 
+  // Posting calendar: switch the visible year
+  const cal = document.querySelector<HTMLElement>('[data-archive-cal]');
+  const onYear = (e: Event) => {
+    const button = (e.target as Element).closest<HTMLButtonElement>('[data-cal-year]');
+    if (!button || !cal) return;
+    const year = button.dataset.calYear;
+    cal.querySelectorAll<HTMLButtonElement>('[data-cal-year]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    cal.querySelectorAll<HTMLElement>('[data-cal-graph]').forEach((g) => (g.hidden = g.dataset.calGraph !== year));
+    cal.querySelectorAll<HTMLElement>('[data-cal-summary]').forEach((s) => (s.hidden = s.dataset.calSummary !== year));
+  };
+
   // Hover preview card beside the list (mouse and trackpad, from 1024px)
   const peek = document.querySelector<HTMLElement>('[data-archive-peek]');
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
@@ -142,6 +153,7 @@ export function initArchive(): void {
   document.addEventListener('click', onClick, true);
   tree.addEventListener('mouseover', onOver);
   tree.addEventListener('mouseout', onOut);
+  cal?.addEventListener('click', onYear);
 
   cleanup = () => {
     window.removeEventListener('scroll', onScroll);
@@ -150,6 +162,7 @@ export function initArchive(): void {
     document.removeEventListener('click', onClick, true);
     tree.removeEventListener('mouseover', onOver);
     tree.removeEventListener('mouseout', onOut);
+    cal?.removeEventListener('click', onYear);
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));
