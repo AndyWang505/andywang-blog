@@ -3,7 +3,7 @@
  * - posts above the reading line marked as passed (accent dot and spine), current year in the rail
  * - smooth jumps for rail years and heatmap cells (handled here, not as swup visits)
  * - rows below the fold fade in as they scroll into view
- * - wide layout: a reader card that follows the reading line, or the hovered post
+ * - wide layout: a reader card driven by a small state machine (see "Reader card" below)
  * - narrower layouts: hover preview card beside the list on pointer devices from 1024px
  * Safe to call on every page view; previous listeners are removed first.
  */
@@ -20,11 +20,37 @@ export function initArchive(): void {
   if (!tree) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
   const years = [...tree.querySelectorAll<HTMLElement>('h2[id^="y"]')];
   const rows = [...tree.querySelectorAll<HTMLElement>('[data-archive-row]')];
   const railLinks = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="/archive/#y"]')];
 
-  // Reader card (wide layout): shows the current row, or the hovered one
+  const dotY = (row: Element) => {
+    const r = (row.querySelector('.dot') ?? row).getBoundingClientRect();
+    return r.top + r.height / 2;
+  };
+
+  /*
+   * Reader card (wide layout)
+   *
+   * Three modes, and one rule for each:
+   *   reading  – pointer not on the list. Focus: the post nearest the reading line.
+   *              Card: rests at the reading line.
+   *   pointing – pointer on the list. Focus: the post nearest the pointer's height.
+   *              Card: level with that post's dot, so the connector is a straight line.
+   *   holding  – pointer on the card. Focus and card stay put, so the card can be clicked.
+   *
+   * Input handlers only record where the pointer is; every frame derives the mode's focus and
+   * the card position from that and the current scroll. Moving within one post leaves the card
+   * still; reaching the next post moves it one row with a CSS transition (the browser retargets
+   * smoothly if the pointer keeps going). While the page scrolls under a still pointer the card
+   * stays beside the pointer and only its content and connector change; it settles level with
+   * the dot once scrolling stops. Moves longer than about half a card fade across instead.
+   * Leaving the list returns to reading after a short grace period; coming back cancels it.
+   */
+  type Mode = 'reading' | 'pointing' | 'holding';
+  type Region = 'list' | 'card' | 'outside';
+
   const reader = tree.querySelector<HTMLElement>('[data-archive-reader]');
   const readerLink = reader?.querySelector<HTMLAnchorElement>('[data-reader-link]');
   const readerImg = reader?.querySelector<HTMLImageElement>('[data-reader-img]');
@@ -32,132 +58,56 @@ export function initArchive(): void {
   const readerTitle = reader?.querySelector<HTMLElement>('[data-reader-title]');
   const readerDesc = reader?.querySelector<HTMLElement>('[data-reader-desc]');
   const readerShown = () => !!reader && getComputedStyle(reader).display !== 'none';
-  let readerFor: HTMLElement | null = null;
-  let hovered: HTMLElement | null = null;
-  let currentRow: HTMLElement | null = null;
 
-  const dotY = (row: Element) => {
-    const r = (row.querySelector('.dot') ?? row).getBoundingClientRect();
-    return r.top + r.height / 2;
-  };
-  /** Where the connector leaves the card, measured from the card's top. */
+  /** Where the connector leaves the card when resting, measured from the card's top. */
   const LINK_Y = 28;
-  /** Keep this far inside the card's top and bottom edges when aiming the connector. */
+  /**
+   * While pointing, the focused dot sits this far below the card's top: posts half a row above
+   * or below the pointer then stay beside the card, so the connector keeps reaching them while
+   * the page scrolls under a still pointer.
+   */
+  const POINT_Y = 80;
+  /** Keep this far inside the card's edges (and the viewport's) when placing and aiming. */
   const EDGE = 16;
-  let shift = 0;
-  let pointerY: number | null = null;
-  const onMove = (e: MouseEvent) => {
-    pointerY = e.clientY;
-    if (hovered) pointConnector();
-  };
-  /**
-   * The card's resting top (sticky at the reading line, or its place in the flow before it
-   * sticks), computed from layout so an in-flight slide animation cannot skew it.
-   */
-  const restTop = () => {
-    if (!reader || !readerLink) return 0;
-    const aside = reader.getBoundingClientRect();
-    const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
-    const sticky = readingLine() - LINK_Y;
-    return Math.min(Math.max(sticky, aside.top + marginTop), aside.bottom - readerLink.offsetHeight);
-  };
-  /**
-   * The card glides every frame towards its target, so moving between rows slides it smoothly:
-   * - hovering: centred on the pointer, so rows above and below both stay in reach and moving
-   *   between any two neighbours is a short, even slide (no direction switching to swing it).
-   * - otherwise: back to the resting place at the reading line.
-   * The connector aims at the shown post's dot on every frame.
-   */
-  let cardTop: number | null = null;
-  /** Pointer is on the card itself: hold it still so it can be clicked. */
-  let onCard = false;
-  /** Pending hand-back to the reading line after the pointer leaves (see onOut). */
-  let release = 0;
+  /** Grace period before leaving the list hands the card back to the reading line. */
   const RELEASE_DELAY = 450;
-  let glide = 0;
-  /** Share of the remaining distance covered per frame: ~300ms to settle at 60fps. */
-  const EASE = 0.1;
-  /**
-   * Farther than this (about half a card), the card does not travel: it fades out, reappears at
-   * the target and fades in. Entering the list far from the reading line, or leaving it, would
-   * otherwise drag the card across half the screen.
-   */
+  /** Farther than this (about half a card) the card fades across instead of travelling. */
   const HOP = 150;
   const HOP_MS = 140;
-  let hopping = false;
-  let hopTimer = 0;
-  let landOnTarget = false;
-  const tick = () => {
-    glide = 0;
-    if (!readerLink || !readerShown()) return;
-    const height = readerLink.offsetHeight;
-    const rest = restTop();
-    let target = rest;
-    let settling = false;
-    if (hovered && onCard && cardTop !== null) {
-      target = cardTop;
-    } else if (hovered && pointerY !== null) {
-      const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
-      // Stay inside both the viewport and the card's column of the timeline (never over the
-      // calendar above or the footer below), whatever the pointer does.
-      const column = reader!.getBoundingClientRect();
-      const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
-      const minTop = Math.max(header + EDGE, column.top + marginTop);
-      const maxTop = Math.min(window.innerHeight - EDGE, column.bottom) - height;
-      target = maxTop >= minTop ? Math.max(minTop, Math.min(pointerY - height / 2, maxTop)) : rest;
-    } else {
-      // Already resting: follow the sticky place exactly (no lag while the page scrolls).
-      if (cardTop === null || Math.abs(shift) < 0.5) cardTop = rest;
-    }
-    if (hopping) return; // the hop's timeout lands the card at the latest target
-    if (landOnTarget) {
-      cardTop = target;
-      landOnTarget = false;
-    }
-    if (cardTop === null) cardTop = rest;
-    if (!reduceMotion.matches && Math.abs(target - cardTop) > HOP) {
-      hopping = true;
-      readerLink.classList.add('hop');
-      hopTimer = window.setTimeout(() => {
-        hopping = false;
-        landOnTarget = true; // land straight on the latest target
-        readerLink.classList.remove('hop');
-        tick();
-      }, HOP_MS);
+  /** Keep in sync with the card's translate transition in ArchiveTimeline.astro. */
+  const MOVE_MS = 320;
+
+  let mode: Mode = 'reading';
+  let pointer: { x: number; y: number } | null = null;
+  let releaseTimer = 0;
+  let currentRow: HTMLElement | null = null;
+  let shownEntry: HTMLElement | null = null;
+
+  const regionAt = (x: number, y: number): Region => {
+    const el = document.elementFromPoint(x, y);
+    if (!el) return 'outside';
+    if (reader?.contains(el)) return 'card';
+    return el.closest('.years') ? 'list' : 'outside';
+  };
+  const enterRegion = (region: Region) => {
+    if (region === 'outside') {
+      if (mode !== 'reading' && !releaseTimer) {
+        releaseTimer = window.setTimeout(() => {
+          releaseTimer = 0;
+          mode = 'reading';
+          schedule();
+        }, RELEASE_DELAY);
+      }
       return;
     }
-    cardTop = reduceMotion.matches ? target : cardTop + (target - cardTop) * EASE;
-    if (Math.abs(target - cardTop) < 0.5) cardTop = target;
-    else settling = true;
-    shift = cardTop - rest;
-    readerLink.style.translate = `0 ${shift.toFixed(1)}px`;
-
-    const row = readerFor?.closest('[data-archive-row]');
-    if (row) {
-      const y = dotY(row) - cardTop;
-      readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
-      readerLink.style.setProperty('--link-on', y >= EDGE - 4 && y <= height - EDGE + 4 ? '1' : '0');
-    }
-    if (settling) glide = requestAnimationFrame(tick);
-  };
-  const pointConnector = () => {
-    if (!glide) glide = requestAnimationFrame(tick);
-  };
-
-  /** Ring, connector and card always point at the same post. */
-  const setFocus = (row: HTMLElement | null) => {
-    if (row !== currentRow) {
-      currentRow?.classList.remove('current');
-      row?.classList.add('current');
-      currentRow = row;
-    }
-    if (readerShown()) showInReader(currentRow?.querySelector<HTMLElement>('.entry') ?? null);
-    pointConnector();
+    window.clearTimeout(releaseTimer);
+    releaseTimer = 0;
+    mode = region === 'card' ? 'holding' : 'pointing';
   };
 
   const showInReader = (entry: HTMLElement | null) => {
-    if (!entry || entry === readerFor || !readerLink) return;
-    readerFor = entry;
+    if (!entry || entry === shownEntry || !readerLink) return;
+    shownEntry = entry;
     readerLink.href = entry.getAttribute('href') ?? '#';
     const cover = entry.dataset.peekCover;
     if (readerImg) {
@@ -174,43 +124,153 @@ export function initArchive(): void {
     }
   };
 
-  // Scroll progress, current row and current year
+  // Card motion: CSS transition between posts, instant while scrolling, fade for long moves.
+  let applied: number | null = null; // translate currently applied, px from the resting place
+  let scrollingUntil = 0;
+  let hopping = false;
+  let hopTimer = 0;
+
+  /** The card's resting top: sticky at the reading line, or its place in the flow before it sticks. */
+  const restTop = (column: DOMRect, marginTop: number, height: number) =>
+    Math.min(Math.max(readingLine() - LINK_Y, column.top + marginTop), column.bottom - height);
+
+  const setShift = (px: number, animate: boolean) => {
+    if (!readerLink) return;
+    readerLink.classList.toggle('instant', !animate);
+    readerLink.style.translate = `0 ${px}px`;
+    applied = px;
+  };
+
+  /** Aim the connector at the focused dot from the card's actual position (also mid-transition). */
+  const aim = () => {
+    if (!readerLink) return;
+    const row = shownEntry?.closest('[data-archive-row]');
+    if (!row) return;
+    const card = readerLink.getBoundingClientRect();
+    const y = dotY(row) - card.top;
+    readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
+    readerLink.style.setProperty('--link-on', y >= EDGE - 4 && y <= card.height - EDGE + 4 ? '1' : '0');
+  };
+  /** Keep re-aiming while a CSS move is running, so the connector never lags the card. */
+  let aimFrame = 0;
+  let aimUntil = 0;
+  const aimDuringMove = () => {
+    aimUntil = performance.now() + MOVE_MS + 40;
+    const loop = () => {
+      aim();
+      aimFrame = performance.now() < aimUntil ? requestAnimationFrame(loop) : 0;
+    };
+    if (!aimFrame) aimFrame = requestAnimationFrame(loop);
+  };
+
+  /** Card top in viewport px after the last placement. */
+  let lastTop: number | null = null;
+
+  const place = () => {
+    if (!reader || !readerLink || !readerShown() || hopping) return;
+    const height = readerLink.offsetHeight;
+    const column = reader.getBoundingClientRect();
+    const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
+    const rest = restTop(column, marginTop, height);
+    const focusRow = shownEntry?.closest('[data-archive-row]') ?? null;
+    const scrolling = performance.now() < scrollingUntil;
+
+    let top = rest;
+    if (mode === 'holding' && lastTop !== null) {
+      top = lastTop; // stay put under the pointer
+    } else if (mode === 'pointing' && scrolling && lastTop !== null) {
+      top = lastTop; // pointer still, page moving: the card stays beside the pointer
+    } else if (mode === 'pointing' && focusRow) {
+      top = dotY(focusRow) - POINT_Y; // the focused dot level with the connector
+    }
+    // Inside both the viewport and the card's column: never over the calendar or the footer.
+    if (mode !== 'reading') {
+      const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(header + EDGE, column.top + marginTop);
+      const maxTop = Math.min(window.innerHeight - EDGE, column.bottom) - height;
+      top = maxTop >= minTop ? Math.max(minTop, Math.min(top, maxTop)) : rest;
+    }
+    const next = Math.round(top - rest);
+
+    if (applied === null || reduceMotion.matches || scrolling) {
+      setShift(next, false);
+    } else if (Math.abs(next - applied) > HOP) {
+      // Long move: fade out, jump, fade in.
+      hopping = true;
+      readerLink.classList.add('hop');
+      hopTimer = window.setTimeout(() => {
+        hopping = false;
+        applied = null; // land instantly on wherever the target is by now
+        readerLink.classList.remove('hop', 'land');
+        void readerLink.offsetWidth; // restart the fade-in
+        readerLink.classList.add('land');
+        schedule();
+      }, HOP_MS);
+      return;
+    } else if (next !== applied) {
+      setShift(next, true);
+      aimDuringMove();
+    }
+    lastTop = rest + next;
+    aim();
+  };
+
+  // One frame of state: progress, mode, focus. Reads first, then writes.
   let frame = 0;
   const update = () => {
     frame = 0;
     const line = readingLine();
-    // Read every position first, then write, so a frame costs one layout instead of one per row.
     const rowYs = rows.map(dotY);
     const yearTops = years.map((y) => y.getBoundingClientRect().top);
     const wide = readerShown();
+    if (wide && pointer && canHover.matches) enterRegion(regionAt(pointer.x, pointer.y));
+    else if (mode !== 'reading') enterRegion('outside');
 
-    // Passed: dot above the reading line. Current: the dot closest to it.
-    let nearest: HTMLElement | null = rows[0] ?? null;
-    let nearestDistance = Infinity;
-    rows.forEach((row, i) => {
-      const distance = Math.abs(rowYs[i] - line);
-      if (distance < nearestDistance) {
-        nearestDistance = distance;
-        nearest = row;
-      }
-    });
-    let current = years[0]?.id;
+    const nearestTo = (y: number) => {
+      let best: HTMLElement | null = rows[0] ?? null;
+      let bestDistance = Infinity;
+      rows.forEach((row, i) => {
+        const d = Math.abs(rowYs[i] - y);
+        if (d < bestDistance) {
+          bestDistance = d;
+          best = row;
+        }
+      });
+      return best;
+    };
+    const focus =
+      mode === 'holding' ? currentRow : mode === 'pointing' && pointer ? nearestTo(pointer.y) : nearestTo(line);
+    let currentYear = years[0]?.id;
     for (let i = 0; i < years.length; i++) {
-      if (yearTops[i] - line <= 0) current = years[i].id;
+      if (yearTops[i] - line <= 0) currentYear = years[i].id;
       else break;
     }
 
+    // Progress always follows the reading line, whatever the pointer does.
     rows.forEach((row, i) => row.classList.toggle('passed', rowYs[i] <= line));
-    // One focus at a time: the hovered post while the pointer is on the list, else the reading line.
-    const hoveredRow = wide ? (hovered?.closest<HTMLElement>('[data-archive-row]') ?? null) : null;
-    setFocus(hoveredRow ?? nearest);
+    if (focus !== currentRow) {
+      currentRow?.classList.remove('current');
+      focus?.classList.add('current');
+      currentRow = focus;
+    }
+    if (wide) showInReader(currentRow?.querySelector<HTMLElement>('.entry') ?? null);
     for (const a of railLinks) {
-      if (a.hash === `#${current}`) a.setAttribute('aria-current', 'true');
+      if (a.hash === `#${currentYear}`) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');
     }
+    place();
   };
-  const onScroll = () => {
+  const schedule = () => {
     if (!frame) frame = requestAnimationFrame(update);
+  };
+
+  const onPointerMove = (e: MouseEvent) => {
+    pointer = { x: e.clientX, y: e.clientY };
+    schedule();
+  };
+  const onPointerLeaveWindow = () => {
+    pointer = null;
+    schedule();
   };
 
   // Same-page jumps: rail years (/archive/#yYYYY) and heatmap cells (#mYYYY-MM)
@@ -246,17 +306,16 @@ export function initArchive(): void {
     pending.forEach((el) => observer?.observe(el));
   }
 
-  // Hover preview card beside the list (mouse and trackpad, from 1024px)
+  // Narrower layouts: floating preview card beside the list (mouse and trackpad, from 1024px)
   const peek = document.querySelector<HTMLElement>('[data-archive-peek]');
-  const canHover = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
   const img = peek?.querySelector<HTMLImageElement>('[data-peek-img]');
   const metaOut = peek?.querySelector<HTMLElement>('[data-peek-meta-out]');
   const titleOut = peek?.querySelector<HTMLElement>('[data-peek-title-out]');
   const descOut = peek?.querySelector<HTMLElement>('[data-peek-desc-out]');
-  let shownFor: HTMLElement | null = null;
+  let peekFor: HTMLElement | null = null;
 
   const hidePeek = () => {
-    shownFor = null;
+    peekFor = null;
     peek?.classList.remove('show');
   };
   /**
@@ -279,29 +338,10 @@ export function initArchive(): void {
     peek.style.top = top + 'px';
   };
   const onOver = (e: MouseEvent) => {
+    if (readerShown() || !peek || !canHover.matches) return;
     const entry = (e.target as Element).closest<HTMLElement>('.entry');
-    // Wide layout: the reader card shows the hovered post instead of a floating card.
-    if (readerShown()) {
-      if (!canHover.matches) return;
-      if (reader?.contains(e.target as Node)) {
-        onCard = true;
-        window.clearTimeout(release);
-    window.clearTimeout(hopTimer);
-        return;
-      }
-      if (entry) {
-        onCard = false;
-        window.clearTimeout(release);
-        if (entry !== hovered) {
-          hovered = entry;
-          setFocus(entry.closest<HTMLElement>('[data-archive-row]'));
-        }
-      }
-      return;
-    }
-    if (!peek || !canHover.matches) return;
-    if (!entry || entry === shownFor) return;
-    shownFor = entry;
+    if (!entry || entry === peekFor) return;
+    peekFor = entry;
     const cover = entry.dataset.peekCover;
     if (img) {
       img.hidden = !cover;
@@ -316,40 +356,43 @@ export function initArchive(): void {
   };
   const onOut = (e: MouseEvent) => {
     const to = e.relatedTarget as Element | null;
-    if (shownFor && (!to || !shownFor.contains(to))) hidePeek();
-    // Leaving the list (and the card) hands the card back to the reading line, after a short
-    // delay so brushing past the edge or heading for the card does not bounce it back and forth.
-    if (!hovered) return;
-    if (to && (to.closest('.years') || reader?.contains(to))) return;
-    window.clearTimeout(release);
-    release = window.setTimeout(() => {
-      hovered = null;
-      onCard = false;
-      onScroll();
-    }, RELEASE_DELAY);
+    if (peekFor && (!to || !peekFor.contains(to))) hidePeek();
+  };
+
+  /** When scrolling stops, settle the card level with the focused dot (a short CSS move). */
+  let scrollEndTimer = 0;
+  const onScroll = () => {
+    scrollingUntil = performance.now() + 120;
+    window.clearTimeout(scrollEndTimer);
+    scrollEndTimer = window.setTimeout(schedule, 140);
+    schedule();
   };
 
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('scroll', hidePeek, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
   document.addEventListener('click', onClick, true);
+  document.addEventListener('mousemove', onPointerMove, { passive: true });
+  document.documentElement.addEventListener('mouseleave', onPointerLeaveWindow);
   tree.addEventListener('mouseover', onOver);
-  document.addEventListener('mousemove', onMove, { passive: true });
   tree.addEventListener('mouseout', onOut);
 
   cleanup = () => {
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('scroll', hidePeek);
-    window.removeEventListener('resize', onScroll);
+    window.removeEventListener('resize', schedule);
     document.removeEventListener('click', onClick, true);
+    document.removeEventListener('mousemove', onPointerMove);
+    document.documentElement.removeEventListener('mouseleave', onPointerLeaveWindow);
     tree.removeEventListener('mouseover', onOver);
-    document.removeEventListener('mousemove', onMove);
     tree.removeEventListener('mouseout', onOut);
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
-    if (glide) cancelAnimationFrame(glide);
-    window.clearTimeout(release);
+    window.clearTimeout(releaseTimer);
+    window.clearTimeout(hopTimer);
+    window.clearTimeout(scrollEndTimer);
+    if (aimFrame) cancelAnimationFrame(aimFrame);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));
   };
 }

@@ -87,6 +87,8 @@
   --color-accent: var(--palette-blue-600);
   --color-media-plate: var(--palette-gray-0);   /* white plate behind product cut-outs, same in both themes */
   --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.14); /* floating cards, e.g. archive preview */
+  --color-surface-card: var(--palette-gray-0);   /* raised cards that sit on the page, e.g. archive reader */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.07);
   --color-surface-glass: rgba(255, 255, 255, 0.72);
   --color-surface-glass-fallback: rgba(255, 255, 255, 0.95);
   --color-code-bg: var(--palette-gray-50);
@@ -108,6 +110,8 @@ html.dark {
   --color-accent: var(--palette-tokyo-blue);
   --color-media-plate: var(--palette-gray-0);
   --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --color-surface-card: var(--palette-tokyo-bg-float); /* one step above the page background */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   --color-surface-glass: rgba(26, 27, 38, 0.75);
   --color-surface-glass-fallback: rgba(26, 27, 38, 0.95);
   --color-code-bg: var(--palette-tokyo-bg-dark);

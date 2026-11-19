@@ -277,9 +277,9 @@ const first = groups[0]?.posts[0];
     gap: var(--space-4);
     width: 340px;
     padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
-    border: 1px solid var(--color-border-muted);
+    border: 1px solid var(--color-border-default);
     border-radius: var(--radius-lg);
-    background: var(--color-bg-default);
+    background: var(--color-surface-card);
     box-shadow: var(--shadow-popover);
     pointer-events: none;
     opacity: 0;
@@ -383,10 +383,17 @@ const first = groups[0]?.posts[0];
       width: 100%;
       margin-top: calc(var(--space-12) + var(--space-6));
       padding: var(--space-3);
-      border: 1px solid var(--color-border-muted);
+      border: 1px solid var(--color-border-default);
       border-radius: var(--radius-lg);
-      background: var(--color-bg-default);
-      /* Position is eased per frame by scripts/archive.ts, not by a CSS transition. */
+      background: var(--color-surface-card);
+      box-shadow: var(--shadow-card);
+      /* Moves between posts are CSS transitions; scripts/archive.ts adds .instant while scrolling. */
+      transition:
+        border-color var(--duration-fast),
+        opacity var(--duration-fast) var(--ease-standard),
+        translate 320ms cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .reader-card.instant {
       transition:
         border-color var(--duration-fast),
         opacity var(--duration-fast) var(--ease-standard);
@@ -498,10 +505,22 @@ const first = groups[0]?.posts[0];
       --reader-w: 320px;
     }
   }
+  /* Content swap: opacity only. The card's position lives in `translate`, so animating it here
+     would replay the slide from the resting place on every swap. */
   @keyframes reader-swap {
     from {
       opacity: 0.4;
-      translate: 0 3px;
+    }
+  }
+  /* After a long move (see .hop): fade back in at the new place. Declared after .swap so it wins. */
+  @container center (min-width: 820px) {
+    .reader-card.land {
+      animation: reader-land 180ms var(--ease-standard);
+    }
+  }
+  @keyframes reader-land {
+    from {
+      opacity: 0;
     }
   }
 </style>
