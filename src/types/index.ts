@@ -14,13 +14,7 @@ export interface BlogPost {
 }
 
 export interface BannerConfig {
-  enable: boolean;
   src: string;
-  position: 'top' | 'center' | 'bottom';
-  height: {
-    home: number;
-    other: number;
-  };
   credit: {
     enable: boolean;
     text: string;
