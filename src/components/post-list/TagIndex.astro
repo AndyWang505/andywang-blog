@@ -1,0 +1,118 @@
+---
+/**
+ * Tag index grouped by first letter (A–Z, then 中文 for other scripts), with a jump bar.
+ * Rows match the right-rail archive list; columns follow the center column width.
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getTagCounts } from '../../lib/posts';
+
+const OTHER = '中文';
+const tags = await getTagCounts();
+const keyOf = (name: string) => {
+  const first = name.charAt(0).toUpperCase();
+  return /[A-Z0-9]/.test(first) ? (/[0-9]/.test(first) ? '0-9' : first) : OTHER;
+};
+const groupMap = new Map<string, typeof tags>();
+for (const t of [...tags].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))) {
+  const key = keyOf(t.name);
+  groupMap.set(key, [...(groupMap.get(key) ?? []), t]);
+}
+const order = (k: string) => (k === OTHER ? 2 : k === '0-9' ? 1 : 0);
+const groups = [...groupMap.entries()].sort(([a], [b]) => order(a) - order(b) || a.localeCompare(b));
+const anchor = (key: string) => `tags-${key === OTHER ? 'other' : key.toLowerCase()}`;
+---
+
+<nav aria-label="依字首跳轉" class="jump">
+  {
+    groups.map(([key]) => (
+      <a href={`#${anchor(key)}`} class="jump-link">
+        {key}
+      </a>
+    ))
+  }
+</nav>
+
+{
+  groups.map(([key, items]) => (
+    <section id={anchor(key)} class="group-block" aria-label={`${key} 開頭的標籤`}>
+      <SectionLabel as="h2" text={key} />
+      <ul class="tag-list">
+        {items.map((t) => (
+          <li>
+            <a href={t.href} class="tag-row">
+              <span class="truncate">#{t.name}</span>
+              <span class="shrink-0 tabular-nums text-fg-muted">{t.count} 篇</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))
+}
+
+<style>
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: var(--space-5) 0 var(--space-2);
+  }
+  .jump-link {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--color-bg-muted);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-fg-body);
+    transition: color var(--duration-fast);
+  }
+  .jump-link:hover {
+    color: var(--color-accent);
+  }
+  .group-block {
+    padding-top: var(--space-7);
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+  .tag-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tag-row {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border-top: 1px solid var(--color-border-muted);
+    font-size: var(--text-sm);
+    color: var(--color-fg-default);
+    transition: color var(--duration-fast);
+  }
+  .tag-row:hover {
+    color: var(--color-accent);
+  }
+  @container center (width >= 640px) {
+    .tag-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container center (width >= 1080px) {
+    .tag-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @container center (width >= 1600px) {
+    .tag-list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

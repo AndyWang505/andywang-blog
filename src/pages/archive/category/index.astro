@@ -3,7 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import NavRail from '../../../components/rail/NavRail.astro';
 import HomeRightRail from '../../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../../components/home/FeedHeader.astro';
-import Chip from '../../../components/ui/Chip.astro';
+import CategoryGrid from '../../../components/post-list/CategoryGrid.astro';
 import { getCategoryCounts } from '../../../lib/posts';
 
 const categories = await getCategoryCounts();
@@ -12,11 +12,8 @@ const categories = await getCategoryCounts();
 <Layout variant="list" current="category" title="分類">
   <NavRail slot="left" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
-    <FeedHeader as="h1" title="分類" />
-    <p class="m-0 mt-4 text-sm text-fg-muted">共 {categories.length} 個分類</p>
-    <div class="mt-5 flex flex-wrap gap-2">
-      {categories.map((c) => <Chip href={c.href} label={c.name} count={c.count} />)}
-    </div>
+    <FeedHeader as="h1" title="分類" count={categories.length} unit="個" />
+    <CategoryGrid />
   </div>
   <HomeRightRail slot="right" />
 </Layout>
