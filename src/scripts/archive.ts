@@ -3,7 +3,7 @@
  * - posts above the reading line marked as passed (accent dot and spine), current year in the rail
  * - smooth jumps for rail years and heatmap cells (handled here, not as swup visits)
  * - rows below the fold fade in as they scroll into view
- * - hover preview in the right rail on pointer devices from 1440px
+ * - hover preview card beside the list on pointer devices from 1024px
  * Safe to call on every page view; previous listeners are removed first.
  */
 let cleanup: (() => void) | undefined;
@@ -81,19 +81,40 @@ export function initArchive(): void {
     pending.forEach((el) => observer?.observe(el));
   }
 
-  // Hover preview in the right rail (ArchivePeek; shown from 1440px on pointer devices)
+  // Hover preview card beside the list (mouse and trackpad, from 1024px)
   const peek = document.querySelector<HTMLElement>('[data-archive-peek]');
-  const card = peek?.querySelector<HTMLElement>('[data-peek-card]');
-  const hint = peek?.querySelector<HTMLElement>('[data-peek-hint]');
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1024px)');
   const img = peek?.querySelector<HTMLImageElement>('[data-peek-img]');
   const metaOut = peek?.querySelector<HTMLElement>('[data-peek-meta-out]');
   const titleOut = peek?.querySelector<HTMLElement>('[data-peek-title-out]');
   const descOut = peek?.querySelector<HTMLElement>('[data-peek-desc-out]');
   let shownFor: HTMLElement | null = null;
 
-  /** Keeps the last hovered post until another one is hovered, so the panel does not flicker. */
+  const hidePeek = () => {
+    shownFor = null;
+    peek?.classList.remove('show');
+  };
+  /**
+   * Keep the card off the reading path (titles and dates): over the right rail when it sits
+   * beside the list, otherwise right-aligned over the tags column. Vertically centred on the row.
+   */
+  const placePeek = (entry: HTMLElement) => {
+    if (!peek) return;
+    const edge = 16;
+    const row = entry.getBoundingClientRect();
+    const rail = document.querySelector<HTMLElement>('#swup-shell .shell-right')?.getBoundingClientRect();
+    const railBeside = !!rail && rail.width > 0 && rail.left >= row.right - 1;
+    const width = railBeside && rail ? Math.min(340, rail.width - 2 * edge) : 340;
+    peek.style.width = width + 'px';
+    const left = railBeside && rail ? rail.left + edge : row.right - width;
+    const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
+    const height = peek.offsetHeight;
+    const top = Math.max(header + edge, Math.min(row.top + row.height / 2 - height / 2, window.innerHeight - height - edge));
+    peek.style.left = left + 'px';
+    peek.style.top = top + 'px';
+  };
   const onOver = (e: MouseEvent) => {
-    if (!peek || !card || peek.offsetParent === null) return;
+    if (!peek || !canHover.matches) return;
     const entry = (e.target as Element).closest<HTMLElement>('.entry');
     if (!entry || entry === shownFor) return;
     shownFor = entry;
@@ -105,23 +126,30 @@ export function initArchive(): void {
     if (metaOut) metaOut.textContent = entry.dataset.peekMeta ?? '';
     if (titleOut) titleOut.textContent = entry.dataset.peekTitle ?? '';
     if (descOut) descOut.textContent = entry.dataset.peekDesc ?? '';
-    if (hint) hint.hidden = true;
-    card.hidden = true;
-    void card.offsetWidth; // restart the enter animation
-    card.hidden = false;
+    peek.hidden = false;
+    placePeek(entry);
+    requestAnimationFrame(() => peek.classList.add('show'));
+  };
+  const onOut = (e: MouseEvent) => {
+    const to = e.relatedTarget as Element | null;
+    if (shownFor && (!to || !shownFor.contains(to))) hidePeek();
   };
 
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('scroll', hidePeek, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
   document.addEventListener('click', onClick, true);
   tree.addEventListener('mouseover', onOver);
+  tree.addEventListener('mouseout', onOut);
 
   cleanup = () => {
     window.removeEventListener('scroll', onScroll);
+    window.removeEventListener('scroll', hidePeek);
     window.removeEventListener('resize', onScroll);
     document.removeEventListener('click', onClick, true);
     tree.removeEventListener('mouseover', onOver);
+    tree.removeEventListener('mouseout', onOut);
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));

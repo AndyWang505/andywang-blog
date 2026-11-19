@@ -3,7 +3,7 @@
  * Archive timeline: one spine per year with a dot per post and the month in a left gutter
  * (shown on the month's first post). Year headings carry id="y{year}" for the rail links,
  * a month's first row id="m{year}-{MM}" for the heatmap. Scroll state (passed dots),
- * reveal and the rail preview (ArchivePeek) live in scripts/archive.ts.
+ * reveal and the hover preview card live in scripts/archive.ts.
  */
 import { getImage } from 'astro:assets';
 import type { Post } from '../../lib/posts';
@@ -73,6 +73,15 @@ await Promise.all(
       </section>
     ))
   }
+</div>
+
+<div class="peek" aria-hidden="true" hidden data-archive-peek>
+  <div class="peek-body">
+    <p class="peek-meta" data-peek-meta-out></p>
+    <p class="peek-title" data-peek-title-out></p>
+    <p class="peek-desc" data-peek-desc-out></p>
+  </div>
+  <img class="peek-cover" alt="" width="240" height="150" data-peek-img />
 </div>
 
 <style>
@@ -232,6 +241,76 @@ await Promise.all(
   .row.pre-reveal {
     opacity: 0;
     translate: 0 10px;
+  }
+
+  /*
+   * Hover preview card (pointer devices from 1024px). Placed by scripts/archive.ts beside the
+   * list: over the right rail when it is a side column, else over the tags column, so titles
+   * and dates on the reading path are never covered.
+   */
+  .peek {
+    position: fixed;
+    z-index: var(--z-overlay);
+    display: flex;
+    gap: var(--space-4);
+    width: 340px;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-default);
+    box-shadow: var(--shadow-popover);
+    pointer-events: none;
+    opacity: 0;
+    translate: 6px 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      translate var(--duration-fast) var(--ease-standard);
+  }
+  .peek[hidden] {
+    display: none;
+  }
+  .peek.show {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .peek-body {
+    min-width: 0;
+    flex: 1;
+  }
+  .peek-cover {
+    flex-shrink: 0;
+    align-self: flex-start;
+    width: 104px;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    background: var(--color-bg-subtle);
+  }
+  .peek-cover[hidden] {
+    display: none;
+  }
+  .peek-meta {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .peek-title {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .peek-desc {
+    display: -webkit-box;
+    margin: var(--space-1) 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-body);
   }
 
   @container center (min-width: 768px) {
