@@ -55,12 +55,14 @@
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
 
   /* Layering */
   --z-sticky: 10;
   --z-overlay: 20;
   --z-header: 30;
+  --z-modal: 50; /* dialogs over the header, e.g. search */
   --z-skip-link: 100;
 
   /* Motion */
@@ -70,6 +72,7 @@
 
   /* Effects */
   --blur-glass: saturate(180%) blur(20px);
+  --blur-popover: saturate(180%) blur(28px); /* glass dialogs: stronger, so text over busy pages stays legible */
   --gradient-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 60%);
 }
 
@@ -100,6 +103,10 @@
   --color-on-series-4: var(--palette-chart-ink);
   --color-surface-glass: rgba(255, 255, 255, 0.72);
   --color-surface-glass-fallback: rgba(255, 255, 255, 0.95);
+  --color-surface-popover: rgba(255, 255, 255, 0.78); /* glass dialog body */
+  --color-surface-popover-fallback: rgba(255, 255, 255, 0.97);
+  --color-scrim: rgba(0, 0, 0, 0.18); /* page dimmer behind dialogs */
+  --color-hairline: rgba(0, 0, 0, 0.08); /* edge of glass surfaces */
   --color-code-bg: var(--palette-gray-50);
   --color-code-header: var(--palette-gray-100);
   color-scheme: light;
@@ -131,6 +138,10 @@ html.dark {
   --color-on-series-4: var(--palette-gray-0);
   --color-surface-glass: rgba(26, 27, 38, 0.75);
   --color-surface-glass-fallback: rgba(26, 27, 38, 0.95);
+  --color-surface-popover: rgba(31, 35, 53, 0.78);
+  --color-surface-popover-fallback: rgba(31, 35, 53, 0.97);
+  --color-scrim: rgba(0, 0, 0, 0.45);
+  --color-hairline: rgba(255, 255, 255, 0.08);
   --color-code-bg: var(--palette-tokyo-bg-dark);
   --color-code-header: var(--palette-tokyo-bg-float);
   color-scheme: dark;

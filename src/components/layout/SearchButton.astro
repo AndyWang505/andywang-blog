@@ -1,6 +1,6 @@
 ---
 /**
- * Header search: pill (>=1024px) / icon (<1024px) trigger for the existing Search modal.
+ * Header search: pill (>=1024px) / icon (<1024px) trigger and the glass search dialog (components/Search.tsx).
  * Spec: docs/redesign/02-layout.md §4
  */
 import Search from '../Search';
@@ -13,7 +13,8 @@ const searchData = (await getSortedPosts()).map((post) => ({
   category: post.category,
   tags: post.tags,
   pubDate: post.isoDate,
+  date: post.dateText, // YYYY.MM.DD in the site time zone
 }));
 ---
 
-<Search client:load posts={searchData} trigger="responsive" />
+<Search client:load posts={searchData} />
