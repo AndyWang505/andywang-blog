@@ -26,5 +26,6 @@
     --rail-left-width: 300px;
     --rail-right-width: 360px;
     --toc-width: 340px;
+    --content-measure: 880px; /* ~46 CJK chars per line at 19px */
   }
 }

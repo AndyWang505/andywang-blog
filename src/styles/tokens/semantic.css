@@ -21,7 +21,7 @@
   --text-2xl: clamp(1.5rem, 1.25rem + 1vw, 2.25rem);           /* 24 → 36, lead post title */
   --text-3xl: clamp(1.875rem, 1.55rem + 1.4vw, 3rem);          /* 30 → 48, article h1 */
   --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 3.75rem);     /* 28 → 60, hero site name */
-  --text-prose: clamp(1.0625rem, 1.04rem + 0.09vw, 1.125rem);  /* 17 → 18, article body */
+  --text-prose: clamp(1.0625rem, 1.0175rem + 0.11vw, 1.1875rem); /* 17 → 19, article body */
 
   /* Line heights */
   --leading-tight: 1.2;
