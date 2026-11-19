@@ -84,9 +84,9 @@ describe('styling ownership rules', () => {
   });
 
   it('no raw Tailwind palette colours or dark: variants in v2 files', () => {
-    const KNOWN = ['pages/about.astro'];
+    const KNOWN: string[] = [];
     const found = offenders(v2Files, (s) => classStrings(s).some((c) => RAW_COLOR.test(c) || /(?:^|\s)dark:/.test(c)));
-    expect(found).toEqual(KNOWN.sort());
+    expect(found).toEqual(KNOWN);
   });
 
   it('no arbitrary text-[size] in v2 files', () => {
