@@ -55,6 +55,30 @@ img { max-width: 100%; display: block; }
 }
 .skip-link:focus { left: var(--space-2); }
 
+/*
+ * Mobile sheet motion, shared by every panel that unfolds below the header on small screens
+ * (menu, chapter TOC, search). Panel: in from 8px above over --duration-base, out 6px up over
+ * --duration-fast. Items inside: one after another, 25ms apart (set --i on each item).
+ */
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes sheet-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes sheet-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;

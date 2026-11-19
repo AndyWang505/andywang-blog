@@ -71,15 +71,29 @@ export function initToc(): void {
     if (!frame) frame = requestAnimationFrame(update);
   };
 
+  /** Matches the .closing fold animation in ChapterToc.astro. */
+  const FOLD_MS = 150;
+  let foldTimer = 0;
+  const isOpen = () => !!panel?.classList.contains('open') && !panel.classList.contains('closing');
   const setOpen = (open: boolean, restoreFocus = false) => {
     if (!toggle || !panel) return;
-    panel.classList.toggle('open', open);
+    window.clearTimeout(foldTimer);
+    panel.classList.remove('closing');
+    if (open) panel.classList.add('open');
+    else if (panel.classList.contains('open')) {
+      // The desktop column is always visible; only the mobile panel folds.
+      if (reduceMotion.matches || window.innerWidth >= 1024) panel.classList.remove('open');
+      else {
+        panel.classList.add('closing');
+        foldTimer = window.setTimeout(() => panel.classList.remove('open', 'closing'), FOLD_MS);
+      }
+    }
     toggle.setAttribute('aria-expanded', String(open));
     if (!open && restoreFocus) toggle.focus();
   };
-  const onToggle = () => setOpen(!panel?.classList.contains('open'));
+  const onToggle = () => setOpen(!isOpen());
   const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && panel?.classList.contains('open')) setOpen(false, true);
+    if (e.key === 'Escape' && isOpen()) setOpen(false, true);
   };
 
   // Back to top: an eased scroll whose length follows the distance, cancelled as soon as the
@@ -177,6 +191,7 @@ export function initToc(): void {
     copyButton?.removeEventListener('click', onCopy);
     if (frame) cancelAnimationFrame(frame);
     stopToTop();
+    window.clearTimeout(foldTimer);
     window.clearTimeout(copyTimer);
   };
 }

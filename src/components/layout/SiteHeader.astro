@@ -5,7 +5,6 @@
  * Spec: docs/redesign/02-layout.md §3
  */
 import ThemeToggle from '../ThemeToggle';
-import Icon from '../ui/Icon.astro';
 import SearchButton from './SearchButton.astro';
 import ReadingProgress from './ReadingProgress.astro';
 import { SITE_TITLE } from '../../config/site';
@@ -49,8 +48,7 @@ const { left, right, current, progress = false } = Astro.props;
       aria-controls="mobile-menu"
       data-menu-toggle
     >
-      <span class="icon-open"><Icon name="menu" size={20} /></span>
-      <span class="icon-close"><Icon name="close" size={20} /></span>
+      <span class="burger" aria-hidden="true"><span></span><span></span></span>
     </button>
   </div>
   {progress && <ReadingProgress />}
@@ -118,12 +116,37 @@ const { left, right, current, progress = false } = Astro.props;
   .menu-btn:hover {
     background: var(--color-bg-muted);
   }
-  .menu-btn .icon-close,
-  .menu-btn[aria-expanded='true'] .icon-open {
-    display: none;
+  /* Two bars (the menu icon) that rotate into an X when the menu is open. */
+  .burger {
+    position: relative;
+    width: 18px;
+    height: 12px;
   }
-  .menu-btn[aria-expanded='true'] .icon-close {
-    display: inline;
+  .burger span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      top var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard);
+  }
+  .burger span:first-child {
+    top: 1px;
+  }
+  .burger span:last-child {
+    top: 9px;
+  }
+  .menu-btn[aria-expanded='true'] .burger span {
+    top: 5px;
+  }
+  .menu-btn[aria-expanded='true'] .burger span:first-child {
+    transform: rotate(45deg);
+  }
+  .menu-btn[aria-expanded='true'] .burger span:last-child {
+    transform: rotate(-45deg);
   }
 
   @media (min-width: 1024px) {

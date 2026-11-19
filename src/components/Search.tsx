@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
+import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { IoSearch } from 'react-icons/io5';
 import '../styles/search.css';
@@ -212,6 +212,7 @@ export default function Search({ posts }: SearchProps) {
                           role="option"
                           aria-selected={i === active}
                           className="search-option"
+                          style={{ '--i': Math.min(i, 8) } as CSSProperties}
                           onMouseMove={() => i !== active && setActive(i)}
                           onClick={(e) => {
                             e.preventDefault();

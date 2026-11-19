@@ -54,14 +54,14 @@ const first = chapters[0];
         </div>
 
         <nav aria-label="章節">
-          {chapters.map((c) => (
+          {chapters.map((c, i) => (
             <>
-              <a href={`#${c.slug}`} class="chap" data-toc-link={c.slug} data-chapter={c.no}>
+              <a href={`#${c.slug}`} class="chap" style={`--i:${i}`} data-toc-link={c.slug} data-chapter={c.no}>
                 <i>{padChapter(c.no)}</i>
                 <span>{c.text}</span>
               </a>
               {c.children.map((child) => (
-                <a href={`#${child.slug}`} class="chap sub" data-toc-link={child.slug} data-chapter={c.no}>
+                <a href={`#${child.slug}`} class="chap sub" style={`--i:${i}`} data-toc-link={child.slug} data-chapter={c.no}>
                   <span>{child.text}</span>
                 </a>
               ))}
@@ -127,6 +127,7 @@ const first = chapters[0];
   }
   .chev {
     display: inline-flex;
+    transition: transform var(--duration-base) var(--ease-standard);
   }
   .toc-bar[aria-expanded='true'] .chev {
     transform: rotate(180deg);
@@ -139,6 +140,20 @@ const first = chapters[0];
   }
   .toc-panel.open {
     display: block;
+  }
+  /* Mobile panel: shared sheet motion (sheet-* keyframes in global.css). Closing keeps .open
+     for the fold; scripts/toc.ts removes it afterwards. */
+  @media (max-width: 1023.98px) {
+    .toc-panel.open {
+      animation: sheet-in var(--duration-base) var(--ease-standard);
+    }
+    .toc-panel.open:not(.closing) .chap {
+      animation: sheet-item-in 260ms var(--ease-standard) backwards;
+      animation-delay: calc(40ms + var(--i, 0) * 25ms);
+    }
+    .toc-panel.open.closing {
+      animation: sheet-out var(--duration-fast) var(--ease-standard) forwards;
+    }
   }
   .toc-head,
   .toc-acts {

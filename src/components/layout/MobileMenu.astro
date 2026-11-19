@@ -1,7 +1,8 @@
 ---
 /**
  * Full-height glass menu below the header for screens narrower than 1024px.
- * Opened by the header's [data-menu-toggle]; behaviour in src/scripts/mobile-menu.ts.
+ * Opened by the header's [data-menu-toggle]; behaviour in src/scripts/mobile-menu.ts
+ * (adds .entering / .leaving for the open and close motion).
  * Spec: docs/redesign/02-layout.md §6
  */
 import Chip from '../ui/Chip.astro';
@@ -21,8 +22,8 @@ const [categories, tags] = await Promise.all([getCategoryCounts(), getTagCounts(
   <nav aria-label="主要導覽（行動版）">
     <ul class="m-0 list-none p-0">
       {
-        NAV_ITEMS.map((item) => (
-          <li class="border-b border-line-muted">
+        NAV_ITEMS.map((item, i) => (
+          <li class="item border-b border-line-muted" style={`--i:${i}`}>
             <a
               href={item.href}
               aria-current={item.key === current ? 'page' : undefined}
@@ -35,13 +36,13 @@ const [categories, tags] = await Promise.all([getCategoryCounts(), getTagCounts(
       }
     </ul>
   </nav>
-  <div class="mt-8">
+  <div class="item mt-8" style={`--i:${NAV_ITEMS.length}`}>
     <SectionLabel as="h2" text="分類" />
     <div class="flex flex-wrap gap-2">
       {categories.map((c) => <Chip href={c.href} label={c.name} count={c.count} />)}
     </div>
   </div>
-  <div class="mt-8 pb-8">
+  <div class="item mt-8 pb-8" style={`--i:${NAV_ITEMS.length + 1}`}>
     <SectionLabel as="h2" text="標籤" />
     <div class="flex flex-wrap gap-1.5">
       {tags.map((t) => <Chip href={t.href} label={t.name} size="sm" />)}
@@ -59,6 +60,17 @@ const [categories, tags] = await Promise.all([getCategoryCounts(), getTagCounts(
   }
   .mobile-menu[hidden] {
     display: none;
+  }
+  /* Shared mobile sheet motion (sheet-* keyframes in global.css). */
+  .mobile-menu.entering {
+    animation: sheet-in var(--duration-base) var(--ease-standard);
+  }
+  .mobile-menu.entering .item {
+    animation: sheet-item-in 260ms var(--ease-standard) backwards;
+    animation-delay: calc(40ms + var(--i, 0) * 25ms);
+  }
+  .mobile-menu.leaving {
+    animation: sheet-out var(--duration-fast) var(--ease-standard) forwards;
   }
   @media (min-width: 1024px) {
     .mobile-menu {

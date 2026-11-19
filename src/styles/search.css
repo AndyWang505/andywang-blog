@@ -209,10 +209,14 @@
     border: 0;
     border-radius: 0;
     box-shadow: none;
-    animation-name: search-drop;
+    animation-name: sheet-in; /* shared mobile sheet motion, global.css */
   }
   .search-scrim.closing .search-panel {
-    animation-name: search-lift;
+    animation-name: sheet-out;
+  }
+  .search-option {
+    animation: sheet-item-in 260ms var(--ease-standard) backwards;
+    animation-delay: calc(40ms + var(--i, 0) * 25ms);
   }
   .search-field {
     padding: var(--space-3) var(--space-4);
@@ -223,18 +227,6 @@
   }
 }
 
-@keyframes search-drop {
-  from {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
-}
-@keyframes search-lift {
-  to {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-}
 @keyframes search-fade {
   from {
     opacity: 0;
