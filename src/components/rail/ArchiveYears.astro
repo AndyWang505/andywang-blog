@@ -15,7 +15,7 @@ const years = await getYearCounts();
     years.map(({ year, count }) => (
       <a
         href={`/archive/#y${year}`}
-        class="flex min-h-10 items-center justify-between border-t border-line-muted text-sm tabular-nums text-fg transition-colors duration-fast hover:text-accent"
+        class="flex min-h-10 items-center justify-between border-t border-line-muted text-sm tabular-nums text-fg transition-colors duration-fast hover:text-accent aria-[current=true]:font-semibold aria-[current=true]:text-accent"
       >
         {year}
         <span class="text-fg-muted">{count} 篇</span>

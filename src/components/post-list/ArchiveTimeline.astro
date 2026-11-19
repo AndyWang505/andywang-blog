@@ -2,8 +2,10 @@
 /**
  * Archive tree: year → month → posts, joined by connector lines.
  * Evolved from the v1 timeline (date · dot on a line · title · tags).
- * Year nodes carry id="y{year}" for the ArchiveYears rail links.
+ * Year nodes carry id="y{year}" for the ArchiveYears rail links, month nodes id="m{year}-{MM}"
+ * for the heatmap. Scroll progress, reveal and hover preview live in scripts/archive.ts.
  */
+import { getImage } from 'astro:assets';
 import type { Post } from '../../lib/posts';
 
 interface Props {
@@ -18,11 +20,24 @@ const tree = groups.map((g) => {
     const month = p.dateText.slice(5, 7);
     months.set(month, [...(months.get(month) ?? []), p]);
   }
-  return { ...g, months: [...months].map(([month, posts]) => ({ month: Number(month), posts })) };
+  return { ...g, months: [...months].map(([month, posts]) => ({ month: Number(month), key: month, posts })) };
 });
+
+/** Small cover thumbnails for the hover preview, generated at build time. */
+const peekCovers = new Map<string, string>();
+await Promise.all(
+  groups
+    .flatMap((g) => g.posts)
+    .filter((p) => p.cover)
+    .map(async (p) => {
+      const img = await getImage({ src: p.cover!, width: 320, height: 200, format: 'webp', inferSize: false });
+      peekCovers.set(p.slug, img.src);
+    }),
+);
 ---
 
-<ol class="tree">
+<ol class="tree" data-archive>
+  <span class="fill" aria-hidden="true" data-archive-fill></span>
   {
     tree.map((year) => (
       <li class="year">
@@ -34,13 +49,20 @@ const tree = groups.map((g) => {
         <ol class="branch">
           {year.months.map((m) => (
             <li>
-              <p class="node month-node">
+              <p id={`m${year.year}-${m.key}`} class="node month-node">
                 {m.month} 月<span class="count">{m.posts.length} 篇</span>
               </p>
               <ol class="branch">
                 {m.posts.map((post) => (
                   <li class="leaf">
-                    <a href={post.url} class="entry">
+                    <a
+                      href={post.url}
+                      class="entry"
+                      data-peek-title={post.title}
+                      data-peek-desc={post.description}
+                      data-peek-meta={`${post.category} · ${post.dateText} · ${post.readingMinutes} 分鐘`}
+                      data-peek-cover={peekCovers.get(post.slug)}
+                    >
                       <time datetime={post.isoDate} class="date">
                         {post.dateText.slice(5)}
                       </time>
@@ -58,6 +80,15 @@ const tree = groups.map((g) => {
   }
 </ol>
 
+<div class="peek" aria-hidden="true" hidden data-archive-peek>
+  <img class="peek-cover" alt="" width="320" height="200" data-peek-img />
+  <div class="peek-body">
+    <p class="peek-meta" data-peek-meta-out></p>
+    <p class="peek-title" data-peek-title-out></p>
+    <p class="peek-desc" data-peek-desc-out></p>
+  </div>
+</div>
+
 <style>
   .tree,
   .branch {
@@ -69,7 +100,21 @@ const tree = groups.map((g) => {
     --row: 2.5rem;
     --indent: 1.5rem;
     --connector: var(--color-border-default);
+    position: relative;
     padding-top: var(--space-6);
+  }
+  /* Scroll progress: an accent line over the trunk, grown by scripts/archive.ts via --fill. */
+  .fill {
+    position: absolute;
+    left: 5px;
+    top: calc(var(--space-6) + var(--row) / 2);
+    bottom: 0;
+    width: 2px;
+    margin-left: -0.5px;
+    background: var(--color-accent);
+    transform: scaleY(var(--fill, 0));
+    transform-origin: top;
+    pointer-events: none;
   }
   .year + .year {
     margin-top: var(--space-8);
@@ -83,7 +128,20 @@ const tree = groups.map((g) => {
     margin: 0;
   }
   .year-node {
+    position: relative;
+    z-index: 1;
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+  .month-node {
+    scroll-margin-top: calc(var(--header-height) + var(--row) + var(--space-4));
+  }
+  /* From 1024px the current year sticks under the header (below that the category bar is sticky). */
+  @media (min-width: 1024px) {
+    .year-node {
+      position: sticky;
+      top: var(--header-height);
+      background: var(--color-bg-default);
+    }
   }
   .ring {
     width: 12px;
@@ -174,6 +232,75 @@ const tree = groups.map((g) => {
   .entry:hover .title {
     color: var(--color-accent);
   }
+  /* Reveal: scripts/archive.ts hides rows below the fold, then shows them as they scroll in. */
+  .leaf {
+    transition:
+      opacity 0.45s var(--ease-standard),
+      translate 0.45s var(--ease-standard);
+  }
+  .leaf.pre-reveal {
+    opacity: 0;
+    translate: 0 10px;
+  }
+
+  /* Hover preview card (pointer devices only; positioned by scripts/archive.ts). */
+  .peek {
+    position: fixed;
+    z-index: var(--z-overlay);
+    width: 300px;
+    overflow: hidden;
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-default);
+    box-shadow: var(--shadow-popover);
+    pointer-events: none;
+    opacity: 0;
+    translate: 0 4px;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      translate var(--duration-fast) var(--ease-standard);
+  }
+  .peek.show {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .peek-cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: var(--color-bg-subtle);
+  }
+  .peek-cover[hidden] {
+    display: none;
+  }
+  .peek-body {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+  .peek-meta {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .peek-title {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .peek-desc {
+    display: -webkit-box;
+    margin: var(--space-1) 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-body);
+  }
+
   .tags {
     grid-column: 2;
     margin-top: 2px;

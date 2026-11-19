@@ -9,6 +9,7 @@ import { initCategoryBar } from './category-bar';
 import { initToc } from './toc';
 import { initRailEnter } from './rail-enter';
 import { initTagFilter } from './tag-filter';
+import { initArchive } from './archive';
 
 type SwupLike = {
   hooks: { before: (hook: string, handler: () => void) => void; on: (hook: string, handler: () => void) => void };
@@ -20,6 +21,7 @@ function initPage(): void {
   initCategoryBar();
   initToc();
   initTagFilter();
+  initArchive();
 }
 
 initPage();

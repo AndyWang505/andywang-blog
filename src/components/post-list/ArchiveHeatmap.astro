@@ -1,0 +1,106 @@
+---
+/**
+ * Posts per month as a year × month grid. Darker cells mean more posts;
+ * cells with posts link to the month in the archive tree (id="m{year}-{MM}").
+ */
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+const counts = new Map<string, number>();
+for (const p of posts) {
+  const key = p.dateText.slice(0, 7); // YYYY.MM
+  counts.set(key, (counts.get(key) ?? 0) + 1);
+}
+const years = [...new Set(posts.map((p) => Number(p.dateText.slice(0, 4))))].sort((a, b) => b - a);
+const months = Array.from({ length: 12 }, (_, i) => i + 1);
+const pad = (n: number) => String(n).padStart(2, '0');
+const level = (n: number) => (n === 0 ? 0 : n === 1 ? 1 : n === 2 ? 2 : 3);
+---
+
+<section class="heatmap" aria-label="每月發文數">
+  <div class="grid-row head" aria-hidden="true">
+    <span></span>
+    {months.map((m) => <span class="month-label">{m}</span>)}
+  </div>
+  {
+    years.map((y) => (
+      <div class="grid-row">
+        <span class="year-label">{y}</span>
+        {months.map((m) => {
+          const n = counts.get(`${y}.${pad(m)}`) ?? 0;
+          const label = `${y} 年 ${m} 月 · ${n} 篇`;
+          return n > 0 ? (
+            <a href={`#m${y}-${pad(m)}`} class={`cell l${level(n)}`} title={label} aria-label={label} data-archive-jump />
+          ) : (
+            <span class="cell l0" title={label} />
+          );
+        })}
+      </div>
+    ))
+  }
+  <p class="legend" aria-hidden="true">
+    少<span class="cell l0" /><span class="cell l1" /><span class="cell l2" /><span class="cell l3" />多
+  </p>
+</section>
+
+<style>
+  .heatmap {
+    margin-top: var(--space-6);
+  }
+  .grid-row {
+    display: grid;
+    grid-template-columns: 2.75rem repeat(12, minmax(0, 1fr));
+    gap: 4px;
+    align-items: center;
+    max-width: 34rem;
+  }
+  .grid-row + .grid-row {
+    margin-top: 4px;
+  }
+  .month-label,
+  .year-label {
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-muted);
+  }
+  .month-label {
+    text-align: center;
+  }
+  .cell {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: var(--color-bg-muted);
+  }
+  .l1 {
+    background: color-mix(in srgb, var(--color-accent) 35%, var(--color-bg-muted));
+  }
+  .l2 {
+    background: color-mix(in srgb, var(--color-accent) 65%, var(--color-bg-muted));
+  }
+  .l3 {
+    background: var(--color-accent);
+  }
+  a.cell {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+  a.cell:hover,
+  a.cell:focus-visible {
+    transform: scale(1.25);
+  }
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .legend .cell {
+    width: 12px;
+  }
+</style>
