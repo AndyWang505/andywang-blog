@@ -119,13 +119,7 @@ const level = (n: number) => (n === 0 ? 0 : Math.min(n, 4));
   .legend .cell {
     width: 12px;
   }
-  /* Centred with the centred timeline (see ArchiveTimeline), larger cells when there is room. */
-  @container center (min-width: 820px) {
-    .cal {
-      width: fit-content;
-      margin-inline: auto;
-    }
-  }
+  /* Larger cells when there is room. */
   @container center (min-width: 1200px) {
     .graph {
       grid-template-columns: 2.75rem repeat(12, 2.125rem);

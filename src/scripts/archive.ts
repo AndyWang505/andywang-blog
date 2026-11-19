@@ -42,29 +42,75 @@ export function initArchive(): void {
   };
   /** Where the connector leaves the card, measured from the card's top. */
   const LINK_Y = 28;
+  /** Keep this far inside the card's top and bottom edges when aiming the connector. */
+  const EDGE = 16;
   let shift = 0;
+  /** Vertical direction of the pointer: 1 moving down, -1 moving up. */
+  let pointerDir = 1;
+  let pointerY: number | null = null;
+  const onMove = (e: MouseEvent) => {
+    if (pointerY !== null && Math.abs(e.clientY - pointerY) > 2) pointerDir = e.clientY > pointerY ? 1 : -1;
+    pointerY = e.clientY;
+    if (hovered) pointConnector();
+  };
   /**
-   * Hovering: slide the card beside the hovered row (kept inside the viewport).
-   * Otherwise: the card rests at the reading line. The connector aims at the shown post's dot
-   * and hides when the dot is beside neither card edge.
+   * The card's resting top (sticky at the reading line, or its place in the flow before it
+   * sticks), computed from layout so an in-flight slide animation cannot skew it.
    */
-  const pointConnector = () => {
-    if (!readerLink || !readerFor || !readerShown()) return;
-    const row = readerFor.closest('[data-archive-row]');
-    if (!row) return;
-    const card = readerLink.getBoundingClientRect();
-    const restTop = card.top - shift;
-    const target = dotY(row);
-    let top = restTop;
-    if (hovered) {
+  const restTop = () => {
+    if (!reader || !readerLink) return 0;
+    const aside = reader.getBoundingClientRect();
+    const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
+    const sticky = readingLine() - LINK_Y;
+    return Math.min(Math.max(sticky, aside.top + marginTop), aside.bottom - readerLink.offsetHeight);
+  };
+  /**
+   * The card glides every frame towards its target, so moving between rows slides it smoothly:
+   * - hovering: beside the pointer, placed ahead of it (moving down, the pointer sits near the
+   *   card's top so the rows below stay beside it; moving up, near its bottom). The switch
+   *   between the two is eased too, so changing direction never jumps.
+   * - otherwise: back to the resting place at the reading line.
+   * The connector aims at the shown post's dot on every frame.
+   */
+  let cardTop: number | null = null;
+  let anchor = LINK_Y;
+  let glide = 0;
+  const EASE = 0.2;
+  const tick = () => {
+    glide = 0;
+    if (!readerLink || !readerShown()) return;
+    const height = readerLink.offsetHeight;
+    const rest = restTop();
+    let target = rest;
+    let settling = false;
+    if (hovered && pointerY !== null) {
       const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
-      top = Math.max(header + 16, Math.min(target - LINK_Y, window.innerHeight - card.height - 16));
+      const anchorWanted = pointerDir > 0 ? LINK_Y : height - LINK_Y;
+      anchor = reduceMotion.matches ? anchorWanted : anchor + (anchorWanted - anchor) * EASE;
+      settling = Math.abs(anchorWanted - anchor) > 0.5;
+      target = Math.max(header + EDGE, Math.min(pointerY - anchor, window.innerHeight - height - EDGE));
+    } else {
+      anchor = LINK_Y;
+      // Already resting: follow the sticky place exactly (no lag while the page scrolls).
+      if (cardTop === null || Math.abs(shift) < 0.5) cardTop = rest;
     }
-    shift = Math.round(top - restTop);
-    readerLink.style.translate = `0 ${shift}px`;
-    const y = target - top;
-    readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
-    readerLink.style.setProperty('--link-on', y >= 12 && y <= card.height - 12 ? '1' : '0');
+    if (cardTop === null) cardTop = rest;
+    cardTop = reduceMotion.matches ? target : cardTop + (target - cardTop) * EASE;
+    if (Math.abs(target - cardTop) < 0.5) cardTop = target;
+    else settling = true;
+    shift = cardTop - rest;
+    readerLink.style.translate = `0 ${shift.toFixed(1)}px`;
+
+    const row = readerFor?.closest('[data-archive-row]');
+    if (row) {
+      const y = dotY(row) - cardTop;
+      readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
+      readerLink.style.setProperty('--link-on', y >= EDGE - 4 && y <= height - EDGE + 4 ? '1' : '0');
+    }
+    if (settling) glide = requestAnimationFrame(tick);
+  };
+  const pointConnector = () => {
+    if (!glide) glide = requestAnimationFrame(tick);
   };
 
   /** Ring, connector and card always point at the same post. */
@@ -238,6 +284,7 @@ export function initArchive(): void {
   window.addEventListener('resize', onScroll, { passive: true });
   document.addEventListener('click', onClick, true);
   tree.addEventListener('mouseover', onOver);
+  document.addEventListener('mousemove', onMove, { passive: true });
   tree.addEventListener('mouseout', onOut);
 
   cleanup = () => {
@@ -246,9 +293,11 @@ export function initArchive(): void {
     window.removeEventListener('resize', onScroll);
     document.removeEventListener('click', onClick, true);
     tree.removeEventListener('mouseover', onOver);
+    document.removeEventListener('mousemove', onMove);
     tree.removeEventListener('mouseout', onOut);
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
+    if (glide) cancelAnimationFrame(glide);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));
   };
 }
