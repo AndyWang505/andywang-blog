@@ -107,9 +107,8 @@
 }
 
 /*
- * Rail enter animation: after a swup page change, a rail whose type changed
- * (data-left / data-right differs from the previous page) slides in from its
- * screen edge. Only the rail content moves; the column lines stay put so they
+ * Rail enter animation: after a swup page change, a rail that just appeared
+ * (or whose type changed, for the right rail) slides in from its screen edge. Only the rail content moves; the column lines stay put so they
  * keep lining up with the header. Set by scripts/rail-enter.ts. Only applies where the rail is a
  * side column; reduced motion is handled globally.
  */

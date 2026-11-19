@@ -1,23 +1,26 @@
-/* Page transition with Swup: fade the whole shell (rails + center) so the
-   column layout change between page types is hidden by the fade.
-   Leaving is quick, entering is slower so the new page settles in gently. */
-html.is-changing .transition-swup-fade {
-    transition: opacity 0.4s var(--ease-standard);
+/* Page transition with Swup. The header and left rail stay put (their content
+   swaps in place unless the rail changes type, see rail-enter.ts); the center
+   column and right rail fade, and the center rises
+   slightly while entering. Leaving is quick, entering is slower.
+   Right rail children are targeted because the rail itself can be
+   `display: contents`, which ignores opacity. */
+html.is-changing .transition-swup-fade,
+html.is-changing .shell-right > * {
+    transition:
+        opacity 0.4s var(--ease-standard),
+        translate 0.5s var(--ease-standard);
 }
 
-html.is-leaving .transition-swup-fade {
+html.is-leaving .transition-swup-fade,
+html.is-leaving .shell-right > * {
     transition-duration: 0.22s;
 }
 
-html.is-animating .transition-swup-fade {
+html.is-animating .transition-swup-fade,
+html.is-animating .shell-right > * {
     opacity: 0;
 }
 
-/* Center column rises slightly while the new page fades in (enter only). */
-html.is-changing .shell-center {
-    transition: translate 0.5s var(--ease-standard);
-}
-
-html.is-rendering.is-animating .shell-center {
+html.is-rendering.is-animating .transition-swup-fade {
     translate: 0 12px;
 }
