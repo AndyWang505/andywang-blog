@@ -20,7 +20,7 @@ const posts = (await getSortedPosts()).filter((p) => p.tags.includes(name));
 <Layout variant="list" current="tags" title={`標籤：#${name}`}>
   <NavRail slot="left" currentTags={[name]} />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
-    <nav aria-label="麵包屑" class="flex gap-1.5 pt-6 text-[13px] text-fg-muted lg:pt-8">
+    <nav aria-label="麵包屑" class="flex gap-1.5 pt-6 text-sm text-fg-muted lg:pt-8">
       <a href="/archive/tag/" class="hover:text-accent">標籤</a>
       <span aria-hidden="true">›</span>
       <span class="text-fg">#{name}</span>

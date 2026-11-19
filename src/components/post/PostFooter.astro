@@ -46,7 +46,7 @@ const { prev, next, related } = Astro.props;
   {
     related.length > 0 && (
       <section aria-label="延伸閱讀">
-        <h2 class="m-0 mb-1 mt-9 text-[13px] font-semibold text-fg">延伸閱讀</h2>
+        <h2 class="m-0 mb-1 mt-9 text-sm font-semibold text-fg">延伸閱讀</h2>
         {related.map((p) => (
           <a href={p.url} class="group flex items-center gap-3.5 border-b border-line-muted py-3">
             {p.cover && (

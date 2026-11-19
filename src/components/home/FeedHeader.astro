@@ -13,7 +13,7 @@ const { title, as: Tag = 'h2', count, moreHref, moreLabel } = Astro.props;
 ---
 
 <div class="flex items-baseline justify-between gap-4 border-b border-line pb-2.5 pt-6 lg:pt-8">
-  <Tag class="m-0 flex items-baseline gap-2.5 text-[22px] font-bold tracking-[-0.3px] text-fg">
+  <Tag class="m-0 flex items-baseline gap-2.5 text-xl font-bold tracking-[-0.3px] text-fg">
     {title}
     {count !== undefined && <span class="text-xs font-normal tabular-nums text-fg-muted">{count} 篇</span>}
   </Tag>
