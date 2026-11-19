@@ -51,6 +51,8 @@ const location = AUTHOR.role.split('·').pop()?.trim();
 const links = [
   { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', external: true },
   { href: AUTHOR.links.x, label: 'X', icon: 'x', external: true },
+  { href: AUTHOR.links.email, label: 'Email', icon: 'mail', external: false },
+  { href: AUTHOR.links.kofi, label: '贊助 Ko-fi', icon: 'coffee', external: true },
   { href: AUTHOR.links.rss, label: 'RSS', icon: 'rss', external: false },
 ] as const;
 

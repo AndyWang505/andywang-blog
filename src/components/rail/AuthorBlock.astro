@@ -15,6 +15,8 @@ const { variant = 'full' } = Astro.props;
 const socials = [
   { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', size: 17, external: true },
   { href: AUTHOR.links.x, label: 'X', icon: 'x', size: 14, external: true },
+  { href: AUTHOR.links.email, label: 'Email', icon: 'mail', size: 16, external: false },
+  { href: AUTHOR.links.kofi, label: '在 Ko-fi 贊助', icon: 'coffee', size: 16, external: true },
   { href: AUTHOR.links.rss, label: 'RSS', icon: 'rss', size: 15, external: false },
 ] as const;
 ---

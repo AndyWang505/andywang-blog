@@ -31,6 +31,8 @@ export const AUTHOR = {
   links: {
     github: 'https://github.com/AndyWang505',
     x: 'https://x.com/andywang890505',
+    email: 'mailto:andywang890505@gmail.com',
+    kofi: 'https://ko-fi.com/andywang890505',
     rss: '/rss.xml',
   },
 } as const;
