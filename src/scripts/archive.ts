@@ -45,21 +45,8 @@ export function initArchive(): void {
   /** Keep this far inside the card's top and bottom edges when aiming the connector. */
   const EDGE = 16;
   let shift = 0;
-  /** Vertical direction of the pointer: 1 moving down, -1 moving up (with hysteresis, see onMove). */
-  let pointerDir = 1;
   let pointerY: number | null = null;
-  /** Distance moved against the current direction; it only flips after DIR_FLIP px. */
-  let against = 0;
-  const DIR_FLIP = 80;
   const onMove = (e: MouseEvent) => {
-    if (pointerY !== null) {
-      const dy = e.clientY - pointerY;
-      if (Math.sign(dy) === pointerDir || dy === 0) against = 0;
-      else if ((against += Math.abs(dy)) > DIR_FLIP) {
-        pointerDir = -pointerDir;
-        against = 0;
-      }
-    }
     pointerY = e.clientY;
     if (hovered) pointConnector();
   };
@@ -76,9 +63,8 @@ export function initArchive(): void {
   };
   /**
    * The card glides every frame towards its target, so moving between rows slides it smoothly:
-   * - hovering: beside the pointer, placed ahead of it (moving down, the pointer sits near the
-   *   card's top so the rows below stay beside it; moving up, near its bottom). The switch
-   *   between the two is eased too, so changing direction never jumps.
+   * - hovering: centred on the pointer, so rows above and below both stay in reach and moving
+   *   between any two neighbours is a short, even slide (no direction switching to swing it).
    * - otherwise: back to the resting place at the reading line.
    * The connector aims at the shown post's dot on every frame.
    */
@@ -88,9 +74,9 @@ export function initArchive(): void {
   /** Pending hand-back to the reading line after the pointer leaves (see onOut). */
   let release = 0;
   const RELEASE_DELAY = 450;
-  let anchor = LINK_Y;
   let glide = 0;
-  const EASE = 0.2;
+  /** Share of the remaining distance covered per frame: ~300ms to settle at 60fps. */
+  const EASE = 0.1;
   const tick = () => {
     glide = 0;
     if (!readerLink || !readerShown()) return;
@@ -102,18 +88,14 @@ export function initArchive(): void {
       target = cardTop;
     } else if (hovered && pointerY !== null) {
       const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
-      const anchorWanted = pointerDir > 0 ? LINK_Y : height - LINK_Y;
-      anchor = reduceMotion.matches ? anchorWanted : anchor + (anchorWanted - anchor) * EASE;
-      settling = Math.abs(anchorWanted - anchor) > 0.5;
       // Stay inside both the viewport and the card's column of the timeline (never over the
       // calendar above or the footer below), whatever the pointer does.
       const column = reader!.getBoundingClientRect();
       const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
       const minTop = Math.max(header + EDGE, column.top + marginTop);
       const maxTop = Math.min(window.innerHeight - EDGE, column.bottom) - height;
-      target = maxTop >= minTop ? Math.max(minTop, Math.min(pointerY - anchor, maxTop)) : rest;
+      target = maxTop >= minTop ? Math.max(minTop, Math.min(pointerY - height / 2, maxTop)) : rest;
     } else {
-      anchor = LINK_Y;
       // Already resting: follow the sticky place exactly (no lag while the page scrolls).
       if (cardTop === null || Math.abs(shift) < 0.5) cardTop = rest;
     }
