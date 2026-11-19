@@ -17,6 +17,7 @@ export const tokenTheme = {
     fg: { DEFAULT: v('color-fg-default'), body: v('color-fg-body'), muted: v('color-fg-muted'), subtle: v('color-fg-subtle') },
     line: { DEFAULT: v('color-border-default'), muted: v('color-border-muted') },
     accent: v('color-accent'),
+    plate: v('color-media-plate'),
     glass: v('color-surface-glass'),
     code: { bg: v('color-code-bg'), header: v('color-code-header') },
   },
