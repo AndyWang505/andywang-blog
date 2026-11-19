@@ -24,3 +24,18 @@ html.is-animating .shell-right > * {
 html.is-rendering.is-animating .transition-swup-fade {
     translate: 0 12px;
 }
+
+/* Mobile-only page parts above the content (author row, category bar): they fade with the
+   page, opacity only, so the height they add or remove changes while everything below the
+   header is invisible and the content never visibly jumps. Desktop rails stay put. */
+@media (max-width: 1023.98px) {
+    html.is-changing .transition-swup-mobile {
+        transition: opacity 0.4s var(--ease-standard);
+    }
+    html.is-leaving .transition-swup-mobile {
+        transition-duration: 0.22s;
+    }
+    html.is-animating .transition-swup-mobile {
+        opacity: 0;
+    }
+}
