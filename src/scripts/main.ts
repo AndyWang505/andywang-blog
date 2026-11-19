@@ -10,6 +10,7 @@ import { initToc } from './toc';
 import { initRailEnter } from './rail-enter';
 import { initTagFilter } from './tag-filter';
 import { initArchive } from './archive';
+import { initRandomPosts } from './random-posts';
 
 type SwupLike = {
   hooks: { before: (hook: string, handler: () => void) => void; on: (hook: string, handler: () => void) => void };
@@ -25,6 +26,7 @@ function initPage(): void {
 }
 
 initPage();
+initRandomPosts();
 // PhotoSwipe registers its own swup hooks.
 initPhotoSwipe();
 
@@ -32,6 +34,7 @@ const bindSwup = () => {
   const hooks = (window as unknown as { swup?: SwupLike }).swup?.hooks;
   if (!hooks) return;
   hooks.on('page:view', initPage);
+  hooks.on('page:view', () => initRandomPosts(true));
   initRailEnter(hooks);
 };
 if ((window as unknown as { swup?: SwupLike }).swup?.hooks) bindSwup();

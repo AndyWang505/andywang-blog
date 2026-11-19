@@ -37,9 +37,6 @@ export const AUTHOR = {
   },
 } as const;
 
-/** GitHub account shown in the "GitHub 最近更新" rail section. */
-export const GITHUB_USER = 'AndyWang505';
-
 /**
  * Archive overview: posts grouped into themes for the yearly chart, ordered from software
  * engineering to life. A post takes the first theme whose `tags` it has (tags are checked

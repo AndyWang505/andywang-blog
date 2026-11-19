@@ -1,0 +1,55 @@
+---
+/**
+ * A few random posts from the whole archive, so older writing gets seen. Every post is in the
+ * markup (hidden); a pick of `count` is shown. The build makes a first pick (no-JS fallback),
+ * the inline script re-picks before first paint, scripts/random-posts.ts re-picks after swup
+ * page views and on "換一批".
+ */
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getSortedPosts } from '../../lib/posts';
+
+interface Props {
+  count?: number;
+}
+
+const { count = 3 } = Astro.props;
+const posts = await getSortedPosts();
+const buildPick = new Set([...posts].sort(() => Math.random() - 0.5).slice(0, count));
+---
+
+<section data-random-posts data-count={count}>
+  <SectionLabel as="h2" text="隨機文章">
+    <button slot="after" type="button" data-random-shuffle class="text-xs text-accent hover:underline">換一批</button>
+  </SectionLabel>
+  <ul class="m-0 list-none p-0">
+    {
+      posts.map((post) => (
+        <li hidden={!buildPick.has(post)} data-random-item>
+          <a href={post.url} class="group block border-t border-line-muted py-2.5">
+            <span class="line-clamp-2 block text-sm font-semibold text-fg group-hover:text-accent">{post.title}</span>
+            <span class="mt-1 block text-xs tabular-nums text-fg-muted">
+              {post.category} · <time datetime={post.isoDate}>{post.dateText}</time>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<script is:inline>
+  // First load only: re-pick before paint so the build-time pick never flashes.
+  (function () {
+    var root = document.currentScript && document.currentScript.previousElementSibling;
+    if (!root || !root.hasAttribute('data-random-posts')) return;
+    var items = root.querySelectorAll('[data-random-item]');
+    var n = Number(root.getAttribute('data-count')) || 3;
+    var idx = Array.prototype.map.call(items, function (_, i) { return i; });
+    for (var i = idx.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = idx[i]; idx[i] = idx[j]; idx[j] = t;
+    }
+    var keep = idx.slice(0, n);
+    items.forEach(function (el, i) { el.hidden = keep.indexOf(i) < 0; });
+  })();
+</script>
