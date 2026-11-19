@@ -26,7 +26,7 @@ export const FOOTER_BG_DARK = IMAGES.footerBgDark;
 export const AUTHOR = {
   name: 'Andy Wang',
   role: 'Web Developer · Hsinchu',
-  bio: '記錄開發經驗與技術筆記，偶爾分享技術議題。',
+  bio: 'INTJ 自由軟體愛好者 & 美食獵人',
   avatar: IMAGES.defaultAvatar,
   links: {
     github: 'https://github.com/AndyWang505',
