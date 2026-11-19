@@ -7,7 +7,6 @@ import NavRail from '../components/rail/NavRail.astro';
 import HomeRightRail from '../components/rail/HomeRightRail.astro';
 import Icon from '../components/ui/Icon.astro';
 import { AUTHOR } from '../config/site';
-import { getCategoryCounts, getSortedPosts } from '../lib/posts';
 import macbookPro from '../assets/setup/macbook-pro.jpg';
 import rtx2060 from '../assets/setup/rtx-2060.jpg';
 import nuphyAir75 from '../assets/setup/nuphy-air75.jpg';
@@ -48,14 +47,7 @@ const setupItems: { category: string; items: SetupItem[] }[] = [
   },
 ];
 
-const [posts, categories] = await Promise.all([getSortedPosts(), getCategoryCounts()]);
-const sinceYear = Math.min(...posts.map((p) => p.pubDate.getFullYear()));
 const location = AUTHOR.role.split('·').pop()?.trim();
-const stats = [
-  { label: '文章', value: posts.length, unit: '篇' },
-  { label: '分類', value: categories.length, unit: '個' },
-  { label: '開始寫作', value: sinceYear, unit: '' },
-];
 const links = [
   { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', external: true },
   { href: AUTHOR.links.x, label: 'X', icon: 'x', external: true },
@@ -105,19 +97,6 @@ const blogPostHref =
             ))
           }
         </ul>
-        <dl class="m-0 mt-6 grid grid-cols-3 border-y border-line-muted">
-          {
-            stats.map((s, i) => (
-              <div class:list={['py-4', i > 0 && 'border-l border-line-muted pl-5']}>
-                <dt class="text-xs text-fg-muted">{s.label}</dt>
-                <dd class="m-0 mt-1 text-2xl font-semibold tabular-nums tracking-tight text-fg">
-                  {s.value}
-                  {s.unit && <span class="ml-1 text-sm font-normal text-fg-muted">{s.unit}</span>}
-                </dd>
-              </div>
-            ))
-          }
-        </dl>
         <p class="m-0 mt-6 text-prose leading-relaxed text-fg-body">
           自由軟體愛好者兼拉麵 &
           咖哩資深獵人，也曾在補教業授課及擔任助教，經常在不同領域中來回走跳，覺得累了就休息一會吧

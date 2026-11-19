@@ -89,6 +89,14 @@
   --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.14); /* floating cards, e.g. archive preview */
   --color-surface-card: var(--palette-gray-0);   /* raised cards that sit on the page, e.g. archive reader */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.07);
+  /* Chart series (categorical, fixed order) and the label ink that sits on each fill. */
+  --color-series-1: var(--palette-chart-1-light);
+  --color-series-2: var(--palette-chart-2-light);
+  --color-series-3: var(--palette-chart-3-light);
+  --color-series-4: var(--palette-chart-4-light);
+  --color-series-5: var(--palette-chart-5-light);
+  --color-on-series: var(--palette-gray-0);
+  --color-on-series-4: var(--palette-chart-ink);
   --color-surface-glass: rgba(255, 255, 255, 0.72);
   --color-surface-glass-fallback: rgba(255, 255, 255, 0.95);
   --color-code-bg: var(--palette-gray-50);
@@ -112,6 +120,13 @@ html.dark {
   --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.5);
   --color-surface-card: var(--palette-tokyo-bg-float); /* one step above the page background */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --color-series-1: var(--palette-chart-1-dark);
+  --color-series-2: var(--palette-chart-2-dark);
+  --color-series-3: var(--palette-chart-3-dark);
+  --color-series-4: var(--palette-chart-4-dark);
+  --color-series-5: var(--palette-chart-5-dark);
+  --color-on-series: var(--palette-gray-0);
+  --color-on-series-4: var(--palette-gray-0);
   --color-surface-glass: rgba(26, 27, 38, 0.75);
   --color-surface-glass-fallback: rgba(26, 27, 38, 0.95);
   --color-code-bg: var(--palette-tokyo-bg-dark);

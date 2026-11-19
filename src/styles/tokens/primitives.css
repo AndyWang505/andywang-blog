@@ -29,4 +29,18 @@
   --palette-tokyo-fg-muted: #828bb8;  /* tokyonight moon fg_dark */
   --palette-tokyo-comment: #737aa2;
   --palette-tokyo-blue: #7aa2f7;
+
+  /* Categorical chart hues, slot order fixed (it is part of the colour-blind safety).
+     Light steps validated on #ffffff, dark steps on #1a1b26 (dataviz validate_palette.js). */
+  --palette-chart-1-light: #2a78d6; /* blue */
+  --palette-chart-2-light: #eb6834; /* orange */
+  --palette-chart-3-light: #1baf7a; /* aqua */
+  --palette-chart-4-light: #eda100; /* yellow */
+  --palette-chart-5-light: #e87ba4; /* magenta */
+  --palette-chart-1-dark: #3987e5;
+  --palette-chart-2-dark: #d95926;
+  --palette-chart-3-dark: #199e70;
+  --palette-chart-4-dark: #c98500;
+  --palette-chart-5-dark: #d55181;
+  --palette-chart-ink: #0b0b0b; /* label ink on the yellow slot */
 }

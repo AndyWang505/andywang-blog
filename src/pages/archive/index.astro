@@ -4,7 +4,7 @@ import NavRail from '../../components/rail/NavRail.astro';
 import HomeRightRail from '../../components/rail/HomeRightRail.astro';
 import FeedHeader from '../../components/home/FeedHeader.astro';
 import ArchiveTimeline from '../../components/post-list/ArchiveTimeline.astro';
-import ArchiveHeatmap from '../../components/post-list/ArchiveHeatmap.astro';
+import ArchiveOverview from '../../components/post-list/ArchiveOverview.astro';
 import { getSortedPosts, getYearCounts } from '../../lib/posts';
 
 const [posts, years] = await Promise.all([getSortedPosts(), getYearCounts()]);
@@ -18,8 +18,8 @@ const byYear = years.map(({ year, count }) => ({
 <Layout variant="list" current="posts" title="所有文章">
   <NavRail slot="left" />
   <div class="px-4 pb-12 lg:px-10 wide:px-12">
-    <FeedHeader as="h1" title="所有文章" count={posts.length} />
-    <ArchiveHeatmap posts={posts} />
+    <FeedHeader as="h1" title="所有文章" />
+    <ArchiveOverview posts={posts} />
     <ArchiveTimeline groups={byYear} />
   </div>
   <HomeRightRail slot="right" archiveOnly />

@@ -1,0 +1,318 @@
+---
+/**
+ * Archive overview above the timeline: a KPI row and a stacked bar per year showing which
+ * themes (ARCHIVE_THEMES in config/site.ts) the year's posts were about. Years run newest
+ * first like the timeline; a year's row jumps to it (scripts/archive.ts handles the scroll).
+ * Series colours are the validated categorical tokens (--color-series-*); every segment is
+ * labelled with its count and a table view backs the chart for screen readers.
+ */
+import { ARCHIVE_THEMES } from '../../config/site';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+const OTHER = '其他';
+const themeOf = (category: string) => ARCHIVE_THEMES.find((t) => t.categories.includes(category))?.name ?? OTHER;
+const hasOther = posts.some((p) => themeOf(p.category) === OTHER);
+const series = [...ARCHIVE_THEMES.map((t) => t.name), ...(hasOther ? [OTHER] : [])];
+const slotOf = (name: string) => (name === OTHER ? 'other' : String(series.indexOf(name) + 1));
+
+const yearOf = (p: Post) => Number(p.dateText.slice(0, 4));
+const years = [...new Set(posts.map(yearOf))].sort((a, b) => b - a);
+const rows = years.map((year) => {
+  const inYear = posts.filter((p) => yearOf(p) === year);
+  const segments = series
+    .map((name) => ({ name, slot: slotOf(name), count: inYear.filter((p) => themeOf(p.category) === name).length }))
+    .filter((s) => s.count > 0);
+  return { year, total: inYear.length, segments };
+});
+const max = Math.max(1, ...rows.map((r) => r.total));
+const totals = series.map((name) => ({ name, slot: slotOf(name), count: posts.filter((p) => themeOf(p.category) === name).length }));
+
+const busiest = rows.reduce((a, b) => (b.total > a.total ? b : a), rows[0]);
+const avgMinutes = posts.length ? Math.round(posts.reduce((n, p) => n + p.readingMinutes, 0) / posts.length) : 0;
+const span = years.length ? years[0] - years[years.length - 1] + 1 : 0;
+const kpis = [
+  { label: '文章', value: posts.length, unit: '篇' },
+  { label: '寫作', value: span, unit: '年', note: years.length ? `${years[years.length - 1]}–${years[0]}` : '' },
+  { label: '平均閱讀', value: avgMinutes, unit: '分鐘' },
+  { label: '最活躍', value: busiest?.year ?? '–', unit: '', note: busiest ? `${busiest.total} 篇` : '' },
+];
+const describe = (r: (typeof rows)[number]) => `${r.year} 年 ${r.total} 篇：${r.segments.map((s) => `${s.name} ${s.count}`).join('、')}`;
+---
+
+<section class="overview" aria-label="寫作概況" hidden={posts.length === 0}>
+  <dl class="kpis">
+    {
+      kpis.map((k) => (
+        <div class="kpi">
+          <dt>{k.label}</dt>
+          <dd>
+            <span class="kpi-value">{k.value}</span>
+            {k.unit && <span class="kpi-unit">{k.unit}</span>}
+            {k.note && <span class="kpi-note">{k.note}</span>}
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <div class="chart">
+    <div class="chart-head">
+      <h2 class="chart-title">每年的寫作主題</h2>
+      <ul class="legend" aria-hidden="true">
+        {
+          totals.map((t) => (
+            <li>
+              <span class={`swatch s${t.slot}`} />
+              {t.name}
+              <span class="legend-count">{t.count}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <ol class="bars">
+      {
+        rows.map((r) => (
+          <li>
+            <a href={`#y${r.year}`} class="bar-row" aria-label={describe(r)}>
+              <span class="year">{r.year}</span>
+              <span class="track">
+                <span class="fill" style={`--w:${((r.total / max) * 100).toFixed(2)}%`} aria-hidden="true">
+                  {r.segments.map((s) => (
+                    <span class={`seg s${s.slot}`} style={`flex-grow:${s.count}`} title={`${r.year} · ${s.name} ${s.count} 篇`}>
+                      {s.count}
+                    </span>
+                  ))}
+                </span>
+              </span>
+              <span class="total">{r.total} 篇</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+    <table class="sr-only">
+      <caption>每年各主題的文章數</caption>
+      <thead>
+        <tr>
+          <th scope="col">年份</th>
+          {series.map((name) => <th scope="col">{name}</th>)}
+          <th scope="col">合計</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r) => (
+            <tr>
+              <th scope="row">{r.year}</th>
+              {series.map((name) => (
+                <td>{r.segments.find((s) => s.name === name)?.count ?? 0}</td>
+              ))}
+              <td>{r.total}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .overview {
+    margin-top: var(--space-1);
+  }
+
+  /* KPI row */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    /* The page title above already draws the top rule. */
+    border-bottom: 1px solid var(--color-border-muted);
+  }
+  .kpi {
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
+  }
+  .kpi:nth-child(even) {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-border-muted);
+  }
+  .kpi:nth-child(n + 3) {
+    border-top: 1px solid var(--color-border-muted);
+  }
+  .kpi dt {
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .kpi dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-1);
+    margin: var(--space-1) 0 0;
+  }
+  .kpi-value {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-fg-default);
+  }
+  .kpi-unit {
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+  .kpi-note {
+    flex-basis: 100%;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-muted);
+  }
+  @container center (min-width: 640px) {
+    .kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .kpi,
+    .kpi:nth-child(even),
+    .kpi:nth-child(n + 3) {
+      padding: var(--space-4) var(--space-5);
+      border-top: 0;
+      border-left: 1px solid var(--color-border-muted);
+    }
+    .kpi:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  /* Stacked bars by year */
+  .chart {
+    margin-top: var(--space-6);
+  }
+  .chart-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+  .chart-title {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-fg-default);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-xs);
+    color: var(--color-fg-body);
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .legend-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-muted);
+  }
+  .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .bars {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 3.5rem;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 5px var(--space-1);
+    margin-inline: calc(var(--space-1) * -1);
+    border-radius: var(--radius-md);
+    transition: background var(--duration-fast);
+  }
+  .bar-row:hover {
+    background: var(--color-bg-muted);
+  }
+  .year,
+  .total {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+  .year {
+    font-weight: 600;
+    color: var(--color-fg-default);
+  }
+  .total {
+    text-align: right;
+    color: var(--color-fg-muted);
+  }
+  .track {
+    display: block;
+  }
+  .fill {
+    display: flex;
+    gap: 2px; /* surface gap between segments */
+    width: var(--w);
+    min-width: 6px;
+    height: 22px;
+  }
+  .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-basis: 0;
+    min-width: 4px;
+    overflow: hidden;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-on-series);
+    transition: filter var(--duration-fast);
+  }
+  /* Rounded only at the data end, square at the baseline. */
+  .seg:last-child {
+    border-radius: 0 4px 4px 0;
+  }
+  .bar-row:hover .seg {
+    filter: saturate(1.15) brightness(1.04);
+  }
+  .s1 {
+    background: var(--color-series-1);
+  }
+  .s2 {
+    background: var(--color-series-2);
+  }
+  .s3 {
+    background: var(--color-series-3);
+  }
+  .s4 {
+    background: var(--color-series-4);
+    color: var(--color-on-series-4);
+  }
+  .s5 {
+    background: var(--color-series-5);
+  }
+  .sother {
+    background: var(--color-fg-subtle);
+  }
+  .swatch.s4 {
+    color: inherit;
+  }
+</style>
