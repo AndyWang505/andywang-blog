@@ -1,5 +1,5 @@
 ---
-/** Article header: breadcrumb, title, lead, byline. Spec: docs/redesign/03-components.md D1 */
+/** Article header: breadcrumb, title, byline (description stays on cards and meta only). Spec: docs/redesign/03-components.md D1 */
 import { AUTHOR } from '../../config/site';
 import { formatLongDate } from '../../lib/posts-core';
 import type { Post } from '../../lib/posts';
@@ -21,7 +21,6 @@ const updated =
     <a href={post.categoryHref} class="hover:text-accent">{post.category}</a>
   </nav>
   <h1 class="m-0 mt-3 text-3xl font-bold leading-tight tracking-tight text-fg">{post.title}</h1>
-  <p class="m-0 mt-3.5 text-lg leading-normal text-fg-body">{post.description}</p>
   <div class="mt-5 flex flex-wrap items-center gap-2.5 text-sm text-fg-muted">
     <img src={AUTHOR.avatar} alt="" width="32" height="32" class="h-8 w-8 rounded-full object-cover" />
     <b class="font-semibold text-fg">{AUTHOR.name}</b>
