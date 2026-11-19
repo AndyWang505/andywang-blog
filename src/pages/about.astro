@@ -126,16 +126,16 @@ const blogPostHref =
         </p>
       </header>
 
-      <section class="mt-12 border-t border-line-muted pt-10">
+      <section class="@container mt-12 border-t border-line-muted pt-10">
         <h2 class="m-0 mb-2 text-xl font-bold tracking-tight text-fg">My Setup</h2>
         {
           setupItems.map((group) => (
             <div class="mt-6">
               <h3 class="m-0 mb-1 text-sm font-semibold text-fg-muted">{group.category}</h3>
-              <ul class="m-0 list-none p-0">
+              <ul class="m-0 grid list-none grid-cols-1 gap-x-8 p-0 @lg:grid-cols-2">
                 {group.items.map((item) => (
-                  <li class="flex items-center gap-4 border-b border-line-muted py-3">
-                    <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line-muted bg-plate">
+                  <li class="flex min-w-0 items-center gap-3.5 border-b border-line-muted py-2.5">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line-muted bg-plate">
                       <Image
                         src={item.image}
                         alt=""
@@ -146,8 +146,8 @@ const blogPostHref =
                       />
                     </div>
                     <div class="min-w-0">
-                      <p class="m-0 text-sm font-semibold text-fg">{item.name}</p>
-                      {item.description && <p class="m-0 mt-0.5 text-sm text-fg-muted">{item.description}</p>}
+                      <p class="m-0 text-sm font-semibold leading-snug text-fg">{item.name}</p>
+                      {item.description && <p class="m-0 mt-0.5 text-xs leading-snug text-fg-muted">{item.description}</p>}
                     </div>
                   </li>
                 ))}
