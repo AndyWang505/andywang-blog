@@ -1,8 +1,23 @@
-/* Page transition animations with Swup */
+/* Page transition with Swup: fade the whole shell (rails + center) so the
+   column layout change between page types is hidden by the fade.
+   Leaving is quick, entering is slower so the new page settles in gently. */
 html.is-changing .transition-swup-fade {
-    @apply transition-all duration-300 ease-in-out;
+    transition: opacity 0.4s var(--ease-standard);
+}
+
+html.is-leaving .transition-swup-fade {
+    transition-duration: 0.22s;
 }
 
 html.is-animating .transition-swup-fade {
-    @apply opacity-0 translate-y-4;
+    opacity: 0;
+}
+
+/* Center column rises slightly while the new page fades in (enter only). */
+html.is-changing .shell-center {
+    transition: translate 0.5s var(--ease-standard);
+}
+
+html.is-rendering.is-animating .shell-center {
+    translate: 0 12px;
 }

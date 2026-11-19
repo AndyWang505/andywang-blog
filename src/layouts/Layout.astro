@@ -66,7 +66,7 @@ const right: RailRight = !hasRight ? 'none' : variant === 'post' ? 'toc' : 'rail
       <SiteHeader left={left} right={right} current={current} progress={variant === 'post'} />
       <MobileMenu current={current} />
     </div>
-    <div id="swup-shell" class="shell" data-left={left} data-right={right}>
+    <div id="swup-shell" class="shell transition-swup-fade" data-left={left} data-right={right}>
       {
         hasLeft && (
           <aside class="shell-left" aria-label="側欄導覽">
@@ -74,7 +74,7 @@ const right: RailRight = !hasRight ? 'none' : variant === 'post' ? 'toc' : 'rail
           </aside>
         )
       }
-      <main id="main" class="shell-center transition-swup-fade">
+      <main id="main" class="shell-center">
         <slot />
       </main>
       {

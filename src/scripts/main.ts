@@ -7,8 +7,11 @@ import { initProgress } from './progress';
 import { initMobileMenu } from './mobile-menu';
 import { initCategoryBar } from './category-bar';
 import { initToc } from './toc';
+import { initRailEnter } from './rail-enter';
 
-type SwupLike = { hooks: { on: (hook: string, handler: () => void) => void } };
+type SwupLike = {
+  hooks: { before: (hook: string, handler: () => void) => void; on: (hook: string, handler: () => void) => void };
+};
 
 function initPage(): void {
   initProgress();
@@ -21,6 +24,11 @@ initPage();
 // PhotoSwipe registers its own swup hooks.
 initPhotoSwipe();
 
-const bindSwup = () => (window as unknown as { swup?: SwupLike }).swup?.hooks.on('page:view', initPage);
+const bindSwup = () => {
+  const hooks = (window as unknown as { swup?: SwupLike }).swup?.hooks;
+  if (!hooks) return;
+  hooks.on('page:view', initPage);
+  initRailEnter(hooks);
+};
 if ((window as unknown as { swup?: SwupLike }).swup?.hooks) bindSwup();
 else document.addEventListener('swup:enable', bindSwup, { once: true });

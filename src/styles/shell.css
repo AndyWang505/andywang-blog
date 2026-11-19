@@ -105,3 +105,37 @@
     border-left: 1px solid var(--color-border-default);
   }
 }
+
+/*
+ * Rail enter animation: after a swup page change, a rail whose type changed
+ * (data-left / data-right differs from the previous page) slides in from its
+ * screen edge. Only the rail content moves; the column lines stay put so they
+ * keep lining up with the header. Set by scripts/rail-enter.ts. Only applies where the rail is a
+ * side column; reduced motion is handled globally.
+ */
+.shell {
+  --duration-rail: 0.5s;
+  overflow-x: clip;
+}
+@keyframes rail-in-left {
+  from { transform: translateX(-100%); }
+}
+@keyframes rail-in-right {
+  from { transform: translateX(100%); }
+}
+@media (min-width: 1024px) {
+  .shell[data-left='lg'][data-enter~='left'] .shell-left > * {
+    animation: rail-in-left var(--duration-rail) var(--ease-standard);
+  }
+  .shell[data-right='toc'][data-enter~='right'] .shell-right > * {
+    animation: rail-in-right var(--duration-rail) var(--ease-standard);
+  }
+}
+@media (min-width: 1440px) {
+  .shell[data-left='wide'][data-enter~='left'] .shell-left > * {
+    animation: rail-in-left var(--duration-rail) var(--ease-standard);
+  }
+  .shell[data-right='rail'][data-enter~='right'] .shell-right > * {
+    animation: rail-in-right var(--duration-rail) var(--ease-standard);
+  }
+}
