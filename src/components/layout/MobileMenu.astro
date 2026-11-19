@@ -26,7 +26,7 @@ const [categories, tags] = await Promise.all([getCategoryCounts(), getTagCounts(
             <a
               href={item.href}
               aria-current={item.key === current ? 'page' : undefined}
-              class:list={['flex min-h-12 items-center text-[17px] text-fg', item.key === current && 'font-semibold']}
+              class:list={['flex min-h-12 items-center text-ui text-fg', item.key === current && 'font-semibold']}
             >
               {item.label}
             </a>

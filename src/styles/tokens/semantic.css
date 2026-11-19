@@ -23,6 +23,10 @@
   --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 3.75rem);     /* 28 → 60, hero site name */
   --text-prose: clamp(1.0625rem, 1.0175rem + 0.11vw, 1.1875rem); /* 17 → 19, article body */
 
+  /* Fixed sizes for interface elements; they do not scale with the viewport */
+  --text-ui: 1.0625rem;     /* 17: site name, mobile menu items, author name */
+  --text-ui-sm: 0.8125rem;  /* 13: secondary interface text: author role, TOC sub-chapters */
+
   /* Line heights */
   --leading-tight: 1.2;
   --leading-snug: 1.4;

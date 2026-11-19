@@ -24,7 +24,7 @@ const socials = [
     <a href="/about/" class="mb-5 flex items-center gap-3 border-b border-line-muted pb-5">
       <img src={AUTHOR.avatar} alt="" width="40" height="40" class="h-10 w-10 rounded-full object-cover" loading="lazy" />
       <span class="min-w-0">
-        <b class="block text-[15px] font-semibold text-fg">{AUTHOR.name}</b>
+        <b class="name-compact block font-semibold text-fg">{AUTHOR.name}</b>
         <span class="block text-xs text-fg-muted">{AUTHOR.role}</span>
       </span>
     </a>
@@ -38,8 +38,8 @@ const socials = [
         class="h-11 w-11 shrink-0 rounded-full object-cover lg:mb-3.5 lg:h-16 lg:w-16"
       />
       <div class="min-w-0">
-        <p class="m-0 text-[17px] font-semibold text-fg">{AUTHOR.name}</p>
-        <p class="m-0 text-[13px] text-fg-muted">{AUTHOR.role}</p>
+        <p class="m-0 text-ui font-semibold text-fg">{AUTHOR.name}</p>
+        <p class="m-0 text-ui-sm text-fg-muted">{AUTHOR.role}</p>
         <p class="m-0 mt-2.5 hidden text-sm leading-relaxed text-fg-body lg:block">{AUTHOR.bio}</p>
         <div class="-ml-2.5 mt-3 hidden gap-1 lg:flex">
           {
@@ -59,3 +59,10 @@ const socials = [
     </section>
   )
 }
+
+<style>
+  /* Compact article-rail variant only: sits between the fixed 17px name and 13px role sizes. */
+  .name-compact {
+    font-size: 15px;
+  }
+</style>

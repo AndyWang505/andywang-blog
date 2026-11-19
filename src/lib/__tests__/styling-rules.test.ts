@@ -90,8 +90,8 @@ describe('styling ownership rules', () => {
   });
 
   it('no arbitrary text-[size] in v2 files', () => {
-    const KNOWN = ['components/layout/MobileMenu.astro', 'components/rail/AuthorBlock.astro'];
-    expect(offenders(v2Files, (s) => /\btext-\[\d/.test(s))).toEqual(KNOWN.sort());
+    const KNOWN: string[] = [];
+    expect(offenders(v2Files, (s) => /\btext-\[\d/.test(s))).toEqual(KNOWN);
   });
 
   it('no hard-coded style="..." in v2 files', () => {

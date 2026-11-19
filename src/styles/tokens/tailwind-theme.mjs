@@ -35,6 +35,8 @@ export const tokenTheme = {
     '3xl': v('text-3xl'),
     display: v('text-display'),
     prose: v('text-prose'),
+    ui: v('text-ui'),
+    'ui-sm': v('text-ui-sm'),
   },
   lineHeight: {
     tight: v('leading-tight'),
