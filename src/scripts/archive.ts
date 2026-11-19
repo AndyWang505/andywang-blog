@@ -148,27 +148,31 @@ export function initArchive(): void {
   const update = () => {
     frame = 0;
     const line = readingLine();
+    // Read every position first, then write, so a frame costs one layout instead of one per row.
+    const rowYs = rows.map(dotY);
+    const yearTops = years.map((y) => y.getBoundingClientRect().top);
+    const wide = readerShown();
+
     // Passed: dot above the reading line. Current: the dot closest to it.
     let nearest: HTMLElement | null = rows[0] ?? null;
     let nearestDistance = Infinity;
-    for (const row of rows) {
-      const y = dotY(row);
-      row.classList.toggle('passed', y <= line);
-      const distance = Math.abs(y - line);
+    rows.forEach((row, i) => {
+      const distance = Math.abs(rowYs[i] - line);
       if (distance < nearestDistance) {
         nearestDistance = distance;
         nearest = row;
       }
-    }
-    // One focus at a time: the hovered post while the pointer is on the list, else the reading line.
-    const hoveredRow = readerShown() ? (hovered?.closest<HTMLElement>('[data-archive-row]') ?? null) : null;
-    setFocus(hoveredRow ?? nearest);
-
+    });
     let current = years[0]?.id;
-    for (const y of years) {
-      if (y.getBoundingClientRect().top - line <= 0) current = y.id;
+    for (let i = 0; i < years.length; i++) {
+      if (yearTops[i] - line <= 0) current = years[i].id;
       else break;
     }
+
+    rows.forEach((row, i) => row.classList.toggle('passed', rowYs[i] <= line));
+    // One focus at a time: the hovered post while the pointer is on the list, else the reading line.
+    const hoveredRow = wide ? (hovered?.closest<HTMLElement>('[data-archive-row]') ?? null) : null;
+    setFocus(hoveredRow ?? nearest);
     for (const a of railLinks) {
       if (a.hash === `#${current}`) a.setAttribute('aria-current', 'true');
       else a.removeAttribute('aria-current');

@@ -41,7 +41,8 @@ export function relativeTime(date: Date, now: Date = new Date()): string {
   if (days < 30) return `${days} 天前`;
   const months = Math.floor(days / 30);
   if (months < 12) return `${months} 個月前`;
-  return `${Math.floor(days / 365)} 年前`;
+  // 360–364 days is already 12 months but not yet 365 days: round up to 1 year.
+  return `${Math.max(1, Math.floor(days / 365))} 年前`;
 }
 
 export function toRepos(raw: RawRepo[], limit: number, now: Date = new Date()): Repo[] {

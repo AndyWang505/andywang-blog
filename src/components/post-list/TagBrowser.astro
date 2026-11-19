@@ -7,7 +7,8 @@ import Chip from '../ui/Chip.astro';
 import SectionLabel from '../ui/SectionLabel.astro';
 import { getTagCounts } from '../../lib/posts';
 
-const tags = [...(await getTagCounts())].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'en'));
+/** Already sorted by post count, then name (posts-core countBy). */
+const tags = await getTagCounts();
 const groups = [
   { title: '常用', items: tags.filter((t) => t.count >= 2) },
   { title: '其他', items: tags.filter((t) => t.count < 2) },

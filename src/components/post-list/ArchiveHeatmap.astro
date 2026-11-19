@@ -17,13 +17,17 @@ for (const p of posts) {
   const key = p.dateText.slice(0, 7); // YYYY.MM
   counts.set(key, (counts.get(key) ?? 0) + 1);
 }
-const years = [...new Set(posts.map((p) => Number(p.dateText.slice(0, 4))))].sort((a, b) => b - a);
+const postYears = posts.map((p) => Number(p.dateText.slice(0, 4)));
+const newest = Math.max(...postYears);
+const oldest = Math.min(...postYears);
+/** Every year from the newest to the oldest post, including years without posts. */
+const years = posts.length ? Array.from({ length: newest - oldest + 1 }, (_, i) => newest - i) : [];
 const months = Array.from({ length: 12 }, (_, i) => i + 1);
 const level = (n: number) => (n === 0 ? 0 : Math.min(n, 4));
 ---
 
-<section class="cal" aria-label="每月發文數">
-  <p class="summary">{years[years.length - 1]}–{years[0]} 共 {posts.length} 篇文章</p>
+<section class="cal" aria-label="每月發文數" hidden={posts.length === 0}>
+  <p class="summary">{oldest}–{newest} 共 {posts.length} 篇文章</p>
   <div class="graph">
     <span aria-hidden="true"></span>
     {

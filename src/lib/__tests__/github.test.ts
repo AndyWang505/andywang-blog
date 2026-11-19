@@ -24,6 +24,10 @@ describe('relativeTime', () => {
     expect(relativeTime(new Date(daysAgo(65)), now)).toBe('2 個月前');
     expect(relativeTime(new Date(daysAgo(400)), now)).toBe('1 年前');
   });
+
+  it('never says 0 years between 12 months and a full year', () => {
+    expect(relativeTime(new Date(daysAgo(362)), now)).toBe('1 年前');
+  });
 });
 
 describe('toRepos', () => {
