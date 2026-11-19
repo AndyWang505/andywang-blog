@@ -40,16 +40,31 @@ export function initArchive(): void {
     const r = (row.querySelector('.dot') ?? row).getBoundingClientRect();
     return r.top + r.height / 2;
   };
-  /** Aim the card's connector at the shown post's dot; hide it when the dot is beside neither card edge. */
+  /** Where the connector leaves the card, measured from the card's top. */
+  const LINK_Y = 28;
+  let shift = 0;
+  /**
+   * Hovering: slide the card beside the hovered row (kept inside the viewport).
+   * Otherwise: the card rests at the reading line. The connector aims at the shown post's dot
+   * and hides when the dot is beside neither card edge.
+   */
   const pointConnector = () => {
     if (!readerLink || !readerFor || !readerShown()) return;
     const row = readerFor.closest('[data-archive-row]');
     if (!row) return;
     const card = readerLink.getBoundingClientRect();
-    const y = dotY(row) - card.top;
-    const inside = y >= 12 && y <= card.height - 12;
+    const restTop = card.top - shift;
+    const target = dotY(row);
+    let top = restTop;
+    if (hovered) {
+      const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
+      top = Math.max(header + 16, Math.min(target - LINK_Y, window.innerHeight - card.height - 16));
+    }
+    shift = Math.round(top - restTop);
+    readerLink.style.translate = `0 ${shift}px`;
+    const y = target - top;
     readerLink.style.setProperty('--link-y', `${Math.round(y)}px`);
-    readerLink.style.setProperty('--link-on', inside ? '1' : '0');
+    readerLink.style.setProperty('--link-on', y >= 12 && y <= card.height - 12 ? '1' : '0');
   };
 
   /** Ring, connector and card always point at the same post. */

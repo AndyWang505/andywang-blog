@@ -354,15 +354,17 @@ const first = groups[0]?.posts[0];
   }
 
   /*
-   * Wide layout (centre column 960px+): the spine sits mid-column with the post list on the
-   * right and a reader card on the left. The card sticks at the reading line (35% of the
+   * Wide layout (centre column 820px+): the spine sits mid-column with the post list on the
+   * right and a reader card on the left. Widths step up at 1200px and 1600px (see below).
+   * 820px keeps one layout per window size range: 1100–1439px (rail below) and 1440px+
+   * (rail beside) both get it, so the layout does not flip back and forth while resizing. The card sticks at the reading line (35% of the
    * viewport, see scripts/archive.ts) and shows the post being read or hovered; a connector
    * runs from the card to that post's dot.
    */
   .reader {
     display: none;
   }
-  @container center (min-width: 960px) {
+  @container center (min-width: 820px) {
     .timeline {
       --reader-gap: var(--space-6);
       display: grid;
@@ -376,14 +378,16 @@ const first = groups[0]?.posts[0];
       position: sticky;
       top: calc(35vh - 1.75rem);
       display: block;
-      max-width: 280px;
+      max-width: var(--reader-w, 260px);
       margin-left: auto; /* hug the spine */
       margin-top: calc(var(--space-12) + var(--space-6));
       padding: var(--space-3);
       border: 1px solid var(--color-border-muted);
       border-radius: var(--radius-lg);
       background: var(--color-bg-default);
-      transition: border-color var(--duration-fast);
+      transition:
+        border-color var(--duration-fast),
+        translate var(--duration-base) var(--ease-standard);
     }
     .reader-card:hover {
       border-color: var(--color-accent);
@@ -467,6 +471,30 @@ const first = groups[0]?.posts[0];
       grid-column: 2;
       margin-top: 2px;
       font-size: var(--text-xs);
+    }
+  }
+  /* Roomier centre column: bigger card, tags back in their own column. */
+  @container center (min-width: 1200px) {
+    .timeline {
+      --reader-w: 300px;
+      --reader-gap: var(--space-8);
+    }
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 12rem);
+    }
+    .tags {
+      grid-column: 3;
+      margin-top: 0;
+      font-size: var(--text-sm);
+    }
+  }
+  /* Very wide (2K): cap the card + spine + list group and centre it, so the extra width
+     becomes even margins on both sides instead of an empty left half. */
+  @container center (min-width: 1600px) {
+    .timeline {
+      --reader-w: 320px;
+      max-width: 1240px;
+      margin-inline: auto;
     }
   }
   @keyframes reader-swap {
