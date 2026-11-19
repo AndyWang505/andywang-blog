@@ -2,18 +2,21 @@
 /**
  * Site footer. Spec: docs/redesign/02-layout.md §7
  */
-import { AUTHOR } from '../../config/site';
-
 const year = new Date().getFullYear();
 ---
 
 <footer
   class="flex flex-wrap justify-between gap-3 border-t border-line px-4 py-[18px] text-xs text-fg-muted lg:px-6"
 >
-  <span>Copyright © {year} {AUTHOR.name} · Built with Astro</span>
-  <span class="flex gap-1.5">
-    <a href={AUTHOR.links.rss} class="hover:text-fg">RSS</a><span aria-hidden="true">·</span>
-    <a href={AUTHOR.links.github} target="_blank" rel="noopener" class="hover:text-fg">GitHub</a><span aria-hidden="true">·</span>
-    <a href="#main" class="hover:text-fg">回到頂端 ↑</a>
+  <span>Copyright &copy; 2021-{year} AndyWang.</span>
+  <span>
+    Content licensed under
+    <a
+      href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh-hant"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="underline hover:text-fg">CC BY-SA 4.0</a
+    >
+    unless otherwise noted.
   </span>
 </footer>
