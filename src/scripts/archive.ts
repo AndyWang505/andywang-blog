@@ -45,11 +45,21 @@ export function initArchive(): void {
   /** Keep this far inside the card's top and bottom edges when aiming the connector. */
   const EDGE = 16;
   let shift = 0;
-  /** Vertical direction of the pointer: 1 moving down, -1 moving up. */
+  /** Vertical direction of the pointer: 1 moving down, -1 moving up (with hysteresis, see onMove). */
   let pointerDir = 1;
   let pointerY: number | null = null;
+  /** Distance moved against the current direction; it only flips after DIR_FLIP px. */
+  let against = 0;
+  const DIR_FLIP = 80;
   const onMove = (e: MouseEvent) => {
-    if (pointerY !== null && Math.abs(e.clientY - pointerY) > 2) pointerDir = e.clientY > pointerY ? 1 : -1;
+    if (pointerY !== null) {
+      const dy = e.clientY - pointerY;
+      if (Math.sign(dy) === pointerDir || dy === 0) against = 0;
+      else if ((against += Math.abs(dy)) > DIR_FLIP) {
+        pointerDir = -pointerDir;
+        against = 0;
+      }
+    }
     pointerY = e.clientY;
     if (hovered) pointConnector();
   };
@@ -73,6 +83,11 @@ export function initArchive(): void {
    * The connector aims at the shown post's dot on every frame.
    */
   let cardTop: number | null = null;
+  /** Pointer is on the card itself: hold it still so it can be clicked. */
+  let onCard = false;
+  /** Pending hand-back to the reading line after the pointer leaves (see onOut). */
+  let release = 0;
+  const RELEASE_DELAY = 450;
   let anchor = LINK_Y;
   let glide = 0;
   const EASE = 0.2;
@@ -83,12 +98,20 @@ export function initArchive(): void {
     const rest = restTop();
     let target = rest;
     let settling = false;
-    if (hovered && pointerY !== null) {
+    if (hovered && onCard && cardTop !== null) {
+      target = cardTop;
+    } else if (hovered && pointerY !== null) {
       const header = document.getElementById('swup-header')?.getBoundingClientRect().bottom ?? 0;
       const anchorWanted = pointerDir > 0 ? LINK_Y : height - LINK_Y;
       anchor = reduceMotion.matches ? anchorWanted : anchor + (anchorWanted - anchor) * EASE;
       settling = Math.abs(anchorWanted - anchor) > 0.5;
-      target = Math.max(header + EDGE, Math.min(pointerY - anchor, window.innerHeight - height - EDGE));
+      // Stay inside both the viewport and the card's column of the timeline (never over the
+      // calendar above or the footer below), whatever the pointer does.
+      const column = reader!.getBoundingClientRect();
+      const marginTop = parseFloat(getComputedStyle(readerLink).marginTop) || 0;
+      const minTop = Math.max(header + EDGE, column.top + marginTop);
+      const maxTop = Math.min(window.innerHeight - EDGE, column.bottom) - height;
+      target = maxTop >= minTop ? Math.max(minTop, Math.min(pointerY - anchor, maxTop)) : rest;
     } else {
       anchor = LINK_Y;
       // Already resting: follow the sticky place exactly (no lag while the page scrolls).
@@ -251,9 +274,19 @@ export function initArchive(): void {
     const entry = (e.target as Element).closest<HTMLElement>('.entry');
     // Wide layout: the reader card shows the hovered post instead of a floating card.
     if (readerShown()) {
-      if (entry && canHover.matches && entry !== hovered) {
-        hovered = entry;
-        setFocus(entry.closest<HTMLElement>('[data-archive-row]'));
+      if (!canHover.matches) return;
+      if (reader?.contains(e.target as Node)) {
+        onCard = true;
+        window.clearTimeout(release);
+        return;
+      }
+      if (entry) {
+        onCard = false;
+        window.clearTimeout(release);
+        if (entry !== hovered) {
+          hovered = entry;
+          setFocus(entry.closest<HTMLElement>('[data-archive-row]'));
+        }
       }
       return;
     }
@@ -275,11 +308,16 @@ export function initArchive(): void {
   const onOut = (e: MouseEvent) => {
     const to = e.relatedTarget as Element | null;
     if (shownFor && (!to || !shownFor.contains(to))) hidePeek();
-    // Leaving the list hands the reader card back to the scroll position.
-    if (hovered && (!to || !to.closest('.years'))) {
+    // Leaving the list (and the card) hands the card back to the reading line, after a short
+    // delay so brushing past the edge or heading for the card does not bounce it back and forth.
+    if (!hovered) return;
+    if (to && (to.closest('.years') || reader?.contains(to))) return;
+    window.clearTimeout(release);
+    release = window.setTimeout(() => {
       hovered = null;
+      onCard = false;
       onScroll();
-    }
+    }, RELEASE_DELAY);
   };
 
   update();
@@ -302,6 +340,7 @@ export function initArchive(): void {
     observer?.disconnect();
     if (frame) cancelAnimationFrame(frame);
     if (glide) cancelAnimationFrame(glide);
+    window.clearTimeout(release);
     railLinks.forEach((a) => a.removeAttribute('aria-current'));
   };
 }
