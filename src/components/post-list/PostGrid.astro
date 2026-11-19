@@ -14,42 +14,55 @@ interface Props {
 const { posts } = Astro.props;
 ---
 
-<div class="post-grid">
-  {posts.map((post) => <PostRow post={post} />)}
-</div>
+<ul class="post-grid">
+  {
+    posts.map((post) => (
+      <li class="cell">
+        <PostRow post={post} />
+      </li>
+    ))
+  }
+</ul>
 
 <style>
+  /* Dividers and column gutters belong to the grid cells; PostRow only lays out its own content. */
   .post-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-  @container center (min-width: 1080px) {
+  .cell {
+    min-width: 0;
+    border-bottom: 1px solid var(--color-border-muted);
+  }
+  @container center (1080px <= width < 1600px) {
     .post-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .post-grid > :global(.row:nth-child(odd)) {
+    .cell:nth-child(odd) {
       padding-right: var(--space-7);
     }
-    .post-grid > :global(.row:nth-child(even)) {
+    .cell:nth-child(even) {
       padding-left: var(--space-7);
       border-left: 1px solid var(--color-border-muted);
     }
   }
-  @container center (min-width: 1600px) {
+  @container center (width >= 1600px) {
     .post-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .post-grid > :global(.row) {
-      padding-left: var(--space-7) !important;
-      padding-right: var(--space-7) !important;
-      border-left: 1px solid var(--color-border-muted) !important;
+    .cell {
+      padding-inline: var(--space-7);
+      border-left: 1px solid var(--color-border-muted);
     }
-    .post-grid > :global(.row:nth-child(3n + 1)) {
-      padding-left: 0 !important;
-      border-left: 0 !important;
+    .cell:nth-child(3n + 1) {
+      padding-left: 0;
+      border-left: 0;
     }
-    .post-grid > :global(.row:nth-child(3n)) {
-      padding-right: 0 !important;
+    .cell:nth-child(3n) {
+      padding-right: 0;
     }
   }
 </style>

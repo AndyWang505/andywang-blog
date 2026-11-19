@@ -68,7 +68,7 @@ describe('styling ownership rules', () => {
   });
 
   it('no :global( in v2 files', () => {
-    const KNOWN = ['components/post-list/PostGrid.astro', 'components/post/ChapterToc.astro'];
+    const KNOWN = ['components/post/ChapterToc.astro'];
     expect(offenders(v2Files, (s) => s.includes(':global('))).toEqual(KNOWN.sort());
   });
 
@@ -76,7 +76,6 @@ describe('styling ownership rules', () => {
     const KNOWN = [
       'components/layout/MobileMenu.astro',
       'components/layout/SiteHeader.astro',
-      'components/post-list/PostGrid.astro',
       'components/post/ChapterToc.astro',
     ];
     const found = offenders(v2Files, (s) => /!important/.test(s) || classStrings(s).some((c) => /(?:^|\s)!\S/.test(c)));

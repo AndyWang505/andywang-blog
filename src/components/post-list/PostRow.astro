@@ -14,7 +14,7 @@ interface Props {
 const { post } = Astro.props;
 ---
 
-<a href={post.url} class="row group flex min-w-0 items-start gap-4 border-b border-line-muted py-5">
+<a href={post.url} class="group flex min-w-0 items-start gap-4 py-5">
   <div class="min-w-0 flex-1">
     <p class="m-0 mb-1.5 text-xs tabular-nums text-fg-muted">
       <b class="font-semibold text-accent">{post.category}</b> · <time datetime={post.isoDate}>{post.dateText}</time> ·
