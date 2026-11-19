@@ -73,6 +73,8 @@ export default function Search({ posts }: SearchProps) {
   const [mounted, setMounted] = useState(false);
   const [shortcut, setShortcut] = useState('⌘K');
   const lastTrigger = useRef<HTMLElement | null>(null);
+  const closeTimer = useRef(0);
+  const isOpen = useRef(false);
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -84,14 +86,25 @@ export default function Search({ posts }: SearchProps) {
   const items = query.trim() ? results : posts.slice(0, RECENT);
 
   const openSearch = useCallback(() => {
+    // A close still finishing must not shut the palette that is opening now.
+    window.clearTimeout(closeTimer.current);
+    if (isOpen.current) {
+      // Already open (e.g. Cmd/Ctrl+K again): keep where focus should return, refocus the field.
+      setClosing(false);
+      document.querySelector<HTMLInputElement>('.search-field input')?.focus();
+      return;
+    }
+    isOpen.current = true;
     lastTrigger.current = document.activeElement as HTMLElement | null;
     setClosing(false);
     setOpen(true);
   }, []);
 
   const closeSearch = useCallback(() => {
+    isOpen.current = false;
     setClosing(true);
-    window.setTimeout(() => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => {
       setOpen(false);
       setClosing(false);
       setQuery('');
