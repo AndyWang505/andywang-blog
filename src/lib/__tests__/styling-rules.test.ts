@@ -58,13 +58,18 @@ const RAW_COLOR = new RegExp(
 
 describe('styling ownership rules', () => {
   it('components do not accept class or style props', () => {
-    const KNOWN = ['components/ui/Chip.astro', 'components/ui/Icon.astro', 'components/ui/PillButton.astro', 'components/ui/SectionLabel.astro'];
-    // A Props member named class or style, or destructuring `class: alias` from Astro.props.
+    const KNOWN: string[] = [];
+    // A Props member named class or style, destructuring `class: alias` from Astro.props,
+    // or a catch-all `[attr: string]` member that would let class/style through a rest spread.
     const found = offenders(componentFiles, (s) => {
       const frontmatter = s.split('---')[1] ?? '';
-      return /^\s*['"]?(?:class|style)['"]?\??\s*:/m.test(frontmatter) || /[{,]\s*class\s*:\s*\w+[^}]*}\s*=\s*Astro\.props/.test(frontmatter);
+      return (
+        /^\s*['"]?(?:class|style)['"]?\??\s*:/m.test(frontmatter) ||
+        /[{,]\s*class\s*:\s*\w+[^}]*}\s*=\s*Astro\.props/.test(frontmatter) ||
+        /\[\s*\w+\s*:\s*string\s*\]/.test(frontmatter)
+      );
     });
-    expect(found).toEqual(KNOWN.sort());
+    expect(found).toEqual(KNOWN);
   });
 
   it('no :global( in v2 files', () => {

@@ -11,10 +11,9 @@ interface Props {
   size?: 'md' | 'sm';
   /** aria-current value when active: 'page' for categories, 'true' for tags. */
   current?: 'page' | 'true';
-  class?: string;
 }
 
-const { href, label, count, active = false, size = 'md', current = 'page', class: className } = Astro.props;
+const { href, label, count, active = false, size = 'md', current = 'page' } = Astro.props;
 ---
 
 <a
@@ -24,7 +23,6 @@ const { href, label, count, active = false, size = 'md', current = 'page', class
     'inline-flex items-center justify-between whitespace-nowrap rounded-full transition-colors duration-fast',
     size === 'md' ? 'min-h-chip gap-2.5 px-3.5 text-sm' : 'min-h-tag gap-1.5 px-2.5 text-xs',
     active ? 'bg-fg text-bg' : ['bg-bg-muted', size === 'sm' ? 'text-fg-body hover:text-fg' : 'text-fg'],
-    className,
   ]}
 >
   <span>{label}</span>

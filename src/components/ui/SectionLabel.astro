@@ -8,21 +8,20 @@
 interface Props {
   text: string;
   as?: 'p' | 'h2' | 'h3';
-  class?: string;
 }
 
-const { text, as: Tag = 'p', class: className } = Astro.props;
+const { text, as: Tag = 'p' } = Astro.props;
 const hasAfter = Astro.slots.has('after');
 const labelClass = 'm-0 text-xs font-semibold tracking-[.02em] text-fg-muted';
 ---
 
 {
   hasAfter ? (
-    <div class:list={['mb-2.5 flex items-baseline justify-between gap-3', className]}>
+    <div class="mb-2.5 flex items-baseline justify-between gap-3">
       <Tag class={labelClass}>{text}</Tag>
       <slot name="after" />
     </div>
   ) : (
-    <Tag class:list={[labelClass, 'mb-2.5', className]}>{text}</Tag>
+    <Tag class:list={[labelClass, 'mb-2.5']}>{text}</Tag>
   )
 }

@@ -9,10 +9,9 @@ interface Props {
   name: IconName;
   size?: number;
   label?: string;
-  class?: string;
 }
 
-const { name, size = 16, label, class: className } = Astro.props;
+const { name, size = 16, label } = Astro.props;
 const icon = icons[name];
 const isStroke = 'strokeWidth' in icon;
 ---
@@ -27,7 +26,7 @@ const isStroke = 'strokeWidth' in icon;
   stroke-width={isStroke ? icon.strokeWidth : undefined}
   stroke-linecap={isStroke ? 'round' : undefined}
   stroke-linejoin={isStroke ? 'round' : undefined}
-  class:list={['shrink-0', className]}
+  class="shrink-0"
   role={label ? 'img' : undefined}
   aria-label={label}
   aria-hidden={label ? undefined : 'true'}
