@@ -15,13 +15,12 @@ import { PAGE_SIZE } from '../config/pagination';
 const posts = await getSortedPosts();
 const [lead, ...rest] = posts;
 const series = lead ? await getSeriesOf(lead) : undefined;
-const credit = BANNER_CONFIG.credit.enable ? { text: BANNER_CONFIG.credit.text, url: BANNER_CONFIG.credit.url } : undefined;
 ---
 
-<Layout variant="home" current="home" preloadImage={BANNER_CONFIG.src}>
+<Layout variant="home" current="home">
   <NavRail slot="left" mobileAuthor mobileCategories />
   <h1 class="sr-only">{SITE_TITLE}</h1>
-  <HomeHero src={BANNER_CONFIG.src} credit={credit} />
+  <HomeHero light={BANNER_CONFIG.light} dark={BANNER_CONFIG.dark} />
   <div class="px-4 lg:px-10 wide:px-12">
     <FeedHeader title="最新文章" moreHref="/archive/" moreLabel="所有文章 ›" />
     {lead && <LeadPost post={lead} series={series} />}

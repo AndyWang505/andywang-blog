@@ -109,6 +109,9 @@
   --color-hairline: rgba(0, 0, 0, 0.08); /* edge of glass surfaces */
   --color-code-bg: var(--palette-gray-50);
   --color-code-header: var(--palette-gray-100);
+  /* Show an element in one theme only (e.g. the home banner image): display: var(--display-light-only) */
+  --display-light-only: block;
+  --display-dark-only: none;
   color-scheme: light;
 }
 
@@ -144,5 +147,7 @@ html.dark {
   --color-hairline: rgba(255, 255, 255, 0.08);
   --color-code-bg: var(--palette-tokyo-bg-dark);
   --color-code-header: var(--palette-tokyo-bg-float);
+  --display-light-only: none;
+  --display-dark-only: block;
   color-scheme: dark;
 }
