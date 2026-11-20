@@ -31,18 +31,14 @@ function walk(dir: string): string[] {
   });
 }
 
-function exists(dir: string): boolean {
-  try {
-    return statSync(dir).isDirectory();
-  } catch {
-    return false;
-  }
-}
-
-/** Directories of v2 components; legacy components are removed in T12. */
-const V2_DIRS = ['ui', 'layout', 'rail', 'home', 'post-list', 'post'].map((d) => join(root, 'src', 'components', d));
-/** HomeHero sets white text and a dark credit pill over the photo. */
-const HEX_ALLOWED = [/HomeHero\.astro$/];
+/** Directories that must take colors from tokens. */
+const HEX_DIRS = ['components', 'layouts', 'pages'].map((d) => join(root, 'src', d));
+/** Files allowed to hard-code colors, each on purpose. */
+const HEX_ALLOWED = [
+  /HomeHero\.astro$/, // white text and a dark credit pill over the photo, same in both themes
+  /[\\/]pages[\\/]404\.astro$/, // Windows blue-screen parody: fixed #0078d7 look, deliberately not themed
+  /[\\/]pages[\\/]link[\\/]/, // standalone link page with its own fixed black design
+];
 /** The link page is a standalone design with its own breakpoints, outside the site layout. */
 const BREAKPOINT_EXEMPT = [/[\\/]pages[\\/]link[\\/]/];
 
@@ -82,11 +78,11 @@ describe('design tokens', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('v2 components contain no hard-coded hex colours', () => {
-    const offenders = V2_DIRS.filter(exists)
-      .flatMap(walk)
+  it('components, layouts and pages contain no hard-coded hex colours', () => {
+    const offenders = HEX_DIRS.flatMap(walk)
       .filter((p) => !HEX_ALLOWED.some((re) => re.test(p)))
-      .filter((p) => /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/.test(read(p).replace(/href="#[^"]*"/g, '')));
+      .filter((p) => /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/.test(read(p).replace(/href="#[^"]*"/g, '')))
+      .map((p) => relative(root, p));
     expect(offenders).toEqual([]);
   });
 

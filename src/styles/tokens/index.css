@@ -13,13 +13,14 @@
  *
  * Components and layouts use semantic or component tokens only, through Tailwind classes
  * (tailwind-theme.mjs maps them; it only ever references var(--...)) or var(--...) in scoped CSS.
- * No hex colors in src/components/ or src/layouts/.
+ * No hex colors in src/components/, src/layouts/ or src/pages/.
  *
  * Checked by src/lib/__tests__/tokens.test.ts:
  * - every variable tailwind-theme.mjs references is defined in these files;
  * - every light --color-* has a dark counterpart;
  * - --palette-* appears nowhere in src/ outside this directory;
- * - the v2 directories under src/components/ contain no hex colors (HomeHero.astro excepted);
+ * - src/components/, src/layouts/ and src/pages/ contain no hex colors, except the files in the
+ *   test's HEX_ALLOWED list (each with its reason);
  * - every @media, matchMedia and `@container center` value uses a breakpoint from tailwind-theme.mjs.
  */
 @import './primitives.css';
