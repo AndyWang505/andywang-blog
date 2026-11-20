@@ -121,8 +121,8 @@ html.dark {
   --color-fg-body: var(--palette-tokyo-fg-dark);
   --color-fg-muted: var(--palette-tokyo-fg-muted);
   --color-fg-subtle: var(--palette-tokyo-comment);
-  --color-border-default: var(--palette-tokyo-bg-highlight);
-  --color-border-muted: var(--palette-tokyo-bg-line);
+  --color-border-default: var(--palette-tokyo-fg-gutter);
+  --color-border-muted: var(--palette-tokyo-bg-highlight);
   --color-accent: var(--palette-tokyo-blue);
   --color-media-plate: var(--palette-gray-0);
   --shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.5);
