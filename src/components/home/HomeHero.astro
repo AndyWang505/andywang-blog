@@ -1,28 +1,53 @@
 ---
 /**
  * Home banner: illustration with the site name over a bottom scrim (content layer, no glass).
+ * One image per theme, drawn as a background so the theme that is hidden (display: none) is never
+ * downloaded; a lazy <img> with display: none is still fetched by Chrome.
  */
 import { SITE_TITLE } from '../../config/site';
 
-interface Props {
+interface BannerImage {
   src: string;
+  /** CSS background-position: which part of the image survives the crop. */
+  position?: string;
   credit?: { text: string; url?: string };
 }
 
-const { src, credit } = Astro.props;
+interface Props {
+  light: BannerImage;
+  dark: BannerImage;
+}
+
+const { light, dark } = Astro.props;
+const variants = [
+  { theme: 'light', ...light },
+  { theme: 'dark', ...dark },
+];
 ---
 
 <div class="hero">
-  <img src={src} alt="部落格主視覺插畫" width="2400" height="900" fetchpriority="high" decoding="async" />
+  {
+    variants.map((v) => (
+      <div
+        class:list={['art', `only-${v.theme}`]}
+        role="img"
+        aria-label="部落格主視覺插畫"
+        style={`background-image: url(${v.src}); background-position: ${v.position ?? 'center'}`}
+      />
+    ))
+  }
   <div class="scrim" aria-hidden="true"></div>
   <div class="copy">
     <p class="site">{SITE_TITLE}</p>
   </div>
   {
-    credit && (
-      <a class="credit" href={credit.url} target="_blank" rel="noopener">
-        Illust. {credit.text}
-      </a>
+    variants.map(
+      (v) =>
+        v.credit && (
+          <a class:list={['credit', `only-${v.theme}`]} href={v.credit.url} target="_blank" rel="noopener">
+            Illust. {v.credit.text}
+          </a>
+        )
     )
   }
 </div>
@@ -34,10 +59,16 @@ const { src, credit } = Astro.props;
     height: clamp(200px, 30vw, 280px);
     background: var(--color-bg-subtle);
   }
-  img {
+  .art {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    background-size: cover;
+  }
+  .only-light {
+    display: var(--display-light-only);
+  }
+  .only-dark {
+    display: var(--display-dark-only);
   }
   .scrim {
     position: absolute;
