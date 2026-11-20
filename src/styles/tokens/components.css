@@ -15,9 +15,11 @@
   --toc-width: var(--rail-right-width); /* same as the list rail so the header does not shift between page types */
   --content-measure: 720px;
   --content-wide: 960px;
+  --control-height: 34px; /* header search pill, desktop category list rows */
   --chip-height: 36px;
   --tag-height: 28px;
   --touch-target: 44px;
+  --icon-size-sm: 18px; /* header icon buttons (search, theme toggle) */
 }
 
 @media (min-width: 1920px) {

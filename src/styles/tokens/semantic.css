@@ -36,6 +36,7 @@
   /* Letter spacing */
   --tracking-tight: -0.02em;
   --tracking-snug: -0.01em;
+  --tracking-wide: 0.02em;
 
   /* Spacing: 4px base, same steps as Tailwind's default scale (p-4 = 16px) */
   --space-1: 0.25rem;  /* 4 */

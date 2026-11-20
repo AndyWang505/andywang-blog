@@ -48,6 +48,7 @@ export const tokenTheme = {
   letterSpacing: {
     tight: v('tracking-tight'),
     snug: v('tracking-snug'),
+    wide: v('tracking-wide'),
   },
   borderRadius: {
     sm: v('radius-sm'),
@@ -79,11 +80,16 @@ export const tokenTheme = {
   },
   height: {
     header: v('header-height'),
+    control: v('control-height'),
     chip: v('chip-height'),
     tag: v('tag-height'),
   },
+  size: {
+    'icon-sm': v('icon-size-sm'),
+  },
   minHeight: {
     touch: v('touch-target'),
+    control: v('control-height'),
     chip: v('chip-height'),
     tag: v('tag-height'),
   },
