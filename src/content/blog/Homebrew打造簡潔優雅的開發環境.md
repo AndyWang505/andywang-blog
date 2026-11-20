@@ -3,8 +3,8 @@ title: 'Homebrew 打造簡潔優雅的開發環境'
 description: '近期工作換到 MacOS 上開發，也因此接觸到 Homebrew。除了是開源之外，Homebrew 也非常容易透過 CLI 來安裝各種 Package，當需要換開發環境時，也能夠整包匯出帶到新的環境。'
 pubDate: 'October 5 2024'
 heroImage: '/Web-Dev.jpg'
-tags: ['Notes', 'Homebrew', 'Package']
-category: 'Tools'
+tags: ['Homebrew', 'macOS', 'Dev-Environment']
+category: '開發工具'
 ---
 
 近期工作換到 MacOS 上開發，也因此接觸到 Homebrew。除了是開源之外，Homebrew 也非常容易透過 CLI 來安裝各種 Package，當需要換開發環境時，也能夠整包匯出帶到新的環境。

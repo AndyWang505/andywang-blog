@@ -3,8 +3,8 @@ title: '[TS] Set、flatMap 優化資料搜尋'
 description: '最近在工作中遇到需要從複雜的資料結構中提取特定資料的問題，面對這種多層結構的資料直接暴力搜尋效能明顯不太理想，正確的方式應該是先將資料做扁平化處理，再透過更高效的搜尋策略來提升效能。'
 pubDate: 'December 30 2024'
 heroImage: '/TS-Image.png'
-tags: ['Notes', 'TypeScript', 'map']
-category: 'TypeScript'
+tags: ['TypeScript', 'Performance']
+category: '程式開發'
 ---
 
 最近在工作中遇到需要從複雜的資料結構中提取特定資料的問題，面對這種多層結構的資料直接暴力搜尋效能明顯不太理想，正確的方式應該是先將資料做「扁平化處理」，再透過更高效的搜尋策略來提升效能。

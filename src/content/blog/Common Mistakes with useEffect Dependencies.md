@@ -3,8 +3,8 @@ title: 'Common Mistakes with useEffect Dependencies'
 description: 'useEffect 作為 cleanup function，是個強大的副作用處理函式，但如果加了錯誤的依賴，可能導致效能變差，或發生無法預期的行為。此外也談談一些對 useEffect 的誤解。'
 pubDate: 'November 22 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React']
-category: 'React'
+tags: ['React', 'Hooks']
+category: '程式開發'
 ---
 
 useEffect 作為 cleanup function，是個強大的副作用處理函式，但如果加了錯誤的依賴，可能導致效能變差，或發生無法預期的行為。此外也談談一些對 useEffect 的誤解。

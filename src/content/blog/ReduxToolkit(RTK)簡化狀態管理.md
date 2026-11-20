@@ -3,8 +3,8 @@ title: 'Redux Toolkit (RTK) 簡化狀態管理'
 description: '在 Redux Toolkit 出現前，使用 Redux 頻繁操作 state 是一件相對麻煩的事情，而 Redux Toolkit 的出現簡化了重複性流程，也提供了一些 API 減少重複性質的程式碼。'
 pubDate: 'September 5 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React', 'Redux']
-category: 'React'
+tags: ['React', 'Redux', 'State-Management']
+category: '程式開發'
 ---
 
 在 Redux Toolkit 出現前，使用 Redux 頻繁操作 state 是一件相對麻煩的事情，而 Redux Toolkit 的出現簡化了重複性流程，也提供了一些 API 減少重複性質的程式碼。

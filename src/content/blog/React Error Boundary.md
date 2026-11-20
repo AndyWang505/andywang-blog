@@ -3,8 +3,8 @@ title: 'Handling Errors Gracefully in React'
 description: '錯誤處理對開發者一直都是門課題，不論系統穩定性或使用者體驗都十分重要。而在 React 16 中引入了 Error Boundaries 能夠用來捕捉渲染錯誤進而導致頁面崩潰的問題。'
 pubDate: 'October 14 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React', 'ErrorBoundary']
-category: 'React'
+tags: ['React', 'Error-Handling']
+category: '程式開發'
 ---
 
 錯誤處理對開發者一直都是門課題，不論系統穩定性或使用者體驗都十分重要。而在 React 16 中引入了 Error Boundaries 能夠用來捕捉渲染錯誤進而導致頁面崩潰的問題。

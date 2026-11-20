@@ -3,8 +3,8 @@ title: '為系統升級 Linter: ESLint v8 to v9'
 description: '近期有機會幫團隊專案升級一下 Linter，特別記錄下升級這類工具前需要進行的前置作業，包括盤點 dependencies 的相容性與升級流程，方便日後升級或維護時參考。'
 pubDate: 'April 20 2025'
 heroImage: '/linter.png'
-tags: ['Linter', '心得', 'ESLint']
-category: '心得'
+tags: ['ESLint', 'Migration']
+category: '開發工具'
 ---
 
 近期有機會幫團隊專案升級一下 Linter，特別記錄下升級這類工具前需要進行的前置作業，包括盤點 dependencies 的相容性與升級流程，方便日後升級或維護時參考。

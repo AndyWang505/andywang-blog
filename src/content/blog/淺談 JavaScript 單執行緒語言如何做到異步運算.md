@@ -3,8 +3,8 @@ title: '淺談 JavaScript 單執行緒語言如何做到異步運算'
 description: 'JavaScript 是單執行緒語言，照理來說應該一次只能做一件事情，但他卻能做到非同步進程，不讓程式被 blocked，這要歸功於 Event Loop，但 Event Loop 並不存在語言本身，而是由 runtime 來實現。'
 pubDate: 'June 20 2024'
 heroImage: '/JS-Image2.png'
-tags: ['Notes','JavaScript','Asynchronous']
-category: 'JavaScript'
+tags: ['JavaScript', 'Async', 'Event-Loop']
+category: '程式開發'
 ---
 
 JavaScript 是單執行緒語言，照理來說應該一次只能做一件事情，但他卻能做到非同步進程，不讓程式被 blocked，這要歸功於 Event Loop，但 Event Loop 並不存在語言本身，而是由 runtime 來實現。

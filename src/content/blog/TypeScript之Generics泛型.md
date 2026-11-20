@@ -3,8 +3,8 @@ title: 'TypeScript 之 Generics 泛型'
 description: 'Generics 泛型是一種高靈活性定義行為或結構的一種方法，當你定義了不重複但有相似內容的結構時，泛型是個很好的選擇，而 JS 本身並不支援泛型，直到 TS 出現才引入泛型的特性。'
 pubDate: 'September 20 2024'
 heroImage: '/TS-Image.png'
-tags: ['Notes', 'TypeScript', 'Generics']
-category: 'TypeScript'
+tags: ['TypeScript', 'Generics', 'Type-System']
+category: '程式開發'
 ---
 
 Generics 泛型是一種高靈活性定義行為或結構的一種方法，當你定義了不重複但有相似內容的結構時，泛型是個很好的選擇，而 JS 本身並不支援泛型，直到 TS 出現才引入泛型的特性。

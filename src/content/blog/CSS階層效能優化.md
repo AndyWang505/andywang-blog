@@ -3,8 +3,8 @@ title: 'CSS 階層效能優化'
 description: '其實CSS階層在瀏覽器上會影響效能，但因為現今電腦性能極佳，電腦跑起來可能沒有明顯差異，就算對於電腦影響看似不大，也會衍伸出程式上的管理問題'
 pubDate: 'March 27 2022'
 heroImage: '/CSS-Image1.jpg'
-tags: ['CSS','Notes']
-category: 'Performance'
+tags: ['CSS', 'Performance']
+category: '程式開發'
 ---
 其實CSS階層在瀏覽器上會影響效能
 

@@ -3,8 +3,8 @@ title: 'Using SWR for Better Data Fetching'
 description: '傳統 API Data Fetching 經常需要依賴 state、redux 管理狀態，同時也要為效能優化去實作，如：Cache、Revalidate、Asynchronous、Dependent Fetching 等機制，但這些都可以透過 SWR 來簡化。'
 pubDate: 'October 16 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React', 'SWR']
-category: 'React'
+tags: ['React', 'SWR', 'Data-Fetching']
+category: '程式開發'
 ---
 
 傳統 API Data Fetching 經常需要依賴 state、redux 管理狀態，同時也要為效能優化去實作，如：Cache、Revalidate、Asynchronous、Dependent Fetching 等機制，但這些都可以透過 SWR 來簡化。

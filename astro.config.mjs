@@ -117,4 +117,8 @@ export default defineConfig({
     ],
   },
   base: '',
+  redirects: {
+    '/post/leetcode-326-power-of-three-copy/': '/post/git-rebase-錯了怎麼辦/',
+    '/archive/tag/X-Driven/': '/archive/tag/Methodology/',
+  },
 });

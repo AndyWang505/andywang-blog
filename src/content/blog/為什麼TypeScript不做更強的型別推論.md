@@ -3,8 +3,8 @@ title: '為什麼 TypeScript 不做更強的型別推論'
 description: '關於 TypeScript 為何不做更強的型別推論的這個問題，其實背後牽涉到型別系統的哲學，簡單來說，就是一個「型別安全與靈活性之間」的取捨。'
 pubDate: 'February 27 2025'
 heroImage: '/TS-Image.png'
-tags: ['Notes', 'TypeScript', '心得']
-category: 'TypeScript'
+tags: ['TypeScript', 'Type-System']
+category: '程式開發'
 ---
 
 關於 TypeScript 為何不做更強的型別推論的這個問題，其實背後牽涉到型別系統的哲學，簡單來說就是一個「型別安全與靈活性之間」的取捨。

@@ -3,8 +3,8 @@ title: 'Claude Code CLI：真正的 AI 開發代理人'
 description: '近期各個 AI 都開始推出自己的 CLI 工具，像是 Cursor、Gemini、Claude，但在架構化協作、與建立完整開發流程下還是 Claude Code 更勝一籌。這篇主要紀錄我在團隊每週 AI 分享會的內容。'
 pubDate: 'August 7 2025'
 heroImage: '/ClaudeCode.png'
-tags: ['Claude', '心得']
-category: 'Tools'
+tags: ['Claude', 'AI']
+category: '開發工具'
 ---
 
 近期各個 AI 都開始推出自己的 CLI 工具，像是 Cursor、Gemini、Claude，但在架構化協作、與建立完整開發流程下還是 Claude Code 更勝一籌。這篇主要紀錄我在團隊每週 AI 分享會的內容。

@@ -4,7 +4,7 @@ description: '在日常開發中，你可能會經常使用 rebase 來重新定�
 pubDate: 'July 07 2025'
 heroImage: ''
 tags: ['Git']
-category: 'Git'
+category: '開發工具'
 ---
 
 在日常開發中，你可能會經常使用 rebase 來重新定義分支的基準點，讓 commit history 保持線性與乾淨。不過在第一次操作時，很多人會對它感到不安，擔心一不小心就把 commit 弄不見。

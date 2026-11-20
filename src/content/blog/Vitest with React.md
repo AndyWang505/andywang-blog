@@ -3,8 +3,8 @@ title: 'Vitest with React Testing'
 description: '撰寫測試一直都是確保程式碼可靠性的一個重要環節，通常在 React 中，我們可以選擇使用 Jest 或 Vitest 根據專案需求來撰寫 Unit Test，不過 Vitest 在 Vite 專案中整合較為容易。'
 pubDate: 'February 8 2025'
 heroImage: '/Vitest.png'
-tags: ['Notes', 'Vitest', 'Unit-Test']
-category: 'DevOps'
+tags: ['React', 'Vitest', 'Testing']
+category: '程式開發'
 ---
 
 撰寫測試一直都是確保程式碼可靠性的一個重要環節，通常在 React 中，我們可以選擇使用 Jest 或 Vitest 根據專案需求來撰寫 Unit Test，不過 Vitest 在 Vite 專案中整合較為容易。

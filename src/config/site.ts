@@ -38,24 +38,39 @@ export const AUTHOR = {
 } as const;
 
 /**
- * Archive overview: posts grouped into themes for the yearly chart, ordered from software
- * engineering to life. A post takes the first theme whose `tags` it has (tags are checked
- * before categories, so a 心得 post tagged Life lands in 生活), otherwise the first theme
- * listing its category; anything left over is counted under 其他.
+ * Archive overview: posts grouped into themes for the yearly chart. Each theme matches one of
+ * the five post categories, so every post lands in exactly the theme named after its category
+ * (posts outside these categories would be counted under 其他; the tags test forbids them).
  * Order is also the chart's colour slot order (keep it; it is part of the colour-blind safety).
  */
 export const ARCHIVE_THEMES: readonly { name: string; tags?: readonly string[]; categories?: readonly string[] }[] = [
-  { name: '演算法', tags: ['Algorithm', 'Data-Structure', 'DP', 'Recursion', 'Complexity'], categories: ['LeetCode'] },
-  { name: '開發', categories: ['JavaScript', 'TypeScript', 'React', 'Performance', 'Blog'] },
-  {
-    name: '架構',
-    tags: ['Clean Code', 'Clean-Architecture', 'SOLID', 'OOP', 'DDD', 'TDD', 'BDD'],
-    categories: ['Development', 'SystemDesign'],
-  },
-  { name: '工具', tags: ['Linter', 'ESLint', 'Git', 'Docker'], categories: ['DevOps', 'Git', 'Tools'] },
-  { name: '職涯', tags: ['Junior', 'AI', 'MECE', 'Elevator-Pitch'] },
-  { name: '生活', tags: ['Life', 'Retro'] },
+  { name: '演算法', categories: ['演算法'] },
+  { name: '程式開發', categories: ['程式開發'] },
+  { name: '軟體設計', categories: ['軟體設計'] },
+  { name: '開發工具', categories: ['開發工具'] },
+  { name: '職涯成長', categories: ['職涯成長'] },
 ];
 
 /** Tags treated as article series, in priority order. */
-export const SITE_SERIES: readonly string[] = ['X-Driven'];
+export const SITE_SERIES: readonly string[] = ['Methodology', 'Design-Pattern'];
+
+/** Every tag a post may use. Add a tag here before using it in a post; a test enforces this. */
+export const ALLOWED_TAGS = {
+  tech: [
+    'JavaScript', 'TypeScript', 'React', 'Redux', 'SWR', 'jQuery', 'Vitest',
+    'CSS', 'HTML', 'Tailwind', 'Astro', 'Jekyll',
+    'Git', 'Docker', 'Kubernetes', 'Homebrew', 'ESLint', 'macOS',
+    'Cursor', 'Claude', 'Neovim', 'Tmux', 'VSCode',
+    'LeetCode',
+  ],
+  topic: [
+    'Performance', 'Testing', 'Fundamentals', 'DOM', 'Async', 'Event-Loop',
+    'Generics', 'Enums', 'Type-System', 'Hooks', 'Error-Handling', 'State-Management', 'Data-Fetching',
+    'Design-System', 'Blog',
+    'Methodology', 'TDD', 'BDD', 'DDD', 'Architecture', 'Clean-Architecture', 'SOLID', 'OOP',
+    'API-Design', 'Clean-Code', 'Refactoring', 'Design-Pattern',
+    'Deployment', 'Troubleshooting', 'Dev-Environment', 'Migration', 'AI', 'Multi-Agent',
+    'Retro', 'Interview', 'Soft-Skills', 'Communication', 'Talk-Notes',
+    'DP', 'Recursion', 'Complexity', 'Data-Structure', 'Math',
+  ],
+} as const;

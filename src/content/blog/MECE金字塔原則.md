@@ -3,8 +3,8 @@ title: 'MECE 金字塔原則'
 description: '在許多知名企業的新人訓練或專業培訓中，都會聽過 MECE 金字塔原則，目的是提升溝通與邏輯思考能力，確保資訊的分類「不重疊且無遺漏」，幫助個人在論述時更有條理與說服力。'
 pubDate: 'February 14 2025'
 heroImage: '/Blog-Image1.png'
-tags: ['Notes', 'MECE', '心得']
-category: '心得'
+tags: ['Soft-Skills', 'Communication']
+category: '職涯成長'
 ---
 
 在許多知名企業的新人訓練或專業培訓中，都會聽過 MECE 金字塔原則，目的是提升溝通與邏輯思考能力，確保資訊的分類「不重疊且無遺漏」，幫助個人在論述時更有條理與說服力。

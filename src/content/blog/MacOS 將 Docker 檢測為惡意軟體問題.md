@@ -3,8 +3,8 @@ title: 'MacOS 將 Docker 檢測為惡意軟體問題'
 description: '近期在開發過程中，因為重新啟動了 MacOS 後一直跳出不明彈窗，顯示檢測到 Docker 包含惡意軟體，也因為這個東西搞了個大烏龍，算是個寶貴的經驗...，還是紀錄一下好了。'
 pubDate: 'January 11 2025'
 heroImage: '/Docker.png'
-tags: ['Notes', 'Docker']
-category: 'DevOps'
+tags: ['Docker', 'macOS', 'Troubleshooting']
+category: '開發工具'
 ---
 
 前天在開發過程中，因為重新啟動了 MacOS 後一直跳出不明彈窗，顯示檢測到 Docker 包含惡意軟體，也因為這個東西搞了個大烏龍，算是個寶貴的經驗...，還是紀錄一下好了。
