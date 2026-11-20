@@ -3,8 +3,8 @@ title: 'Redux Toolkit (RTK) 簡化狀態管理'
 description: '在 Redux Toolkit 出現前，使用 Redux 頻繁操作 state 是一件相對麻煩的事情，而 Redux Toolkit 的出現簡化了重複性流程，也提供了一些 API 減少重複性質的程式碼。'
 pubDate: 'September 5 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React', 'Redux']
-category: 'React'
+tags: ['React', 'Redux', 'State-Management']
+category: '程式開發'
 ---
 
 在 Redux Toolkit 出現前，使用 Redux 頻繁操作 state 是一件相對麻煩的事情，而 Redux Toolkit 的出現簡化了重複性流程，也提供了一些 API 減少重複性質的程式碼。
@@ -30,7 +30,7 @@ Slice 是指 reducer 和 actions 的集合體，每個 slice 包含一組 reduce
 
 Slice 的優勢就是每一個 slice 專注於處理特定的 state 區塊和相關邏輯，可以讓程式更加模組化和可維護。
 
-另外 Redux Toolkit 也提供了許多 API（如 createSlice 和 configureStore）來減少重複性質的程式碼。
+另外 Redux Toolkit 也提供了許多 API（如 `createSlice` 和 `configureStore`）來減少重複性質的程式碼。
 
 且 Redux Toolkit 還使用了 Immer 套件來幫我們自動處理許多繁瑣的細節，包括 state 的不可變性（immutability）和 action 的生成，讓開發過程能更有效率且直觀。
 
@@ -85,7 +85,7 @@ ReactDOM.render(
 
 ### 建立 Slice
 
-可以使用 createSlice 建立一個 slice，它會幫你自動生成 actions 和 reducer。
+可以使用 `createSlice` 建立一個 slice，它會幫你自動生成 actions 和 reducer。
 
 可以再依照自己需求調整 actions 和 reducer。
 
@@ -121,7 +121,7 @@ export default counterSlice.reducer
 
 當然你也可以將 action 拆出來獨立定義，不過這個模式比較適用在複雜的情境，可能需要定義多個 action types 或處理一些特殊的 action。
 
-createSlice 和 createAction：
+`createSlice` 和 `createAction`：
 
 * `createSlice` 提供了更高級的 API，適合大多數應用場景，因為它同時處理 actions 和 reducers，簡化了 Redux 的使用。
 
@@ -196,9 +196,9 @@ export default App
 
 ### createAsyncThunk 非同步處理
 
-createAsyncThunk 是 Redux Toolkit 提供的工具，用於處理非同步操作，像是 API request 等等。
+`createAsyncThunk` 是 Redux Toolkit 提供的工具，用於處理非同步操作，像是 API request 等等。
 
-createAsyncThunk 用於生成一個 thunk action creator，這個 action creator 可以處理非同步操作，並自動生成三個 action types：
+`createAsyncThunk` 用於生成一個 thunk action creator，這個 action creator 可以處理非同步操作，並自動生成三個 action types：
 
 * Pending：當非同步操作正在進行時觸發。
 

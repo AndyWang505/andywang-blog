@@ -3,8 +3,8 @@ title: '[TS] Enhancing React Views with Enums'
 description: '在設計元件時，面對不同的情境通常會需要撰寫各種不同的表達式。一般除了使用物件來定義之外，Enums 的寫法也是一種既優雅又高效的選擇。'
 pubDate: 'December 1 2024'
 heroImage: '/TS-Image.png'
-tags: ['Notes', 'TypeScript', 'Enums']
-category: 'TypeScript'
+tags: ['TypeScript', 'React', 'Enums']
+category: '程式開發'
 ---
 
 在設計元件時，面對不同的情境通常會需要撰寫各種不同的表達式。一般除了使用物件來定義之外，Enums 的寫法也是一種既優雅又高效的選擇。

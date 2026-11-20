@@ -3,8 +3,8 @@ title: '淺談 JavaScript 單執行緒語言如何做到異步運算'
 description: 'JavaScript 是單執行緒語言，照理來說應該一次只能做一件事情，但他卻能做到非同步進程，不讓程式被 blocked，這要歸功於 Event Loop，但 Event Loop 並不存在語言本身，而是由 runtime 來實現。'
 pubDate: 'June 20 2024'
 heroImage: '/JS-Image2.png'
-tags: ['Notes','JavaScript','Asynchronous']
-category: 'JavaScript'
+tags: ['JavaScript', 'Async', 'Event-Loop']
+category: '程式開發'
 ---
 
 JavaScript 是單執行緒語言，照理來說應該一次只能做一件事情，但他卻能做到非同步進程，不讓程式被 blocked，這要歸功於 Event Loop，但 Event Loop 並不存在語言本身，而是由 runtime 來實現。
@@ -93,7 +93,7 @@ foo();
 
 ### Callback Queue
 
-再來看看非同步 setTimeout 怎麼運作的，這邊就會用到 Event Loop 和 Callback Queue 來處理了
+再來看看非同步 `setTimeout` 怎麼運作的，這邊就會用到 Event Loop 和 Callback Queue 來處理了
 
 下面流程圖我就用數字表示了，不然要畫太多w
 
@@ -109,7 +109,7 @@ console.log('3');
 // 最終 console 的執行結果是 1 3 2
 ```
 
-另外，因為 setTimeout 這類的 API 是瀏覽器提供的，他並不存在 V8 引擎中，所以可以看到他是在 Web API 上運行
+另外，因為 `setTimeout` 這類的 API 是瀏覽器提供的，他並不存在 V8 引擎中，所以可以看到他是在 Web API 上運行
 
 ![image](/material/event-loop2.png)
 
@@ -131,7 +131,7 @@ console.log('3');
 14. `console.log('2')` 執行完印出 2 後 pop
 15. `cb` 回調函式執行完後 pop
 
-可能有人會說因為 setTimeout 5000ms 的關係，那就把 setTimeout 改成 0，執行結果也還會是 1 3 2，當然現實不可能這樣寫
+可能有人會說因為 `setTimeout` 5000ms 的關係，那就把 `setTimeout` 改成 0，執行結果也還會是 1 3 2，當然現實不可能這樣寫
 
 ## Macro Task 與 Micro Task
 
@@ -139,9 +139,9 @@ console.log('3');
 
 而兩者的執行順序不同，如果不清楚其中的差別，很容易出現不符合預期的執行結果
 
-* 宏任務 ( Macro Task )：指一般的非同步任務，如：setTimeout、setInterval、DOM Event、Ajax，而這些都是透過 Web APIs 來提供的，當完成後會加到 Callback Queue 排隊。
+* 宏任務 ( Macro Task )：指一般的非同步任務，如：`setTimeout`、`setInterval`、DOM Event、Ajax，而這些都是透過 Web APIs 來提供的，當完成後會加到 Callback Queue 排隊。
 
-* 微任務 ( Micro Task )：指比 Macro Task 還更小的任務，像是：Promise、MutationObserver、queueMicrotask，和 Macro Task 不同的是，他們是由 JavaScript 引擎本身執行，而不是在 Web APIs，且完成後也不會加到 Callback Queue，而是優先權更高的 Micro Task Queue。
+* 微任務 ( Micro Task )：指比 Macro Task 還更小的任務，像是：Promise、`MutationObserver`、`queueMicrotask`，和 Macro Task 不同的是，他們是由 JavaScript 引擎本身執行，而不是在 Web APIs，且完成後也不會加到 Callback Queue，而是優先權更高的 Micro Task Queue。
 
 範例：
 

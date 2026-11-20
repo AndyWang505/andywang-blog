@@ -3,8 +3,8 @@ title: 'Leetcode 96. Unique Binary Search Trees'
 description: '題是經典的 Catalan Number / Unique BST 問題，給你 1～n 不同數字，問可以組出多少種不同結構的 BST（Binary Search Tree），主要想記錄一下 DP 的練習題。'
 pubDate: 'August 15 2025'
 heroImage: ''
-tags: ['Leetcode', 'Algorithm', 'Data-Structure']
-category: 'LeetCode'
+tags: ['LeetCode', 'DP', 'Data-Structure']
+category: '演算法'
 ---
 
 ## Unique Binary Search Trees

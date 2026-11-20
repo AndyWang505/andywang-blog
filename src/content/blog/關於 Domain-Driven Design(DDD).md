@@ -3,8 +3,8 @@ title: '關於 Domain-Driven Design (DDD)'
 description: '自數位轉型年代開始，軟體開發領域開始流行 DDD 一詞的說法，所謂領域驅動設計 Domain-Driven Design (DDD) 是一種軟體設計方法論，核心目的是讓程式設計與商業邏輯緊密對齊，以便未來因應商業需求變更。'
 pubDate: 'September 20 2025'
 heroImage: ''
-tags: ['DDD', 'Clean-Architecture', 'X-Driven']
-category: 'Development'
+tags: ['Methodology', 'DDD', 'Architecture']
+category: '軟體設計'
 ---
 
 自數位轉型年代開始，軟體開發領域開始流行 DDD 一詞的說法，所謂領域驅動設計 Domain-Driven Design (DDD) 是一種軟體設計方法論，核心目的是讓程式設計與商業邏輯緊密對齊，以便未來因應商業需求變更。

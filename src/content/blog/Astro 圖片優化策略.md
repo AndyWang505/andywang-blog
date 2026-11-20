@@ -3,8 +3,8 @@ title: 'Astro 圖片優化策略'
 description: '近期在重構部落格時，發現過去一直都有靜態資源載入的問題，例如 layout structure 先出來了，但圖片還在 loading，後來也發現其實 astro 有針對這類靜態資源做優化。'
 pubDate: 'September 8 2025'
 heroImage: ''
-tags: ['blog', 'performance', 'Astro']
-category: 'Blog'
+tags: ['Astro', 'Performance', 'Blog']
+category: '程式開發'
 ---
 
 近期在重構部落格時，發現過去一直都有靜態資源載入的問題，例如 layout structure 先出來了，但圖片還在 loading，後來也發現其實 astro 有針對這類靜態資源做優化。
@@ -89,7 +89,7 @@ import cover from '../assets/cover.png';
 
 ### `getImage()`
 
-適用於希望圖像被用於非 HTML 顯示的場合，例如 API 路由，或 `<Image />`、`<Picture />` 不支援的選項時，可使用 getImage() 創建自訂圖檔邏輯。
+適用於希望圖像被用於非 HTML 顯示的場合，例如 API 路由，或 `<Image />`、`<Picture />` 不支援的選項時，可使用 `getImage()` 創建自訂圖檔邏輯。
 
 ```astro title="index.astro"
 ---
@@ -111,7 +111,7 @@ const logoData = await getImage({ src: logo, width: 200 });
 
 它的特性就是在 `/src` 底下的檔案都會經過 Vite / Astro 的打包處理。
 
-圖片如果放在 /src/assets，用 Astro 的 `<Image />` 或 import 引入，Astro 也會自動幫你壓縮、產生不同尺寸及 hash（避免快取問題）。
+圖片如果放在 `/src/assets`，用 Astro 的 `<Image />` 或 import 引入，Astro 也會自動幫你壓縮、產生不同尺寸及 hash（避免快取問題）。
 
 舉例來說，如果 import 一張圖片可能是這樣：
 

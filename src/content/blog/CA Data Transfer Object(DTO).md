@@ -3,8 +3,8 @@ title: 'CA: Data Transfer Object (DTO)'
 description: '為了解決層與層之間的耦合，內部核心 Entities、Use Cases 去依賴外部格式，可能會造成今天欄位異動，連動核心需要跟著去修改，違反了依賴反轉原則（DIP），日後要擴充或是重構也是一大挑戰。'
 pubDate: 'September 11 2025'
 heroImage: ''
-tags: ['Notes', 'DTO', 'Clean-Architecture']
-category: 'SystemDesign'
+tags: ['Clean-Architecture', 'Architecture']
+category: '軟體設計'
 ---
 
 為了解決層與層之間的耦合，內部核心 Entities、Use Cases 去依賴外部格式，可能會造成今天欄位異動，連動核心需要跟著去修改，違反了依賴反轉原則（DIP），日後要擴充或是重構也是一大挑戰。
@@ -67,7 +67,7 @@ DTO 在 Pattern of Enterprise Application Architecture（PoEAA）與 Clean Archi
 
 - **降低耦合**：Use Case 不會直接依賴 ORM 或 API 格式，而是依賴 DTO。這樣外部改變（例如 API 欄位調整、DB schema 變動）不會直接衝擊核心邏輯。
 
-- **保護核心與資料安全**：DTO 能過濾敏感或不必要的欄位（例如 passwordHash 或 createdAt），避免洩漏內部實作細節給外部使用者。
+- **保護核心與資料安全**：DTO 能過濾敏感或不必要的欄位（例如 `passwordHash` 或 `createdAt`），避免洩漏內部實作細節給外部使用者。
 
 ## 實務面
 
@@ -138,7 +138,7 @@ async function fetchOrders(): Promise<OrderDTO[]> {
 
     是「前端業務邏輯與 UI 的標準格式」。
 
-    這裡把 createdAt 強制轉為 Date，代表前端統一用物件處理日期，而不是到處解析字串。
+    這裡把 `createdAt` 強制轉為 Date，代表前端統一用物件處理日期，而不是到處解析字串。
 
 - `OrderCard`
   

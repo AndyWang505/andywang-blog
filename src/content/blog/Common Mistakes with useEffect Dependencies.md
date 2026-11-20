@@ -3,11 +3,11 @@ title: 'Common Mistakes with useEffect Dependencies'
 description: 'useEffect 作為 cleanup function，是個強大的副作用處理函式，但如果加了錯誤的依賴，可能導致效能變差，或發生無法預期的行為。此外也談談一些對 useEffect 的誤解。'
 pubDate: 'November 22 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React']
-category: 'React'
+tags: ['React', 'Hooks']
+category: '程式開發'
 ---
 
-useEffect 作為 cleanup function，是個強大的副作用處理函式，但如果加了錯誤的依賴，可能導致效能變差，或發生無法預期的行為。此外也談談一些對 useEffect 的誤解。
+`useEffect` 作為 cleanup function，是個強大的副作用處理函式，但如果加了錯誤的依賴，可能導致效能變差，或發生無法預期的行為。此外也談談一些對 `useEffect` 的誤解。
 
 ## 重新認識 useEffect
 
@@ -19,15 +19,15 @@ useEffect 作為 cleanup function，是個強大的副作用處理函式，但�
 
 但儘管如此，在還不了解他底層原理的情況下還是經常被誤用，過去在學習也只是知道他會在元件初始化與卸載被觸發，可以透過加上 Dependencies Array 確保只在需要的時候被執行，所以這篇文章要來考古他是怎麼被設計的。
 
-> 補充：副作用（Effect）是什麼？副作用指的是那些改變了程式外部狀態或環境的操作，而這些操作並不是由函式的輸入（例如參數）直接引起的。例如：Web API（setTimeout、localStorage）、DOM 操作、Data Fetching、Event Subscription。
+> 補充：副作用（Effect）是什麼？副作用指的是那些改變了程式外部狀態或環境的操作，而這些操作並不是由函式的輸入（例如參數）直接引起的。例如：Web API（`setTimeout`、`localStorage`）、DOM 操作、Data Fetching、Event Subscription。
 
 ### React Class Component
 
 在過去還是 Class Component 的年代，設計和運作方式很多時候都是不直觀的，像是 React 生命週期的方法就有三種來處理不同的渲染時機的邏輯：
 
-* componentDidMount：元件初次渲染後執行的方法。
-* componentDidUpdate：元件更新（重新渲染）後執行的方法。
-* componentWillUnmount：元件卸載前執行的方法，用於清理資源。
+* `componentDidMount`：元件初次渲染後執行的方法。
+* `componentDidUpdate`：元件更新（重新渲染）後執行的方法。
+* `componentWillUnmount`：元件卸載前執行的方法，用於清理資源。
 
 ![image](/useEffect.png)
 
@@ -40,19 +40,19 @@ useEffect 作為 cleanup function，是個強大的副作用處理函式，但�
 
 所以後來就有了 Function Component 和 Hook，它們的存在就是為了解決這些問題，讓邏輯更集中，程式碼更簡潔。
 
-回到現在的 useEffect，它是 React 引入 Function Component 後的一個關鍵功能，旨在解決過去 Class Component 中生命週期方法的局限性，不需要分別撰寫 `componentDidMount`、`componentDidUpdate` 和 `componentWillUnmount`，`useEffect` 可以在一個地方同時處理初始化、更新以及清理的邏輯。
+回到現在的 `useEffect`，它是 React 引入 Function Component 後的一個關鍵功能，旨在解決過去 Class Component 中生命週期方法的局限性，不需要分別撰寫 `componentDidMount`、`componentDidUpdate` 和 `componentWillUnmount`，`useEffect` 可以在一個地方同時處理初始化、更新以及清理的邏輯。
 
-> 補充：`useEffect` 非生命週期方法，而是類似生命週期功能，與傳統生命週期方法的設計理念不同，React 的核心是聲明式（declarative）的渲染，而 useEffect 的設計是為了讓副作用在聲明式的框架下運行，與命令式（imperative）的生命週期方法不同。
+> 補充：`useEffect` 非生命週期方法，而是類似生命週期功能，與傳統生命週期方法的設計理念不同，React 的核心是聲明式（declarative）的渲染，而 `useEffect` 的設計是為了讓副作用在聲明式的框架下運行，與命令式（imperative）的生命週期方法不同。
 
 ## Dependencies 是一種效能最佳化，而非邏輯控制
 
-過去在使用 useEffect 腦中的想法都是，「我希望這段程式在特定時候被執行」，像是：我希望在元件載入時執行，或某個資料狀態變更時執行，但這種想法其實不太對。
+過去在使用 `useEffect` 腦中的想法都是，「我希望這段程式在特定時候被執行」，像是：我希望在元件載入時執行，或某個資料狀態變更時執行，但這種想法其實不太對。
 
 ### 為什麼會需要 Dependencies？
 
 React 的基本概念是「資料驅動畫面」，當元件的狀態或 props 改變時，React 會觸發 re-render，在這個過程中，所有的副作用預設情況下都會被重新執行，對於不需要重新執行的副作用而言，這種行為會導致效能浪費。
 
-為了解決這個問題，React 提供了 Dependencies Array，讓我們可以告訴 React，只有在某些特定資料變更時才重新執行 useEffect。這樣就能避免在不需要的時候重複執行副作用，從而提高效能。
+為了解決這個問題，React 提供了 Dependencies Array，讓我們可以告訴 React，只有在某些特定資料變更時才重新執行 `useEffect`。這樣就能避免在不需要的時候重複執行副作用，從而提高效能。
 
 正確的效能優化：使用 Dependencies
 
@@ -98,7 +98,7 @@ useEffect(() => {
 }, [searchTerm, count]); // count 不應該是依賴
 ```
 
-這樣每次按下按鈕，useEffect 都會執行，即使 searchTerm 沒有改變。這樣的做法會讓 React 無法正確判斷是否需要重新執行副作用。
+這樣每次按下按鈕，`useEffect` 都會執行，即使 `searchTerm` 沒有改變。這樣的做法會讓 React 無法正確判斷是否需要重新執行副作用。
 
 因此，「Dependencies 是為了讓 React 知道在資料沒有發生改變時，可以安全地跳過執行，而不是用來控制 effect 什麼時候執行。」
 

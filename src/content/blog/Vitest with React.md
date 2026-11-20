@@ -3,8 +3,8 @@ title: 'Vitest with React Testing'
 description: '撰寫測試一直都是確保程式碼可靠性的一個重要環節，通常在 React 中，我們可以選擇使用 Jest 或 Vitest 根據專案需求來撰寫 Unit Test，不過 Vitest 在 Vite 專案中整合較為容易。'
 pubDate: 'February 8 2025'
 heroImage: '/Vitest.png'
-tags: ['Notes', 'Vitest', 'Unit-Test']
-category: 'DevOps'
+tags: ['React', 'Vitest', 'Testing']
+category: '程式開發'
 ---
 
 撰寫測試一直都是確保程式碼可靠性的一個重要環節，通常在 React 中，我們可以選擇使用 Jest 或 Vitest 根據專案需求來撰寫 Unit Test，不過 Vitest 在 Vite 專案中整合較為容易。
@@ -85,8 +85,8 @@ import '@testing-library/jest-dom';
 
 * 測試應該模擬使用者與介面互動，而不是實作細節。
 * 需要測試不同狀態，e.g. loading、error、success。
-* 需要測試 Side Effect，e.g. useEffect、useCallback、useMemo，確認元件能正確 onMount 或 onUnmount。
-* 測試 Event Handlers，e.g. onClick、onChange、onSubmit 等能如預期運行。
+* 需要測試 Side Effect，e.g. `useEffect`、`useCallback`、`useMemo`，確認元件能正確 `onMount` 或 `onUnmount`。
+* 測試 Event Handlers，e.g. `onClick`、`onChange`、`onSubmit` 等能如預期運行。
 * 測試 Error Boundaries 能正確 catch error，並顯示 fallback。
 
 諸如此類

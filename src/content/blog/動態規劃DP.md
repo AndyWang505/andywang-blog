@@ -3,8 +3,8 @@ title: '動態規劃 DP'
 description: '動態規劃 (Dynamic Programming) 簡稱DP，屬於 Divide-and-conquer 的延伸，主要可以將原問題分解為相較簡單的子問題，再通過子問題的解求出複雜問題的方法'
 pubDate: 'May 05 2022'
 heroImage: '/Algo-Image1.png'
-tags: ['Notes', 'DP', 'Recursion']
-category: 'Performance'
+tags: ['DP', 'Recursion']
+category: '演算法'
 ---
 ## 動態規劃 (Dynamic Programming)，簡稱DP
 

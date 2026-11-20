@@ -20,9 +20,9 @@
   --palette-tokyo-bg: #1a1b26;
   --palette-tokyo-bg-dark: #16161e;
   --palette-tokyo-bg-float: #1f2335;
-  --palette-tokyo-bg-line: #232433;
   --palette-tokyo-bg-highlight: #292e42;
   --palette-tokyo-bg-surface: #24283b;
+  --palette-tokyo-fg-gutter: #3b4261;
   --palette-tokyo-fg: #c0caf5;
   --palette-tokyo-fg-dark: #a9b1d6;
   --palette-tokyo-fg-muted: #828bb8;  /* tokyonight moon fg_dark */

@@ -3,8 +3,8 @@ title: 'Behavior Driven Development (BDD)'
 description: '在開發過程中，經常會遇到一種很常見的問題：即使程式碼本身是正確的，最終做出來的成果，卻仍然和使用者真正想要的東西存在落差。這種落差通常不是技術實作的問題，而是來自於不同角色之間，對「系統行為」的理解並不一致。'
 pubDate: 'November 1 2025'
 heroImage: ''
-tags: ['BDD', 'Test', 'X-Driven']
-category: 'Development'
+tags: ['Methodology', 'BDD', 'Testing']
+category: '軟體設計'
 ---
 
 ## 前言

@@ -3,8 +3,8 @@ title: '貫穿所有軟體開發的 SOLID 原則'
 description: 'SOLID 是一組通用的軟體設計原則，當系統規模不斷擴大時，維護和擴充的工作會越來越困難，而 SOLID 能引導開發者設計更靈活、更易於維護與擴充的軟體架構。'
 pubDate: 'August 1 2024'
 heroImage: '/SOLID.png'
-tags: ['心得', 'OOP', 'SOLID']
-category: 'SystemDesign'
+tags: ['SOLID', 'OOP', 'Architecture']
+category: '軟體設計'
 ---
 
 SOLID 是一組通用的軟體設計原則，當系統規模不斷擴大時，維護和擴充的工作會越來越困難，而 SOLID 能引導開發者設計更靈活、更易於維護與擴充的軟體架構。

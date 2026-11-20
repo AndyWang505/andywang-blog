@@ -3,8 +3,8 @@ title: '前端效能優化(2) - Throttle'
 description: 'Throttle 也是一種常見的效能優化方式，與 Debounce 類似，但不同的地方在 Throttle 能確保一個函式在一段時間內只會觸發一次，無論該函式被呼叫幾次。'
 pubDate: 'July 19 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'JavaScript', 'Frontend']
-category: 'JavaScript'
+tags: ['JavaScript', 'Performance']
+category: '程式開發'
 ---
 
 Throttle 也是一種常見的效能優化方式，與 Debounce 類似，但不同的地方在 Throttle 能確保一個函式在一段時間內只會觸發一次，無論該函式被呼叫幾次。
@@ -35,7 +35,7 @@ Throttle 也是一種常見的效能優化方式，與 Debounce 類似，但不�
 
 實作 Throttle 的方向跟 Debounce 類似：
 * closure
-* setTimeout
+* `setTimeout`
 * 接收兩個參數：要執行 Throttle 的 callback function 和 delay 時間
 
 ```js

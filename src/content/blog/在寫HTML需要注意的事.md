@@ -3,8 +3,8 @@ title: '在寫 HTML 需要注意的事'
 description: '本篇主要整理過去當助教期間碰過的詢問以及個人也曾犯過的錯，標籤語意化、標題標籤順序性、h1標籤的唯一性、列表標籤的正確使用方式、你所忽略的 alt 屬性、type 屬性的重要、寫好 head 標籤'
 pubDate: 'December 20 2023'
 heroImage: '/HTML-Image1.png'
-tags: ['Notes','HTML']
-category: 'Performance'
+tags: ['HTML', 'Fundamentals']
+category: '程式開發'
 ---
 
 本篇主要整理過去當助教期間碰過的詢問以及個人也曾犯過的錯

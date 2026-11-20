@@ -3,11 +3,11 @@ title: '使用 Astro+Tailwind 實現 Dark mode'
 description: '紀錄如何使用 Astro+Tailwind 來實現 Dark mode 功能，並將狀態儲存在 localStorage，每次進入時檢查 localStorage 的 theme 來切換 mode。'
 pubDate: 'July 15 2024'
 heroImage: '/Astro-Image1.png'
-tags: ['Notes', 'Astro']
-category: 'Blog'
+tags: ['Astro', 'Tailwind', 'Blog']
+category: '程式開發'
 ---
 
-紀錄如何使用 Astro+Tailwind 來實現 Dark mode 功能，並將狀態儲存在 localStorage，每次進入時檢查 localStorage 的 theme 來切換 mode
+紀錄如何使用 Astro+Tailwind 來實現 Dark mode 功能，並將狀態儲存在 `localStorage`，每次進入時檢查 `localStorage` 的 theme 來切換 mode
 
 ## 安裝 Tailwind
 
@@ -54,7 +54,7 @@ module.exports = {
 }
 ```
 
-darkMode 有兩種選項
+`darkMode` 有兩種選項
 
 * class：透過 class 手動切換模式
 * media：當裝置設定是在深色模式時會自動切換模式
@@ -65,7 +65,7 @@ darkMode 有兩種選項
 
 一開始會先檢查用戶的主題偏好，如果是深色模式就直接回傳 `dark`
 
-再來製作按鈕的 click function，如果當前 theme 是 `light` 則切換成 `dark`，反之，同時儲存到 localStorage 中
+再來製作按鈕的 click function，如果當前 theme 是 `light` 則切換成 `dark`，反之，同時儲存到 `localStorage` 中
 
 接著製作切換頁面模式的 function，如果在 light 模式就移除 root 的 dark class，否則新增 dark class
 
@@ -128,7 +128,7 @@ export default function ThemeToggle() {
 
 不過，有個小問題，可能會發現換頁時會有短暫閃爍，這跟元件渲染機制有關，因為當換頁時元件會觸發重新渲染，因此 dark mode 也就會重新新增一次
 
-可以嘗試在畫面中加入這段 `<script>` 直接在客戶端去檢查 localStorage 加入 theme，避免元件重新渲染時造成的畫面閃爍問題
+可以嘗試在畫面中加入這段 `<script>` 直接在客戶端去檢查 `localStorage` 加入 theme，避免元件重新渲染時造成的畫面閃爍問題
 
 ```html
 <script is:inline>

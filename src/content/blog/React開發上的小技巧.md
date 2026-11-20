@@ -3,8 +3,8 @@ title: 'React 開發上的小技巧'
 description: '平時在撰寫 React 最常做的動作不外乎就是建立元件、匯入 Hook 或其他 lib，本篇分享幾個快捷鍵加快開發的小技巧，另外也會提到幾個快捷鍵重寫變數、快速調整程式碼排版等等。'
 pubDate: 'August 12 2024'
 heroImage: '/React-Image1.png'
-tags: ['Notes', 'React']
-category: 'React'
+tags: ['React', 'Hooks']
+category: '程式開發'
 ---
 
 平時在撰寫 React 最常做的動作不外乎就是建立元件、匯入 Hook 或其他 lib，本篇分享幾個快捷鍵加快開發的小技巧，另外也會提到幾個快捷鍵重寫變數、快速調整程式碼排版等等。
@@ -79,8 +79,8 @@ React Hooks 可以透過 ES7+ React/Redux/React-Native snippets 這類擴展工�
 
 像是：
 
-* `useEffect`：只需要輸入 `uef` 就可以幫你生成 useEffect Template，其中也包括 import 直接幫你匯入。
-* `useState`：只需要輸入 `usf`，也會同樣幫你生成 useState Template。
+* `useEffect`：只需要輸入 `uef` 就可以幫你生成 `useEffect` Template，其中也包括 import 直接幫你匯入。
+* `useState`：只需要輸入 `usf`，也會同樣幫你生成 `useState` Template。
 
 如果不記得具體快捷鍵，輸入 use 關鍵字後，應該也會出現很多選擇。
 

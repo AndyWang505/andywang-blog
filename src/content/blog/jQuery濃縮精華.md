@@ -3,8 +3,8 @@ title: 'jQuery 濃縮精華'
 description: 'jQuery是HTML、CSS、JavaScript撰寫出來的library，用來製作動畫效果，雖然撰寫上很方便，但當程式碼龐大時會因寫法的關係較難維護'
 pubDate: 'December 05 2021'
 heroImage: ''
-tags: ['jQuery','Notes']
-category: 'JavaScript'
+tags: ['JavaScript', 'jQuery', 'DOM']
+category: '程式開發'
 ---
 
 jQuery是HTML、CSS、JavaScript撰寫出來的library，用來製作動畫效果，雖然撰寫上很方便，但當程式碼龐大時會因寫法的關係較難維護
@@ -63,7 +63,7 @@ $(document).ready(function(){
 ```
 ### 滑動
 
-slideDown/slideUp
+`slideDown`/`slideUp`
 
 ```javascript
 $(document).ready(function(){
@@ -75,7 +75,7 @@ $(document).ready(function(){
 ```
 ### 淡入淡出
 
-fadeToggle/fadeIn/fadeOut
+`fadeToggle`/`fadeIn`/`fadeOut`
 
 ```javascript
 $(document).ready(function(){
@@ -89,7 +89,7 @@ $(document).ready(function(){
 ```
 ### 自訂效果(新增或移除class)
 
-toggleClass
+`toggleClass`
 
 ```javascript
 $(document).ready(function(){
@@ -111,7 +111,7 @@ $(document).ready(function(){
 ```
 ### 取消默認行為
 
-preventDefault
+`preventDefault`
 
 ```javascript
 $(document).ready(function(){
@@ -176,7 +176,7 @@ $(document).ready(function(){
 ```
 ### parent父階層元素
 
-parent()
+`parent()`
 
 ```javascript
 $(document).ready(function(){
@@ -189,7 +189,7 @@ $(document).ready(function(){
 ```
 ### siblings同層元素
 
-siblings()
+`siblings()`
 
 ```javascript
 $(document).ready(function(){
@@ -202,7 +202,7 @@ $(document).ready(function(){
 ```
 ### find尋找子元素
 
-find()
+`find()`
 
 ```javascript
 $(document).ready(function(){
