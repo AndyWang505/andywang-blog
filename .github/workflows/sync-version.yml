@@ -1,0 +1,43 @@
+name: Sync package version on release
+
+# After a release is published, set package.json "version" to the release tag
+# (v2.0.1 -> 2.0.1) and commit it to main. Pushes made with GITHUB_TOKEN do not
+# trigger other workflows, so this does not redeploy the site.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set version from tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version="${TAG#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$TAG' is not a semver version"
+            exit 1
+          fi
+          npm pkg set version="$version"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Commit to main
+        run: |
+          if git diff --quiet package.json; then
+            echo "package.json is already at $VERSION"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: bump version to $VERSION"
+          git push origin HEAD:main
