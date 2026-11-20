@@ -11,7 +11,7 @@ category: '程式開發'
 
 ## 前言
 
-最近開始碰專案看到前人寫的 code，發現在 Router 進入點的地方都有多一層 ErrorBoundary 的 Component，也藉此認識到 ErrorBoundary 這個名詞。
+最近開始碰專案看到前人寫的 code，發現在 Router 進入點的地方都有多一層 `ErrorBoundary` 的 Component，也藉此認識到 `ErrorBoundary` 這個名詞。
 
 後來我在查資料時左思右想，突然想起來，之前在我面試的時候好像也有被問到過，你是如何去 Handle Error 的，但我當時只描述了透過 try...catch 的做法
 
@@ -63,7 +63,7 @@ const result = arr.filter(item => item === target) || null;
 
 所以為了解決這個問題，React 才引入了 Error Boundaries
 
-ErrorBoundary 是一種特殊的元件，主要來捕捉子元件樹中的錯誤，特別是在巢狀元件中發生錯誤時，可以防止整個頁面崩潰，並顯示一個 fallback 來提示用戶。
+`ErrorBoundary` 是一種特殊的元件，主要來捕捉子元件樹中的錯誤，特別是在巢狀元件中發生錯誤時，可以防止整個頁面崩潰，並顯示一個 fallback 來提示用戶。
 
 該元件寫法像這樣：
 
@@ -112,17 +112,17 @@ export default ErrorBoundary;
 </ErrorBoundary>
 ```
 
-另外，目前 ErrorBoundary 只能透過 Class Component 來實作
+另外，目前 `ErrorBoundary` 只能透過 Class Component 來實作
 
 因為 `componentDidCatch()` 方法只能在 Class Component 中使用的關係
 
 且 React 目前為止也尚未提供一個原生的 Hooks 來替代這個功能，因此如果想捕捉子元件錯誤只能透過 Class Component。
 
-所以你可能會發生一個狀況，你的程式碼架構中有一部分是 Class Component 用於處理 ErrorBoundary，另一部分是 Functional Component 用於處理畫面邏輯。
+所以你可能會發生一個狀況，你的程式碼架構中有一部分是 Class Component 用於處理 `ErrorBoundary`，另一部分是 Functional Component 用於處理畫面邏輯。
 
 ## 適用情境
 
-ErrorBoundary 主要用途是用來捕捉渲染階段發生的錯誤
+`ErrorBoundary` 主要用途是用來捕捉渲染階段發生的錯誤
 
 只會捕捉本身底下 Component Tree 裡的 Component 錯誤，且也無法捕捉本身引發的錯誤
 

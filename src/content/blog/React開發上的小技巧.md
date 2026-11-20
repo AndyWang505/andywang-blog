@@ -79,8 +79,8 @@ React Hooks 可以透過 ES7+ React/Redux/React-Native snippets 這類擴展工�
 
 像是：
 
-* `useEffect`：只需要輸入 `uef` 就可以幫你生成 useEffect Template，其中也包括 import 直接幫你匯入。
-* `useState`：只需要輸入 `usf`，也會同樣幫你生成 useState Template。
+* `useEffect`：只需要輸入 `uef` 就可以幫你生成 `useEffect` Template，其中也包括 import 直接幫你匯入。
+* `useState`：只需要輸入 `usf`，也會同樣幫你生成 `useState` Template。
 
 如果不記得具體快捷鍵，輸入 use 關鍵字後，應該也會出現很多選擇。
 

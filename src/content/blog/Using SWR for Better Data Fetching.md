@@ -48,7 +48,7 @@ SWR 是 Next.js 團隊 Vercel 所開發的 Custom Hook
 
 ## 一般的 Data Fetching
 
-一般在寫 fetch api 時通常會用 useEffect 在第一次載入時去觸發，然後存在 state 中
+一般在寫 fetch api 時通常會用 `useEffect` 在第一次載入時去觸發，然後存在 state 中
 
 可能像這樣：
 
@@ -142,7 +142,7 @@ function Component() {
 
 * key：唯一的鍵值，SWR 會根據 key 來做 cache，有點像快取的識別證，當 key 相同時，會直接從快取拿請求過的舊的資料。
 
-* fetcher：用來負責執行 request，並返回 response 的函式。你可以自訂這個函式，SWR 會去呼叫他來處理 Data Fetching，並將結果傳回 useSWR 的 data。
+* `fetcher`：用來負責執行 request，並返回 response 的函式。你可以自訂這個函式，SWR 會去呼叫他來處理 Data Fetching，並將結果傳回 `useSWR` 的 data。
     ```js
     // 定義 fetcher 函式
     const fetcher = url => fetch(url).then(res => res.json());
@@ -168,7 +168,7 @@ function Component() {
 
 Deduplication 是 [重複數據刪除技術](https://zh.wikipedia.org/zh-tw/%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%E5%88%A0%E9%99%A4)，Deduplication 主要用於在短時間內「合併」相同的請求。
 
-而在 SWR 中 softRevalidate 就是依賴 Deduplication 將重複的 API request 合併，避免觸發相同的 request。
+而在 SWR 中 `softRevalidate` 就是依賴 Deduplication 將重複的 API request 合併，避免觸發相同的 request。
 
 這樣即便在載入過程中有多個元件同時需要相同的資料，SWR 也只會發出一次請求，之後相同的請求會直接從快取中取得結果。
 

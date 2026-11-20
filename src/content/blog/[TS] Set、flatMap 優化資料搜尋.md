@@ -13,7 +13,7 @@ category: '程式開發'
 
 最近工作上碰到需要從一個多層結構的資料中撈出特定資料，然後從另一筆資料中撈出 id 互相匹配後，再組合出一個乾淨的資料做渲染。
 
-假設現在需要從 product_variation 的 categories 中先撈出 giveaways，其中會夾雜不同資料，你需要透過 isGiveaway 去判斷。
+假設現在需要從 `product_variation` 的 categories 中先撈出 giveaways，其中會夾雜不同資料，你需要透過 `isGiveaway` 去判斷。
 
 結構可能會長這樣：
 
@@ -71,7 +71,7 @@ category: '程式開發'
 }
 ```
 
-另外一個 product_id 已經提供，只需要從 selectedProducts 中撈出即可。
+另外一個 `product_id` 已經提供，只需要從 `selectedProducts` 中撈出即可。
 
 ```json
 {
@@ -110,7 +110,7 @@ const giveaways = productTable.categories.map((category) =>
 
 1. 盡量避免嵌套式結構，必要時寫成一個 constants
 
-2. flat 和 map 可以整合成 flatMap
+2. flat 和 map 可以整合成 `flatMap`
 
 3. 搜尋策略可以改用效能更高的 set
 
@@ -129,13 +129,13 @@ const giveaways = allProducts.filter((product) =>
 
 來說說這段優化的過程中做了什麼
 
-1. 將 selectedProducts 的 product_id 抽出來到 Set 中，Set 有更高的搜尋效率（後續會解釋），減少查找 product_id 的時間成本。
+1. 將 `selectedProducts` 的 `product_id` 抽出來到 Set 中，Set 有更高的搜尋效率（後續會解釋），減少查找 `product_id` 的時間成本。
 
-2. 使用 flatMap 來將每個 category 中的 subcategories 做扁平化處理，這樣我們就得到了所有的子類別資料，而不需要在內部多次嵌套 map。
+2. 使用 `flatMap` 來將每個 category 中的 subcategories 做扁平化處理，這樣我們就得到了所有的子類別資料，而不需要在內部多次嵌套 map。
 
-3. 接著再使用 flatMap 來將每個 subcategory 中的 products 提取出來，這樣所有產品都在一個扁平化的陣列中，避免了多次遍歷和過多的嵌套（這邊 flatMap 其實也可以寫在一起，讓扁平化只做一次，不過抽出來的可讀性與維護性更高）。
+3. 接著再使用 `flatMap` 來將每個 subcategory 中的 products 提取出來，這樣所有產品都在一個扁平化的陣列中，避免了多次遍歷和過多的嵌套（這邊 `flatMap` 其實也可以寫在一起，讓扁平化只做一次，不過抽出來的可讀性與維護性更高）。
 
-4. 最後使用 filter 來檢查每個產品是否在 selectedProductIds 中，並且判斷是否為贈品。
+4. 最後使用 filter 來檢查每個產品是否在 `selectedProductIds` 中，並且判斷是否為贈品。
 
 這樣優化過後程式碼也變得更簡潔易讀，且在資料量更大時能有更高的效能。
 
@@ -164,11 +164,11 @@ const giveaways = allProducts.filter((product) =>
     console.log([...combinedData]); // [1, 2, 3, 4, 5, 6]
     ```
 
-    這段也可以使用 filter 和 indexOf 實作，但 Set 去重複效能比兩者來的更高其時間複雜度從 𝑂(𝑛^2)（基於 filter + indexOf）降低到 𝑂(𝑛)。
+    這段也可以使用 filter 和 `indexOf` 實作，但 Set 去重複效能比兩者來的更高其時間複雜度從 𝑂(𝑛^2)（基於 filter + `indexOf`）降低到 𝑂(𝑛)。
 
 ### flatMap 的優勢
 
-flatMap 是一個合併了 map 和 flat 操作的方法，如果是分別使用 flat 和 map 就需要遍歷兩次，合併後通過一次遍歷就能完成兩個操作，提高效能。  
+`flatMap` 是一個合併了 map 和 flat 操作的方法，如果是分別使用 flat 和 map 就需要遍歷兩次，合併後通過一次遍歷就能完成兩個操作，提高效能。  
 
 較適合需要對陣列進行多層處理及扁平化處理的情境。
 
@@ -192,7 +192,7 @@ const allMembers = employees.flatMap((employee) => employee.members);
     * 底層使用 Hash Table 實作，善於處理重複數據和集合操作，時間複雜度更低。
     * 適合需要頻繁搜尋和比較的情境。
 
-* flatMap：
+* `flatMap`：
 
     * 合併 flat 和 map 方法，在單次遍歷中同時完成映射和扁平化，降低記憶體和時間的消耗。
     * 適合處理嵌套結構的資料，將資料映射並進行扁平化處理，從而有效簡化處理過程。

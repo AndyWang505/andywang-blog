@@ -29,7 +29,7 @@ Debounce 是一種常見的效能優化方式，主要用於限制高頻事件�
 
 要實作 Debounce 主要方向有：
 * closure
-* setTimeout
+* `setTimeout`
 * 通常接收兩個參數：要被 debounce 的原始函式和 delay 時間
 
 範例：

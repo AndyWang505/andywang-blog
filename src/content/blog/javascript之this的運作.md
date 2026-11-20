@@ -101,7 +101,7 @@ var wrapObj = {
 wrapObj.innerObj.callsomeone();//1
 ```
 
-this 的指向為 innerObj 物件，結果為內層物件
+this 的指向為 `innerObj` 物件，結果為內層物件
 
 ### ES6箭頭函式
 
@@ -124,7 +124,7 @@ const person = {
 person.callName();
 ```
 
-line:5 指向 person 物件的 name 小明，setTimeout 大部分屬於 sample call，this 指向全域，line:8 指向 window
+line:5 指向 person 物件的 name 小明，`setTimeout` 大部分屬於 sample call，this 指向全域，line:8 指向 window
 
 #### Ex.2 箭頭函式
 
@@ -143,7 +143,7 @@ const person = {
 person.callName();
 ```
 
-箭頭函式 setTimeout 會跟 line:4 外層函式的作用域相同，外層指向哪裡，內層就相同，所以 1:小明、2:小明、3:person物件
+箭頭函式 `setTimeout` 會跟 line:4 外層函式的作用域相同，外層指向哪裡，內層就相同，所以 1:小明、2:小明、3:person物件
 
 #### Ex.3 箭頭函式
 

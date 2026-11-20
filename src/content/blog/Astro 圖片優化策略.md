@@ -89,7 +89,7 @@ import cover from '../assets/cover.png';
 
 ### `getImage()`
 
-適用於希望圖像被用於非 HTML 顯示的場合，例如 API 路由，或 `<Image />`、`<Picture />` 不支援的選項時，可使用 getImage() 創建自訂圖檔邏輯。
+適用於希望圖像被用於非 HTML 顯示的場合，例如 API 路由，或 `<Image />`、`<Picture />` 不支援的選項時，可使用 `getImage()` 創建自訂圖檔邏輯。
 
 ```astro title="index.astro"
 ---
@@ -111,7 +111,7 @@ const logoData = await getImage({ src: logo, width: 200 });
 
 它的特性就是在 `/src` 底下的檔案都會經過 Vite / Astro 的打包處理。
 
-圖片如果放在 /src/assets，用 Astro 的 `<Image />` 或 import 引入，Astro 也會自動幫你壓縮、產生不同尺寸及 hash（避免快取問題）。
+圖片如果放在 `/src/assets`，用 Astro 的 `<Image />` 或 import 引入，Astro 也會自動幫你壓縮、產生不同尺寸及 hash（避免快取問題）。
 
 舉例來說，如果 import 一張圖片可能是這樣：
 

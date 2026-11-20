@@ -85,8 +85,8 @@ import '@testing-library/jest-dom';
 
 * 測試應該模擬使用者與介面互動，而不是實作細節。
 * 需要測試不同狀態，e.g. loading、error、success。
-* 需要測試 Side Effect，e.g. useEffect、useCallback、useMemo，確認元件能正確 onMount 或 onUnmount。
-* 測試 Event Handlers，e.g. onClick、onChange、onSubmit 等能如預期運行。
+* 需要測試 Side Effect，e.g. `useEffect`、`useCallback`、`useMemo`，確認元件能正確 `onMount` 或 `onUnmount`。
+* 測試 Event Handlers，e.g. `onClick`、`onChange`、`onSubmit` 等能如預期運行。
 * 測試 Error Boundaries 能正確 catch error，並顯示 fallback。
 
 諸如此類

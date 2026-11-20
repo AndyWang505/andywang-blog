@@ -58,7 +58,7 @@ Git 很少真的刪東西，基本上都可以找得到，所以出問題了也�
 
 不過雖然 reflog 很強，但還是有幾個例外：
 * 你過了很久（預設約 90 天），reflog 被清掉
-* 你手動做了 git gc 且已清除 unreachable commits
+* 你手動做了 `git gc` 且已清除 unreachable commits
 * 你在遠端 force push 覆蓋掉，且本地也沒有紀錄
 
 但在一般開發流程中，當下發現 rebase 出錯幾乎都救得回來。

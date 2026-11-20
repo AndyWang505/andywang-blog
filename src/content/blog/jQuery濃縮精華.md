@@ -63,7 +63,7 @@ $(document).ready(function(){
 ```
 ### 滑動
 
-slideDown/slideUp
+`slideDown`/`slideUp`
 
 ```javascript
 $(document).ready(function(){
@@ -75,7 +75,7 @@ $(document).ready(function(){
 ```
 ### 淡入淡出
 
-fadeToggle/fadeIn/fadeOut
+`fadeToggle`/`fadeIn`/`fadeOut`
 
 ```javascript
 $(document).ready(function(){
@@ -89,7 +89,7 @@ $(document).ready(function(){
 ```
 ### 自訂效果(新增或移除class)
 
-toggleClass
+`toggleClass`
 
 ```javascript
 $(document).ready(function(){
@@ -111,7 +111,7 @@ $(document).ready(function(){
 ```
 ### 取消默認行為
 
-preventDefault
+`preventDefault`
 
 ```javascript
 $(document).ready(function(){
@@ -176,7 +176,7 @@ $(document).ready(function(){
 ```
 ### parent父階層元素
 
-parent()
+`parent()`
 
 ```javascript
 $(document).ready(function(){
@@ -189,7 +189,7 @@ $(document).ready(function(){
 ```
 ### siblings同層元素
 
-siblings()
+`siblings()`
 
 ```javascript
 $(document).ready(function(){
@@ -202,7 +202,7 @@ $(document).ready(function(){
 ```
 ### find尋找子元素
 
-find()
+`find()`
 
 ```javascript
 $(document).ready(function(){

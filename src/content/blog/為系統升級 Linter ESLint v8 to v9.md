@@ -65,7 +65,7 @@ category: '開發工具'
 5. 其他 Breaking Changes
 
     - `eslint:recommended` 規則有更新
-    - CLI 行為有些微調整（如 --quiet、--output-file 等）
+    - CLI 行為有些微調整（如 `--quiet`、`--output-file` 等）
     - 多個 `/* eslint */` 註解不再允許重複設定同一規則
 
 ## V9 才有的 Rules

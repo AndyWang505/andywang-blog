@@ -113,7 +113,7 @@ type DataA = GenericData<string>
 type DataB = GenericData<number>
 ```
 
-這樣的話我們可以透過 GenericData 泛型去實例不同類型的介面
+這樣的話我們可以透過 `GenericData` 泛型去實例不同類型的介面
 
 ### 泛型組合
 
@@ -199,7 +199,7 @@ console.log(numArr);  // 輸出結果 [3, 5, 10]
 console.log(strArr);  // 輸出結果 ["apple", "banana", "cherry"]
 ```
 
-這邊我們定義了一個 arr 參數，以及 compareFn 參數（預期回傳一個 number 用於 sort 做升降序），透過泛型讓它可以去對不同類型參數做排序。
+這邊我們定義了一個 `arr` 參數，以及 `compareFn` 參數（預期回傳一個 number 用於 sort 做升降序），透過泛型讓它可以去對不同類型參數做排序。
 
 不過這種排序是一種比較精簡的寫法，詳細可以查閱這篇 [文章](https://ithelp.ithome.com.tw/articles/10225733)。
 

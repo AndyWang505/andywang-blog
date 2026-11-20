@@ -35,7 +35,7 @@ Throttle 也是一種常見的效能優化方式，與 Debounce 類似，但不�
 
 實作 Throttle 的方向跟 Debounce 類似：
 * closure
-* setTimeout
+* `setTimeout`
 * 接收兩個參數：要執行 Throttle 的 callback function 和 delay 時間
 
 ```js

@@ -51,7 +51,7 @@ What works for me (tested on two MacBooks):
 
 1. `sudo pkill [dD]ocker`
 
-    pkill [dD]ocker 強制終止正在運行的 Docker 進程。pkill 是用來終止進程的工具，[dD]ocker 用於匹配大小寫不敏感的 "Docker" 字串，確保終止所有 Docker 相關的進程。
+    `pkill [dD]ocker` 強制終止正在運行的 Docker 進程。pkill 是用來終止進程的工具，`[dD]ocker` 用於匹配大小寫不敏感的 "Docker" 字串，確保終止所有 Docker 相關的進程。
 
 2. `sudo rm /Library/PrivilegedHelperTools/com.docker.vmnetd`
 
