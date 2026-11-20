@@ -3,7 +3,6 @@
  * What components use. Themes only remap this layer.
  * Naming follows Tailwind v4 theme namespaces (--color-*, --text-*, --radius-*, --ease-*)
  * so a later move to Tailwind v4 `@theme` is a rename-free copy.
- * Spec: docs/redesign/01-foundations.md §2
  */
 
 /* ===== Theme-independent scales ===== */
@@ -37,6 +36,7 @@
   /* Letter spacing */
   --tracking-tight: -0.02em;
   --tracking-snug: -0.01em;
+  --tracking-wide: 0.02em;
 
   /* Spacing: 4px base, same steps as Tailwind's default scale (p-4 = 16px) */
   --space-1: 0.25rem;  /* 4 */

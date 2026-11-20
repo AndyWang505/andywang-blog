@@ -1,4 +1,28 @@
 /* Design tokens entry. Import this once in the layout. Order matters: each layer reads the one before it. */
+
+/*
+ * Token layers
+ *
+ * 1. primitives.css — raw palette values (--palette-*). Only semantic.css may reference them;
+ *    components, layouts and Tailwind never do.
+ * 2. semantic.css — what components use: colors, type, spacing, radius, z-index, motion, effects.
+ *    Themes only remap this layer: every --color-* in the light :root block must also be defined
+ *    in html.dark. Adding a light color means adding its dark value in the same change.
+ * 3. components.css — sizes owned by one layout or component (header height, rail widths,
+ *    content measure, chip height). Built from semantic tokens where possible.
+ *
+ * Components and layouts use semantic or component tokens only, through Tailwind classes
+ * (tailwind-theme.mjs maps them; it only ever references var(--...)) or var(--...) in scoped CSS.
+ * No hex colors in src/components/, src/layouts/ or src/pages/.
+ *
+ * Checked by src/lib/__tests__/tokens.test.ts:
+ * - every variable tailwind-theme.mjs references is defined in these files;
+ * - every light --color-* has a dark counterpart;
+ * - --palette-* appears nowhere in src/ outside this directory;
+ * - src/components/, src/layouts/ and src/pages/ contain no hex colors, except the files in the
+ *   test's HEX_ALLOWED list (each with its reason);
+ * - every @media, matchMedia and `@container center` value uses a breakpoint from tailwind-theme.mjs.
+ */
 @import './primitives.css';
 @import './semantic.css';
 @import './components.css';

@@ -1,5 +1,5 @@
 /**
- * Inline SVG icon definitions (docs/redesign/01-foundations.md §7).
+ * Inline SVG icon definitions.
  * Stroke icons inherit currentColor; fill icons use currentColor as fill.
  */
 export interface IconDef {

@@ -1,7 +1,6 @@
 /**
  * Post data for components. Components call these instead of `getCollection` directly.
  * Results are cached for the duration of a build.
- * Spec: docs/redesign/05-data.md §2
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { SITE_SERIES } from '../config/site';

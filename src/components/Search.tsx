@@ -276,7 +276,7 @@ export default function Search({ posts }: SearchProps) {
         onClick={openSearch}
         aria-label="搜尋文章"
         aria-haspopup="dialog"
-        className="hidden lg:flex h-[34px] min-w-[200px] items-center gap-2 rounded-full bg-bg-muted px-3 text-sm text-fg-muted transition-colors duration-fast hover:text-fg"
+        className="hidden lg:flex h-control min-w-[200px] items-center gap-2 rounded-full bg-bg-muted px-3 text-sm text-fg-muted transition-colors duration-fast hover:text-fg"
       >
         <IoSearch className="h-3.5 w-3.5" aria-hidden="true" />
         <span>搜尋文章</span>
@@ -291,7 +291,7 @@ export default function Search({ posts }: SearchProps) {
         aria-haspopup="dialog"
         className="flex lg:hidden h-11 w-11 items-center justify-center rounded-full text-fg transition-colors duration-fast hover:bg-bg-muted"
       >
-        <IoSearch className="h-[18px] w-[18px]" aria-hidden="true" />
+        <IoSearch className="size-icon-sm" aria-hidden="true" />
       </button>
       {dialog}
     </>

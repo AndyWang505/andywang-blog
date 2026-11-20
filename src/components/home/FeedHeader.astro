@@ -1,5 +1,5 @@
 ---
-/** Title row above a post list. Spec: docs/redesign/03-components.md C2 */
+/** Title row above a post list. */
 interface Props {
   title: string;
   /** Heading level; list pages use h1 for their title. */
@@ -15,7 +15,7 @@ const { title, as: Tag = 'h2', count, unit = '篇', moreHref, moreLabel } = Astr
 ---
 
 <div class="flex items-baseline justify-between gap-4 border-b border-line pb-2.5 pt-6 lg:pt-8">
-  <Tag class="m-0 flex items-baseline gap-2.5 text-xl font-bold tracking-[-0.3px] text-fg">
+  <Tag class="m-0 flex items-baseline gap-2.5 text-xl font-bold tracking-snug text-fg">
     {title}
     {count !== undefined && <span class="text-xs font-normal tabular-nums text-fg-muted">{count} {unit}</span>}
   </Tag>

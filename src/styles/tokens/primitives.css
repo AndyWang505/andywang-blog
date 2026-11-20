@@ -2,7 +2,6 @@
  * Layer 1 — primitives.
  * Raw palette values only. Never reference these from components;
  * semantic.css is the only consumer.
- * Spec: docs/redesign/01-foundations.md §2
  */
 :root {
   /* Apple-style neutrals */

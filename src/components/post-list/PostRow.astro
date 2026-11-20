@@ -2,7 +2,6 @@
 /**
  * One post in a list: meta, title, two-line excerpt, thumbnail only when the post has a cover.
  * Thumbnail size follows the center column width (container `center`).
- * Spec: docs/redesign/03-components.md C5
  */
 import { Image } from 'astro:assets';
 import type { Post } from '../../lib/posts';
@@ -20,7 +19,7 @@ const { post } = Astro.props;
       <b class="font-semibold text-accent">{post.category}</b> · <time datetime={post.isoDate}>{post.dateText}</time> ·
       {post.readingMinutes} 分鐘
     </p>
-    <h3 class="m-0 mb-1.5 text-lg leading-snug tracking-[-0.2px] text-fg transition-colors duration-base group-hover:text-accent">
+    <h3 class="m-0 mb-1.5 text-lg leading-snug tracking-snug text-fg transition-colors duration-base group-hover:text-accent">
       {post.title}
     </h3>
     <p class="m-0 line-clamp-2 text-sm leading-relaxed text-fg-body">{post.description}</p>

@@ -40,9 +40,9 @@ export default function ThemeToggle() {
       className="flex h-11 w-11 items-center justify-center rounded-full text-fg transition-colors duration-fast hover:bg-bg-muted lg:h-10 lg:w-10"
     >
       {theme === 'light' ? (
-        <IoSunny className="h-[18px] w-[18px]" aria-hidden="true" />
+        <IoSunny className="size-icon-sm" aria-hidden="true" />
       ) : (
-        <IoMoon className="h-[18px] w-[18px]" aria-hidden="true" />
+        <IoMoon className="size-icon-sm" aria-hidden="true" />
       )}
     </button>
   ) : (

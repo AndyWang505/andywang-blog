@@ -7,7 +7,6 @@
  *   data-right = "rail" right rail; below the center column at 1024–1439px, beside it from 1440px (home, lists)
  *              | "toc"  chapter TOC; sticky bar above the article below 1024px, column from 1024px (article)
  *              | "none"
- * Spec: docs/redesign/02-layout.md §2
  */
 .shell {
   display: grid;
