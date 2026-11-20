@@ -17,16 +17,11 @@ export default {
       },
     },
 		extend: {
-      backdropFilter: {
-        'none': 'none',
-        'blur': 'blur(20px)',
-      },
       // v2 design tokens
       ...tokenTheme,
     },
 	},
 	plugins: [
-    require('tailwindcss-filters'),
     containerQueries,
   ],
 }
