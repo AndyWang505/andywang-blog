@@ -27,7 +27,7 @@ interface SetupItem {
 
 const setupItems: { category: string; items: SetupItem[] }[] = [
   {
-    category: '主機設備',
+    category: '常用設備',
     items: [
       { name: 'MacBook Pro (14-inch) - Apple M1 Pro', description: '現役工作用電腦，生產力好夥伴', image: macbookPro, fit: 'cover' },
       { name: 'GeForce RTX 2060', description: '桌機顯卡，平時遊戲用途', image: rtx2060, fit: 'cover' },
@@ -61,6 +61,7 @@ const releasesHref = 'https://github.com/AndyWang505/andywang-blog/releases';
 const releaseClass = 'mt-2 inline-flex items-center gap-1.5 text-sm text-accent hover:underline';
 const blogPostHref =
   'https://andywangtw.dev/post/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%83%A8%E8%90%BD%E6%A0%BC%E8%87%AA%E5%B7%B1%E6%9E%B6/';
+const rebuildPostHref = '/post/關於我重構部落格這檔事/';
 ---
 
 <Layout variant="list" current="about" title="關於">
@@ -156,7 +157,7 @@ const blogPostHref =
               到了 2024 年，決定重寫部落格架構。現在的部落格主要是使用 Astro、React 和 Tailwind
               開發。如果有興趣，可以參考
               <a href="https://www.youtube.com/@devaslife" target="_blank" class={linkClass}>@devaslife</a>
-              上的示範影片，另外我也在這篇 <a href={blogPostHref} class={linkClass} target="_blank">短文</a> 中分享了關於重構部落格的一些心得。
+              上的示範影片，另外我也在這篇 <a href={rebuildPostHref} class={linkClass}>短文</a> 中分享了關於重構部落格的一些心得。
             </p>
           </li>
           <li class="stop">
@@ -167,9 +168,9 @@ const blogPostHref =
               <a href="https://github.com/saicaca/fuwari" target="_blank" class={linkClass}>Fuwari</a>
               的設計，再搭配一些自己的風格整合而成。讚嘆 AI Agent 幫我省下不少開發時間 :D
             </p>
-            <a href={`${releasesHref}/tag/v1.0.0`} target="_blank" rel="noopener" class={releaseClass}>
+            <a href={`${releasesHref}/tag/v1.1.0`} target="_blank" rel="noopener" class={releaseClass}>
               <Icon name="github" size={14} />
-              Release v1.0.0
+              Release v1.1.0
             </a>
           </li>
           <li class="stop">
@@ -190,9 +191,8 @@ const blogPostHref =
       </section>
 
       <footer class="mt-10 flex flex-col gap-1 text-xs text-fg-muted">
-        <span>Profile picture：<a href="https://x.com/Ame_929" target="_blank" class={linkClass}>Ame_929</a></span>
         <span>Banner：OshinoUomi（<a href="https://www.pixiv.net/artworks/107570605" target="_blank" class={linkClass}>light</a> / <a href="https://www.pixiv.net/artworks/106922955" target="_blank" class={linkClass}>dark</a>）</span>
-        <span>Updated <FormattedDate date={new Date('April 05 2026')} /></span>
+        <span>Updated <FormattedDate date={new Date('November 20 2026')} /></span>
       </footer>
     </div>
   </article>
