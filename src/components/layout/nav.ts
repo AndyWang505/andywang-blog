@@ -1,4 +1,4 @@
-/** Shared navigation and shell contract types. Spec: docs/redesign/02-layout.md */
+/** Shared navigation and shell contract types. */
 
 export type NavKey = 'home' | 'posts' | 'category' | 'tags' | 'about';
 

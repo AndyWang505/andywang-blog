@@ -2,7 +2,6 @@
  * Maps semantic and component tokens (CSS variables) into Tailwind's theme.
  * Tailwind only ever references `var(--...)`; values live in ./semantic.css and ./components.css.
  * A test (src/lib/__tests__/tokens.test.ts) checks every variable named here exists in the CSS.
- * Spec: docs/redesign/01-foundations.md §4
  */
 
 const v = (name, fallback) => (fallback ? `var(--${name}, ${fallback})` : `var(--${name})`);

@@ -1,7 +1,5 @@
 /*
  * Global base styles for the v2 layout. Uses semantic tokens only.
- * Imported by the new Layout in T5 (docs/redesign/07-tasks.md); not loaded by the current pages.
- * Spec: docs/redesign/01-foundations.md §3
  */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }

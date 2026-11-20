@@ -22,7 +22,7 @@ export const DEFAULT_AVATAR = IMAGES.defaultAvatar;
 export const FOOTER_BG_LIGHT = IMAGES.footerBgLight;
 export const FOOTER_BG_DARK = IMAGES.footerBgDark;
 
-// v2 author block (docs/redesign/03-components.md B2)
+// v2 author block
 export const AUTHOR = {
   name: 'Andy Wang',
   role: 'Web Developer · Hsinchu',
@@ -57,5 +57,5 @@ export const ARCHIVE_THEMES: readonly { name: string; tags?: readonly string[]; 
   { name: '生活', tags: ['Life', 'Retro'] },
 ];
 
-/** Tags treated as article series, in priority order (docs/redesign/05-data.md §2). */
+/** Tags treated as article series, in priority order. */
 export const SITE_SERIES: readonly string[] = ['X-Driven'];

@@ -1,5 +1,5 @@
 /**
- * Chapter TOC behaviour (docs/redesign/03-components.md D4):
+ * Chapter TOC behaviour:
  * current/done chapter state, progress, smooth jump, mobile expand/collapse, copy link,
  * back to top (eased, cancellable scroll).
  * Safe to call on every page view; previous listeners are removed first.

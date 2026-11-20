@@ -1,5 +1,5 @@
 /**
- * Token layering rules (docs/redesign/01-foundations.md §8).
+ * Token layering rules (written out in src/styles/tokens/index.css).
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';

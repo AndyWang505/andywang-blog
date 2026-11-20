@@ -1,5 +1,5 @@
 /**
- * Mobile menu toggle (docs/redesign/02-layout.md §6).
+ * Mobile menu toggle.
  * Safe to call on every page view; previous listeners are removed first.
  */
 let cleanup: (() => void) | undefined;

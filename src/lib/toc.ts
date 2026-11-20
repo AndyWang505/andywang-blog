@@ -1,7 +1,6 @@
 /**
  * Build chapter data for the article TOC from Astro's rendered headings.
  * h2 = chapter (numbered from 1), h3 = sub-item of the preceding chapter.
- * Spec: docs/redesign/03-components.md D4
  */
 
 export interface HeadingLike {

@@ -21,7 +21,7 @@ export default {
         'none': 'none',
         'blur': 'blur(20px)',
       },
-      // v2 design tokens: docs/redesign/01-foundations.md §4
+      // v2 design tokens
       ...tokenTheme,
     },
 	},

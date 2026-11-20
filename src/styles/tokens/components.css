@@ -1,7 +1,6 @@
 /*
  * Layer 3 — component tokens.
  * Sizes owned by one layout or component. Built from semantic tokens where possible.
- * Spec: docs/redesign/01-foundations.md §2
  *
  * Breakpoints (media queries cannot read CSS variables; keep in sync with tailwind-theme.mjs `screens`):
  *   lg   1024px  two columns

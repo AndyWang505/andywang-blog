@@ -1,6 +1,5 @@
 /**
  * Client entry. Page-level features re-initialise after every swup page view.
- * Spec: docs/redesign/02-layout.md §8
  */
 import { initPhotoSwipe } from './photoswipe';
 import { initProgress } from './progress';

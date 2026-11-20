@@ -1,7 +1,6 @@
 /**
  * Pure post helpers. No `astro:content` import, so they can be unit tested.
  * `src/lib/posts.ts` wires them to the content collection.
- * Spec: docs/redesign/05-data.md
  */
 import { toPathSegment } from './utils/path';
 import { getReadingTime, getWordCount } from './utils/readingTime';

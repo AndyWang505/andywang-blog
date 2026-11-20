@@ -1,6 +1,5 @@
 /*
  * Article body typography for Markdown output (classes cannot be added to generated elements).
- * Spec: docs/redesign/03-components.md D3
  */
 .article-prose {
   max-width: var(--content-measure);
