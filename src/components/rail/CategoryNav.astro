@@ -1,0 +1,83 @@
+---
+/**
+ * Categories. Below 1024px: sticky glass bar of horizontally scrolling chips (all categories).
+ * From 1024px: vertical list, first `collapsedCount` items (current one always kept) + "show all" link.
+ * Spec: docs/redesign/03-components.md B3
+ */
+import Chip from '../ui/Chip.astro';
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getCategoryCounts, getSortedPosts } from '../../lib/posts';
+
+interface Props {
+  /** Current category name; empty means "全部". */
+  current?: string;
+  collapsedCount?: number;
+  /** Render only the desktop list (article page rail). */
+  listOnly?: boolean;
+  /** Show the sticky chip bar below 1024px. */
+  mobileBar?: boolean;
+  /** Where "全部" leads. */
+  allHref?: string;
+}
+
+const { current, collapsedCount = 8, listOnly = false, mobileBar = true, allHref = '/' } = Astro.props;
+const [counts, posts] = await Promise.all([getCategoryCounts(), getSortedPosts()]);
+const items = [{ name: '全部', count: posts.length, href: allHref }, ...counts];
+const isCurrent = (name: string) => (current ? name === current : name === '全部');
+
+let visible = items.slice(0, collapsedCount);
+const currentItem = items.find((i) => isCurrent(i.name));
+if (currentItem && !visible.includes(currentItem)) visible = [...visible.slice(0, collapsedCount - 1), currentItem];
+const hiddenCount = counts.length;
+---
+
+{
+  !listOnly && mobileBar && (
+    <nav aria-label="分類" class="cat-bar glass transition-swup-mobile lg:hidden">
+      <div class="flex gap-2 overflow-x-auto px-4 py-2.5 [scrollbar-width:none]" data-scroll-current>
+        {items.map((i) => <Chip href={i.href} label={i.name} count={i.count} active={isCurrent(i.name)} />)}
+      </div>
+    </nav>
+  )
+}
+
+<nav aria-label="分類" class:list={['hidden lg:block', !listOnly && 'px-6 pt-6']}>
+  <SectionLabel as="h2" text="分類" />
+  <ul class="m-0 flex list-none flex-col gap-px p-0">
+    {
+      visible.map((i) => (
+        <li>
+          <a
+            href={i.href}
+            aria-current={isCurrent(i.name) ? 'page' : undefined}
+            class:list={[
+              'flex min-h-[34px] items-center justify-between gap-2.5 rounded-md px-2.5 text-sm text-fg transition-colors duration-fast hover:bg-bg-muted',
+              isCurrent(i.name) && 'bg-bg-muted font-semibold',
+            ]}
+          >
+            <span>{i.name}</span>
+            <span class="tabular-nums text-xs font-normal text-fg-muted">{i.count}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  {
+    items.length > visible.length && (
+      <a href="/archive/category/" class="block px-2.5 py-2 text-xs text-accent hover:underline">
+        顯示全部 {hiddenCount} 個分類 ›
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .cat-bar {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--z-sticky);
+    border-top: 1px solid var(--color-border-muted);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+</style>
+

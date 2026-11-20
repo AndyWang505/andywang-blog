@@ -1,0 +1,22 @@
+---
+/**
+ * Site footer. Spec: docs/redesign/02-layout.md §7
+ */
+const year = new Date().getFullYear();
+---
+
+<footer
+  class="flex flex-wrap justify-between gap-3 border-t border-line px-4 py-[18px] text-xs text-fg-muted lg:px-6"
+>
+  <span>Copyright &copy; 2021-{year} AndyWang.</span>
+  <span>
+    Content licensed under
+    <a
+      href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh-hant"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="underline hover:text-fg">CC BY-SA 4.0</a
+    >
+    unless otherwise noted.
+  </span>
+</footer>

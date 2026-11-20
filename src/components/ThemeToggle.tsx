@@ -35,16 +35,17 @@ export default function ThemeToggle() {
   return isMounted ? (
     <button
       onClick={toggleTheme}
-      aria-label="Toggle theme"
-      className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-all duration-200 active:scale-95"
+      type="button"
+      aria-label="切換深色模式"
+      className="flex h-11 w-11 items-center justify-center rounded-full text-fg transition-colors duration-fast hover:bg-bg-muted lg:h-10 lg:w-10"
     >
       {theme === 'light' ? (
-        <IoSunny className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+        <IoSunny className="h-[18px] w-[18px]" aria-hidden="true" />
       ) : (
-        <IoMoon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+        <IoMoon className="h-[18px] w-[18px]" aria-hidden="true" />
       )}
     </button>
   ) : (
-    <div className="w-9 h-9" />
+    <div className="h-11 w-11 lg:h-10 lg:w-10" />
   );
 }

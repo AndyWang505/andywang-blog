@@ -1,0 +1,78 @@
+---
+/**
+ * Author block. `full`: compact row below 1024px, stacked card-less block from 1024px.
+ * `compact`: one-line link used in the article page rail.
+ * Spec: docs/redesign/03-components.md B2
+ */
+import Icon from '../ui/Icon.astro';
+import { AUTHOR } from '../../config/site';
+
+interface Props {
+  variant?: 'full' | 'compact';
+  /** `full` only: show the compact row below 1024px (otherwise the block is desktop-only). */
+  mobile?: boolean;
+}
+
+const { variant = 'full', mobile = true } = Astro.props;
+const socials = [
+  { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', size: 17, external: true },
+  { href: AUTHOR.links.x, label: 'X', icon: 'x', size: 14, external: true },
+  { href: AUTHOR.links.email, label: 'Email', icon: 'mail', size: 16, external: false },
+  { href: AUTHOR.links.kofi, label: '在 Ko-fi 贊助', icon: 'coffee', size: 16, external: true },
+  { href: AUTHOR.links.rss, label: 'RSS', icon: 'rss', size: 15, external: false },
+] as const;
+---
+
+{
+  variant === 'compact' ? (
+    <a href="/about/" class="mb-5 flex items-center gap-3 border-b border-line-muted pb-5">
+      <img src={AUTHOR.avatar} alt="" width="40" height="40" class="h-10 w-10 rounded-full object-cover" loading="lazy" />
+      <span class="min-w-0">
+        <b class="name-compact block font-semibold text-fg">{AUTHOR.name}</b>
+        <span class="block text-xs text-fg-muted">{AUTHOR.role}</span>
+      </span>
+    </a>
+  ) : (
+    <section
+      aria-label="作者"
+      class:list={[
+        mobile ? 'flex' : 'hidden',
+        'transition-swup-mobile items-center gap-3 p-4 lg:block lg:border-b lg:border-line-muted lg:px-6 lg:pb-6 lg:pt-7',
+      ]}
+    >
+      <img
+        src={AUTHOR.avatar}
+        alt={`${AUTHOR.name} 頭像`}
+        width="64"
+        height="64"
+        class="h-11 w-11 shrink-0 rounded-full object-cover lg:mb-3.5 lg:h-16 lg:w-16"
+      />
+      <div class="min-w-0">
+        <p class="m-0 text-ui font-semibold text-fg">{AUTHOR.name}</p>
+        <p class="m-0 text-ui-sm text-fg-muted">{AUTHOR.role}</p>
+        <p class="m-0 mt-2.5 hidden text-sm leading-relaxed text-fg-body lg:block">{AUTHOR.bio}</p>
+        <div class="-ml-2.5 mt-3 hidden gap-1 lg:flex">
+          {
+            socials.map((s) => (
+              <a
+                href={s.href}
+                aria-label={s.label}
+                class="flex h-9 w-9 items-center justify-center rounded-full text-fg-muted transition-colors duration-fast hover:bg-bg-muted hover:text-fg"
+                {...(s.external ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                <Icon name={s.icon} size={s.size} />
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* Compact article-rail variant only: sits between the fixed 17px name and 13px role sizes. */
+  .name-compact {
+    font-size: 15px;
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+/** Article cover, only when the post has one. Spec: docs/redesign/03-components.md D2 */
+import { Image } from 'astro:assets';
+
+interface Props {
+  src?: string;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+---
+
+{
+  src && (
+    <figure class="mx-auto mb-0 mt-8 max-w-wide overflow-hidden rounded-lg bg-bg-subtle">
+      <Image src={src} alt={alt} width={1920} height={1080} format="webp" quality={85} class="aspect-video w-full object-cover" />
+    </figure>
+  )
+}

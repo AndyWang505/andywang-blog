@@ -1,0 +1,22 @@
+---
+/**
+ * Category filter row above a post list (from 1024px; below that the rail's sticky
+ * category bar does the same job). "全部" is the category index.
+ */
+import Chip from '../ui/Chip.astro';
+import { getCategoryCounts, getSortedPosts } from '../../lib/posts';
+
+interface Props {
+  /** Current category name; empty means "全部". */
+  current?: string;
+}
+
+const { current } = Astro.props;
+const [counts, posts] = await Promise.all([getCategoryCounts(), getSortedPosts()]);
+const items = [{ name: '全部', count: posts.length, href: '/archive/category/' }, ...counts];
+const isCurrent = (name: string) => (current ? name === current : name === '全部');
+---
+
+<nav aria-label="依分類篩選" class="hidden flex-wrap gap-2 border-b border-line-muted py-4 lg:flex">
+  {items.map((i) => <Chip href={i.href} label={i.name} count={i.count} active={isCurrent(i.name)} />)}
+</nav>

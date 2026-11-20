@@ -1,0 +1,44 @@
+---
+/**
+ * Tag index: a filter field, then frequent tags (2+ posts) and the rest, each sorted by post count.
+ * Filtering runs in scripts/tag-filter.ts.
+ */
+import Chip from '../ui/Chip.astro';
+import SectionLabel from '../ui/SectionLabel.astro';
+import { getTagCounts } from '../../lib/posts';
+
+/** Already sorted by post count, then name (posts-core countBy). */
+const tags = await getTagCounts();
+const groups = [
+  { title: '常用', items: tags.filter((t) => t.count >= 2) },
+  { title: '其他', items: tags.filter((t) => t.count < 2) },
+].filter((g) => g.items.length > 0);
+---
+
+<div data-tag-browser>
+  <label class="mt-5 flex h-11 items-center gap-2 rounded-full bg-bg-muted px-4 text-sm text-fg-muted focus-within:ring-2 focus-within:ring-accent">
+    <span class="sr-only">篩選標籤</span>
+    <input
+      type="search"
+      placeholder="篩選標籤…"
+      autocomplete="off"
+      class="h-full min-w-0 flex-1 border-0 bg-transparent text-fg outline-none placeholder:text-fg-muted"
+      data-tag-filter
+    />
+  </label>
+  {
+    groups.map((g) => (
+      <section class="mt-7" data-tag-group>
+        <SectionLabel as="h2" text={g.title} />
+        <ul class="m-0 flex list-none flex-wrap gap-2 p-0">
+          {g.items.map((t) => (
+            <li data-tag-name={t.name.toLowerCase()}>
+              <Chip href={t.href} label={`#${t.name}`} count={t.count} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+  <p class="m-0 mt-7 hidden text-sm text-fg-muted" data-tag-empty>找不到符合的標籤。</p>
+</div>

@@ -1,0 +1,177 @@
+/*
+ * Article body typography for Markdown output (classes cannot be added to generated elements).
+ * Spec: docs/redesign/03-components.md D3
+ */
+.article-prose {
+  max-width: var(--content-measure);
+  margin: 0 auto;
+  padding: var(--space-8) 0 var(--space-2);
+  font-size: var(--text-prose);
+  line-height: var(--leading-loose);
+  color: var(--color-fg-body);
+  counter-reset: chapter;
+  overflow-wrap: break-word;
+}
+.article-prose > :first-child {
+  margin-top: 0;
+}
+.article-prose p {
+  margin: 0 0 1.2em;
+}
+
+/* Headings: h2 = numbered chapter, matching the chapter TOC */
+.article-prose h2 {
+  margin: 2em 0 0.6em;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-snug);
+  color: var(--color-fg-default);
+  scroll-margin-top: 130px;
+  counter-increment: chapter;
+}
+.article-prose h2::before {
+  content: counter(chapter, decimal-leading-zero);
+  margin-right: var(--space-3);
+  font-size: 0.6em;
+  font-weight: 600;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.15em;
+}
+.article-prose h3 {
+  margin: 1.6em 0 0.5em;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: var(--leading-snug);
+  color: var(--color-fg-default);
+  scroll-margin-top: 130px;
+}
+.article-prose h4 {
+  margin: 1.4em 0 0.4em;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-fg-default);
+}
+.article-prose .heading-link {
+  margin-left: var(--space-2);
+  color: var(--color-fg-subtle);
+  opacity: 0;
+  transition: opacity var(--duration-base);
+}
+.article-prose .heading-link .icon-link::after {
+  content: '#';
+}
+.article-prose :is(h2, h3, h4):hover .heading-link,
+.article-prose .heading-link:focus-visible {
+  opacity: 1;
+}
+
+/* Lists, emphasis, links */
+.article-prose :is(ul, ol) {
+  margin: 0 0 1.2em;
+  padding-left: 1.25em;
+}
+.article-prose ul {
+  list-style: disc;
+}
+.article-prose ol {
+  list-style: decimal;
+}
+.article-prose li {
+  margin: 0.35em 0;
+}
+.article-prose li > :is(ul, ol) {
+  margin: 0.35em 0 0;
+}
+.article-prose li::marker {
+  color: var(--color-fg-subtle);
+}
+.article-prose strong {
+  color: var(--color-fg-default);
+  font-weight: 600;
+}
+.article-prose a:not(.heading-link) {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.article-prose a:not(.heading-link):hover {
+  text-decoration: underline;
+}
+.article-prose hr {
+  margin: 2.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-border-muted);
+}
+
+/* Inline code (code blocks are styled by Expressive Code) */
+.article-prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+}
+
+/* Quotes */
+.article-prose blockquote {
+  margin: 1.6em 0;
+  padding: var(--space-4) var(--space-5);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-default);
+  font-style: normal;
+}
+.article-prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Tables: wrapped in .table-wrap by plugins/rehype/wrap-tables.ts so only the table scrolls */
+.article-prose .table-wrap {
+  overflow-x: auto;
+  margin: 0 0 1.4em;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
+}
+.article-prose table {
+  width: 100%;
+  min-width: 480px;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+.article-prose th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  background: var(--color-bg-subtle);
+}
+.article-prose :is(th, td) {
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--color-border-muted);
+  vertical-align: top;
+}
+.article-prose tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Media */
+.article-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  cursor: zoom-in;
+}
+.article-prose .expressive-code {
+  margin: 0 0 1.4em;
+}
+.article-prose mjx-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}

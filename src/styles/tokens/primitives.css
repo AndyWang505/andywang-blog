@@ -1,0 +1,48 @@
+/*
+ * Layer 1 — primitives.
+ * Raw palette values only. Never reference these from components;
+ * semantic.css is the only consumer.
+ * Spec: docs/redesign/01-foundations.md §2
+ */
+:root {
+  /* Apple-style neutrals */
+  --palette-gray-0: #ffffff;
+  --palette-gray-50: #f5f5f7;
+  --palette-gray-100: #ebebef;
+  --palette-gray-150: #e8e8ed;
+  --palette-gray-300: #d2d2d7;
+  --palette-gray-500: #86868b;
+  --palette-gray-600: #6e6e73;
+  --palette-gray-700: #424245;
+  --palette-gray-900: #1d1d1f;
+  --palette-blue-600: #0066cc;
+
+  /* Tokyo Night (night variant) */
+  --palette-tokyo-bg: #1a1b26;
+  --palette-tokyo-bg-dark: #16161e;
+  --palette-tokyo-bg-float: #1f2335;
+  --palette-tokyo-bg-line: #232433;
+  --palette-tokyo-bg-highlight: #292e42;
+  --palette-tokyo-bg-surface: #24283b;
+  --palette-tokyo-fg: #c0caf5;
+  --palette-tokyo-fg-dark: #a9b1d6;
+  --palette-tokyo-fg-muted: #828bb8;  /* tokyonight moon fg_dark */
+  --palette-tokyo-comment: #737aa2;
+  --palette-tokyo-blue: #7aa2f7;
+
+  /* Categorical chart hues, slot order fixed (it is part of the colour-blind safety).
+     Light steps validated on #ffffff, dark steps on #1a1b26 (dataviz validate_palette.js). */
+  --palette-chart-1-light: #2a78d6; /* blue */
+  --palette-chart-2-light: #eb6834; /* orange */
+  --palette-chart-3-light: #1baf7a; /* aqua */
+  --palette-chart-4-light: #eda100; /* yellow */
+  --palette-chart-5-light: #e87ba4; /* magenta */
+  --palette-chart-6-light: #008300; /* green */
+  --palette-chart-1-dark: #3987e5;
+  --palette-chart-2-dark: #d95926;
+  --palette-chart-3-dark: #199e70;
+  --palette-chart-4-dark: #c98500;
+  --palette-chart-5-dark: #d55181;
+  --palette-chart-6-dark: #0ca30c;
+  --palette-chart-ink: #0b0b0b; /* label ink on the yellow slot */
+}

@@ -1,0 +1,23 @@
+---
+/** Title row above a post list. Spec: docs/redesign/03-components.md C2 */
+interface Props {
+  title: string;
+  /** Heading level; list pages use h1 for their title. */
+  as?: 'h1' | 'h2';
+  count?: number;
+  /** Unit after the count: 篇 for posts, 個 for categories and tags. */
+  unit?: '篇' | '個';
+  moreHref?: string;
+  moreLabel?: string;
+}
+
+const { title, as: Tag = 'h2', count, unit = '篇', moreHref, moreLabel } = Astro.props;
+---
+
+<div class="flex items-baseline justify-between gap-4 border-b border-line pb-2.5 pt-6 lg:pt-8">
+  <Tag class="m-0 flex items-baseline gap-2.5 text-xl font-bold tracking-[-0.3px] text-fg">
+    {title}
+    {count !== undefined && <span class="text-xs font-normal tabular-nums text-fg-muted">{count} {unit}</span>}
+  </Tag>
+  {moreHref && <a href={moreHref} class="text-sm text-accent hover:underline">{moreLabel}</a>}
+</div>

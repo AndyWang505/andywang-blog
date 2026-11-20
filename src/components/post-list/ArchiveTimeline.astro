@@ -1,0 +1,526 @@
+---
+/**
+ * Archive timeline: one spine per year with a dot per post and the month in a left gutter
+ * (shown on the month's first post). Year headings carry id="y{year}" for the rail links,
+ * a month's first row id="m{year}-{MM}" for the heatmap. From a 960px centre column the
+ * spine moves mid-column with a reader card on the left. Scroll state (passed dots), the
+ * reader card, reveal and the hover preview card live in scripts/archive.ts.
+ */
+import { getImage } from 'astro:assets';
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  groups: { year: number; count: number; posts: Post[] }[];
+}
+
+const { groups } = Astro.props;
+
+const years = groups.map((g) => ({
+  ...g,
+  rows: g.posts.map((post, i) => {
+    const month = post.dateText.slice(5, 7);
+    const firstOfMonth = i === 0 || g.posts[i - 1].dateText.slice(5, 7) !== month;
+    return { post, month, firstOfMonth };
+  }),
+}));
+
+/** Small cover thumbnails for the hover preview, generated at build time. */
+const peekCovers = new Map<string, string>();
+await Promise.all(
+  groups
+    .flatMap((g) => g.posts)
+    .filter((p) => p.cover)
+    .map(async (p) => {
+      const img = await getImage({ src: p.cover!, width: 240, height: 150, format: 'webp', inferSize: false });
+      peekCovers.set(p.slug, img.src);
+    }),
+);
+/** The reader card starts on the newest post (no-JS and first paint). */
+const first = groups[0]?.posts[0];
+---
+
+<div class="timeline" data-archive>
+  <aside class="reader" aria-label="文章預覽" data-archive-reader>
+    <a class="reader-card" href={first?.url} data-reader-link>
+      <img
+        class="reader-cover"
+        alt=""
+        width="240"
+        height="150"
+        src={first && peekCovers.get(first.slug)}
+        hidden={!(first && peekCovers.get(first.slug))}
+        data-reader-img
+      />
+      <p class="reader-meta" data-reader-meta>{first && `${first.category} · ${first.dateText} · ${first.readingMinutes} 分鐘`}</p>
+      <p class="reader-title" data-reader-title>{first?.title}</p>
+      <p class="reader-desc" data-reader-desc>{first?.description}</p>
+      <span class="reader-go">閱讀文章 ›</span>
+    </a>
+  </aside>
+  <div class="years">
+  {
+    years.map((year) => (
+      <section class="year" aria-labelledby={`y${year.year}`}>
+        <h2 id={`y${year.year}`} class="year-head">
+          <span class="year-num">{year.year}</span>
+          <span class="count">{year.count} 篇</span>
+        </h2>
+        <ol class="rows">
+          {year.rows.map(({ post, month, firstOfMonth }) => (
+            <li
+              class:list={['row', firstOfMonth && 'month-start']}
+              id={firstOfMonth ? `m${year.year}-${month}` : undefined}
+              data-archive-row
+            >
+              <span class="month">{firstOfMonth && `${Number(month)} 月`}</span>
+              <span class="dot" aria-hidden="true" />
+              <a
+                href={post.url}
+                class="entry"
+                data-peek-title={post.title}
+                data-peek-desc={post.description}
+                data-peek-meta={`${post.category} · ${post.dateText} · ${post.readingMinutes} 分鐘`}
+                data-peek-cover={peekCovers.get(post.slug)}
+              >
+                <time datetime={post.isoDate} class="date">
+                  {post.dateText.slice(5)}
+                </time>
+                <span class="title">{post.title}</span>
+                {post.tags.length > 0 && <span class="tags">{post.tags.slice(0, 2).map((t) => `#${t}`).join(' ')}</span>}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
+  </div>
+</div>
+
+<div class="peek" aria-hidden="true" hidden data-archive-peek>
+  <div class="peek-body">
+    <p class="peek-meta" data-peek-meta-out></p>
+    <p class="peek-title" data-peek-title-out></p>
+    <p class="peek-desc" data-peek-desc-out></p>
+  </div>
+  <img class="peek-cover" alt="" width="240" height="150" data-peek-img />
+</div>
+
+<style>
+  .timeline {
+    --month-w: 2.75rem;
+    --spine-w: 1.5rem;
+    --dot: 9px;
+    /* Vertical centre of the title's first line inside a row (entry padding + half a line). */
+    --dot-y: 1.25rem;
+    padding-top: var(--space-4);
+  }
+  .year + .year {
+    margin-top: var(--space-8);
+  }
+
+  .year-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3) 0;
+    scroll-margin-top: var(--header-height);
+  }
+  /* From 1024px the current year sticks under the header (below that the category bar is sticky). */
+  @media (min-width: 1024px) {
+    .year-head {
+      position: sticky;
+      top: var(--header-height);
+      z-index: 2; /* above the dots (z-index 1) */
+      background: var(--color-bg-default);
+    }
+  }
+  .year-num {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-default);
+  }
+  .count {
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .row {
+    --pad: 0px;
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--month-w) var(--spine-w) minmax(0, 1fr);
+    padding-top: var(--pad);
+    scroll-margin-top: calc(var(--header-height) + 3.5rem);
+    transition:
+      opacity 0.45s var(--ease-standard),
+      translate 0.45s var(--ease-standard);
+  }
+  .row.month-start:not(:first-child) {
+    --pad: var(--space-4);
+  }
+
+  /* Spine: one segment per row; segments of passed rows turn accent. */
+  .row::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--month-w) + var(--spine-w) / 2);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: color-mix(in srgb, var(--color-fg-subtle) 40%, transparent);
+    transition: background var(--duration-base) var(--ease-standard);
+  }
+  .row:first-child::before {
+    top: calc(var(--pad) + var(--dot-y));
+  }
+  .row:last-child::before {
+    bottom: auto;
+    height: calc(var(--pad) + var(--dot-y));
+  }
+  .row:first-child:last-child::before {
+    display: none;
+  }
+  .row.passed::before {
+    background: var(--color-accent);
+  }
+
+  .month {
+    padding-top: 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .dot {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    width: var(--dot);
+    height: var(--dot);
+    margin-top: calc(var(--dot-y) - var(--dot) / 2);
+    border: 2px solid var(--color-fg-subtle);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-default);
+    transition:
+      border-color var(--duration-base) var(--ease-standard),
+      background var(--duration-base) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
+  }
+  .row.passed .dot {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+  .row:hover .dot {
+    transform: scale(1.35);
+    border-color: var(--color-accent);
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: var(--space-3);
+    align-items: baseline;
+    padding: 0.5rem var(--space-2);
+    border-radius: var(--radius-md);
+    transition: background var(--duration-fast);
+  }
+  .entry:hover {
+    background: var(--color-bg-muted);
+  }
+  .date {
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-muted);
+  }
+  .title {
+    font-size: var(--text-base);
+    font-weight: 500;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+    transition: color var(--duration-fast);
+  }
+  .entry:hover .title {
+    color: var(--color-accent);
+  }
+  .tags {
+    grid-column: 2;
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  /* Reveal: scripts/archive.ts hides rows below the fold, then shows them as they scroll in. */
+  .row.pre-reveal {
+    opacity: 0;
+    translate: 0 10px;
+  }
+
+  /*
+   * Hover preview card (pointer devices from 1024px). Placed by scripts/archive.ts beside the
+   * list: over the right rail when it is a side column, else over the tags column, so titles
+   * and dates on the reading path are never covered.
+   */
+  .peek {
+    position: fixed;
+    z-index: var(--z-overlay);
+    display: flex;
+    gap: var(--space-4);
+    width: 340px;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    box-shadow: var(--shadow-popover);
+    pointer-events: none;
+    opacity: 0;
+    translate: 6px 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      translate var(--duration-fast) var(--ease-standard);
+  }
+  .peek[hidden] {
+    display: none;
+  }
+  .peek.show {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .peek-body {
+    min-width: 0;
+    flex: 1;
+  }
+  .peek-cover {
+    flex-shrink: 0;
+    align-self: flex-start;
+    width: 104px;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    background: var(--color-bg-subtle);
+  }
+  .peek-cover[hidden] {
+    display: none;
+  }
+  .peek-meta {
+    margin: 0;
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+  .peek-title {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    color: var(--color-fg-default);
+  }
+  .peek-desc {
+    display: -webkit-box;
+    margin: var(--space-1) 0 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: var(--text-xs);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-body);
+  }
+
+  @container center (min-width: 768px) {
+    .timeline {
+      --month-w: 3.5rem;
+      --spine-w: 2rem;
+    }
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 14rem);
+    }
+    .tags {
+      grid-column: 3;
+      margin-top: 0;
+      font-size: var(--text-sm);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  /*
+   * Wide layout (centre column 820px+): the spine sits mid-column with the post list on the
+   * right and a reader card on the left. Widths step up at 1200px and 1600px (see below).
+   * The card column is as wide as the card, so the group starts at the column's left edge.
+   * 820px keeps one layout per window size range: 1100–1439px (rail below) and 1440px+
+   * (rail beside) both get it, so the layout does not flip back and forth while resizing. The card sticks at the reading line (35% of the
+   * viewport, see scripts/archive.ts) and shows the post being read or hovered; a connector
+   * runs from the card to that post's dot.
+   */
+  .reader {
+    display: none;
+  }
+  @container center (min-width: 820px) {
+    .timeline {
+      --reader-gap: var(--space-6);
+      display: grid;
+      /* The card column is exactly the card: no dead space on the left; spare width goes to the list. */
+      grid-template-columns: var(--reader-w, 260px) minmax(0, 1fr);
+      column-gap: var(--reader-gap);
+    }
+    .reader {
+      display: block;
+    }
+    .reader-card {
+      position: sticky;
+      top: calc(35vh - 1.75rem);
+      display: block;
+      width: 100%;
+      margin-top: calc(var(--space-12) + var(--space-6));
+      padding: var(--space-3);
+      border: 1px solid var(--color-border-default);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-card);
+      box-shadow: var(--shadow-card);
+      /* Moves between posts are CSS transitions; scripts/archive.ts adds .instant while scrolling. */
+      transition:
+        border-color var(--duration-fast),
+        opacity var(--duration-fast) var(--ease-standard),
+        translate 320ms cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .reader-card.instant {
+      transition:
+        border-color var(--duration-fast),
+        opacity var(--duration-fast) var(--ease-standard);
+    }
+    /* Long moves: fade out, reposition, fade in (see HOP in scripts/archive.ts). */
+    .reader-card.hop {
+      opacity: 0;
+    }
+    .reader-card:hover {
+      border-color: var(--color-accent);
+    }
+    /* Connector from the card to the shown post's dot; --link-y is set by scripts/archive.ts. */
+    .reader-card::after {
+      content: '';
+      position: absolute;
+      top: var(--link-y, 1.75rem);
+      left: 100%;
+      opacity: var(--link-on, 1);
+      transition: opacity var(--duration-fast);
+      width: calc(var(--reader-gap) + var(--month-w) + var(--spine-w) / 2 - var(--dot) / 2);
+      border-top: 1px dashed var(--color-accent);
+    }
+    .reader-card.swap {
+      animation: reader-swap var(--duration-base) var(--ease-standard);
+    }
+    .reader-cover {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 21 / 9;
+      margin-bottom: var(--space-2);
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--color-bg-subtle);
+    }
+    .reader-cover[hidden] {
+      display: none;
+    }
+    .reader-meta {
+      margin: 0;
+      font-size: var(--text-xs);
+      color: var(--color-fg-muted);
+    }
+    /* Secondary to the list: smaller than the list titles. */
+    .reader-title {
+      margin: var(--space-1) 0 0;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      line-height: var(--leading-snug);
+      color: var(--color-fg-default);
+    }
+    .reader-desc {
+      display: -webkit-box;
+      margin: var(--space-2) 0 0;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      font-size: var(--text-xs);
+      line-height: var(--leading-normal);
+      color: var(--color-fg-body);
+    }
+    .reader-go {
+      display: inline-block;
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-accent);
+    }
+    /* Month labels sit above the connector so it does not run through the text. */
+    .month {
+      position: relative;
+      z-index: 1;
+      justify-self: start;
+      height: fit-content;
+      padding-right: var(--space-1);
+      background: var(--color-bg-default);
+    }
+    .row.current .dot {
+      transform: scale(1.5);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    }
+    /* The list column is narrower here: tags go under the title. */
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+    }
+    .tags {
+      grid-column: 2;
+      margin-top: 2px;
+      font-size: var(--text-xs);
+    }
+  }
+  /* Roomier centre column: bigger card, tags back in their own column. */
+  @container center (min-width: 1200px) {
+    .timeline {
+      --reader-w: 300px;
+      --reader-gap: var(--space-8);
+    }
+    .entry {
+      grid-template-columns: 3.5rem minmax(0, 1fr) minmax(0, 12rem);
+    }
+    .tags {
+      grid-column: 3;
+      margin-top: 0;
+      font-size: var(--text-sm);
+    }
+  }
+  /* Very wide (2K): a slightly larger card; the group stays left-aligned with the page. */
+  @container center (min-width: 1600px) {
+    .timeline {
+      --reader-w: 320px;
+    }
+  }
+  /* Content swap: opacity only. The card's position lives in `translate`, so animating it here
+     would replay the slide from the resting place on every swap. */
+  @keyframes reader-swap {
+    from {
+      opacity: 0.4;
+    }
+  }
+  /* After a long move (see .hop): fade back in at the new place. Declared after .swap so it wins. */
+  @container center (min-width: 820px) {
+    .reader-card.land {
+      animation: reader-land 180ms var(--ease-standard);
+    }
+  }
+  @keyframes reader-land {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

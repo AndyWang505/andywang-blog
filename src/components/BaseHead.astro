@@ -3,17 +3,17 @@
 // all pages through the use of the <BaseHead /> component.
 import '../styles/base.css';
 import { DEFAULT_BLOG_IMAGE } from '../config/site';
-import { BANNER_CONFIG } from '../config/banner';
 
 interface Props {
   title: string;
   description: string;
   image?: string;
+  preloadImage?: string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = DEFAULT_BLOG_IMAGE } = Astro.props;
+const { title, description, image = DEFAULT_BLOG_IMAGE, preloadImage } = Astro.props;
 ---
 
 <!-- Global Metadata -->
@@ -23,31 +23,10 @@ const { title, description, image = DEFAULT_BLOG_IMAGE } = Astro.props;
 <link rel="icon" type="image/png" href="/favicon-16x16.png" />
 <meta name="generator" content={Astro.generator} />
 
-<!-- Theme script to prevent FOUC -->
-<script is:inline>
-  const theme = (() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
-    }
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    return 'light';
-  })();
-  
-  if (theme === 'light') {
-    document.documentElement.classList.remove('dark');
-  } else {
-    document.documentElement.classList.add('dark');
-  }
-  
-  window.__theme = theme;
-</script>
+<!-- Theme is initialised by an inline script at the top of Layout.astro -->
 
-<!-- Banner image preload for faster loading -->
-{BANNER_CONFIG.enable && (
-  <link rel="preload" href={BANNER_CONFIG.src} as="image" />
-)}
+<!-- Hero image preload (home page) -->
+{preloadImage && <link rel="preload" href={preloadImage} as="image" />}
 
 <!-- Font preloads -->
 <!-- <link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />

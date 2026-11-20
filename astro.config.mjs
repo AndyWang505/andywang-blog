@@ -14,6 +14,7 @@ import ExpressiveCode from 'astro-expressive-code';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 import { pluginLanguageBadge } from './plugins/expressive-code/language-badge';
+import rehypeWrapTables from './plugins/rehype/wrap-tables';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,7 +22,7 @@ export default defineConfig({
   integrations: [swup({
     theme: false,
     animationClass: "transition-swup-",
-    containers: ["main"],
+    containers: ["#swup-header", "#swup-shell"],
     smoothScrolling: false,
     cache: true,
     preload: true,
@@ -31,7 +32,11 @@ export default defineConfig({
     globalInstance: true,
   }), ExpressiveCode(
     {
-      themes: ['github-dark'],
+      // v2: light uses github-light, dark uses tokyo-night (docs/redesign/01-foundations.md §6)
+      themes: ['github-light', 'tokyo-night'],
+      useDarkModeMediaQuery: false,
+      // EC prefixes this with :root, so use class-only selectors (.dark is set on <html>)
+      themeCssSelector: (theme) => (theme.type === 'dark' ? '.dark' : false),
       plugins: [
         pluginCollapsibleSections(),
         pluginLineNumbers(),
@@ -46,22 +51,22 @@ export default defineConfig({
         },
       },
       styleOverrides: {
-        codeBackground: "var(--codeblock-bg)",
-        borderRadius: "0.75rem",
-        borderColor: "none",
-        codeFontSize: "0.875rem",
-        codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-        codeLineHeight: "1.5rem",
+        borderRadius: '12px',
+        borderColor: 'transparent',
+        codeBackground: 'var(--color-code-bg)',
+        codeFontFamily: 'var(--font-mono)',
+        codeFontSize: '0.84em',
+        codeLineHeight: '1.75',
         frames: {
-          editorBackground: "var(--codeblock-bg)",
-          terminalBackground: "var(--codeblock-bg)",
-          terminalTitlebarBackground: "var(--codeblock-topbar-bg)",
-          editorTabBarBackground: "var(--codeblock-topbar-bg)",
-          editorActiveTabBackground: "none",
-          editorActiveTabIndicatorBottomColor: "var(--primary)",
-          editorActiveTabIndicatorTopColor: "none",
-          editorTabBarBorderBottomColor: "var(--codeblock-topbar-bg)",
-          terminalTitlebarBorderBottomColor: "none"
+          editorBackground: 'var(--color-code-bg)',
+          terminalBackground: 'var(--color-code-bg)',
+          editorTabBarBackground: 'var(--color-code-header)',
+          terminalTitlebarBackground: 'var(--color-code-header)',
+          editorActiveTabBackground: 'transparent',
+          editorActiveTabIndicatorTopColor: 'transparent',
+          editorActiveTabIndicatorBottomColor: 'var(--color-accent)',
+          editorTabBarBorderBottomColor: 'transparent',
+          terminalTitlebarBorderBottomColor: 'transparent',
         },
         textMarkers: {
           delHue: 0,
@@ -100,6 +105,7 @@ export default defineConfig({
       [remarkToc, { heading: 'Table of Contents', maxDepth: 3 }],
     ],
     rehypePlugins: [
+      rehypeWrapTables,
       rehypeSlug,
       [rehypeAutolinkHeadings, {
         behavior: 'append',

@@ -1,76 +1,32 @@
 ---
-import { getCollection } from 'astro:content';
-import FormattedDate from '../components/FormattedDate.astro';
 import Layout from '../layouts/Layout.astro';
-import CardItem from '../components/CardItem.astro';
+import NavRail from '../components/rail/NavRail.astro';
+import HomeRightRail from '../components/rail/HomeRightRail.astro';
+import HomeHero from '../components/home/HomeHero.astro';
+import FeedHeader from '../components/home/FeedHeader.astro';
+import LeadPost from '../components/home/LeadPost.astro';
+import PostGrid from '../components/post-list/PostGrid.astro';
+import FeedPager from '../components/post-list/FeedPager.astro';
+import { getSeriesOf, getSortedPosts } from '../lib/posts';
+import { BANNER_CONFIG } from '../config/banner';
+import { SITE_TITLE } from '../config/site';
+import { PAGE_SIZE } from '../config/pagination';
 
-const blog = await getCollection('blog');
-
-const postsWithContent = await Promise.all(
-  blog.map(async (post) => {
-    const { Content } = await post.render();
-    return {
-      ...post,
-      content: post.body
-    };
-  })
-);
-
-const posts = postsWithContent.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-const postsPerPage = 10;
-const currentPage = 1;
-const totalPages = Math.ceil(posts.length / postsPerPage);
-const startIndex = (currentPage - 1) * postsPerPage;
-const endIndex = startIndex + postsPerPage;
-const paginatedPosts = posts.slice(startIndex, endIndex);
+const posts = await getSortedPosts();
+const [lead, ...rest] = posts;
+const series = lead ? await getSeriesOf(lead) : undefined;
+const credit = BANNER_CONFIG.credit.enable ? { text: BANNER_CONFIG.credit.text, url: BANNER_CONFIG.credit.url } : undefined;
 ---
 
-<Layout>
-  <div class="onload-animation">
-    <section>
-      <ul>
-        {paginatedPosts.map((post: any) => (
-          <CardItem
-            slug={post.slug}
-            title={post.data.title}
-            heroImage={post.data.heroImage}
-            pubDate={post.data.pubDate}
-            category={post.data.category}
-            tags={post.data.tags}
-            description={post.data.description}
-            content={post.content}
-          />
-        ))}
-      </ul>
-      <nav class="my-6">
-        <ul class="mx-auto flex justify-center">
-          {
-            currentPage > 1 && (
-              <li>
-                <a
-                  class="p-2 mx-2 bg-white dark:bg-zinc-800 shadow-md rounded-lg text-orange-400 hover:text-orange-600 transition-colors"
-                  href={`/${currentPage - 1}`}
-                >
-                  &lt;&lt; Previous
-                </a>
-              </li>
-            )
-          }
-          {
-            currentPage < totalPages && (
-              <li>
-                <a
-                  class="p-2 mx-2 bg-white dark:bg-zinc-800 shadow-md rounded-lg text-blue-400 hover:text-blue-600 transition-colors"
-                  href={`/${currentPage + 1}`}
-                >
-                  Next &gt;&gt;
-                </a>
-              </li>
-            )
-          }
-        </ul>
-      </nav>
-    </section>
+<Layout variant="home" current="home" preloadImage={BANNER_CONFIG.src}>
+  <NavRail slot="left" mobileAuthor mobileCategories />
+  <h1 class="sr-only">{SITE_TITLE}</h1>
+  <HomeHero src={BANNER_CONFIG.src} credit={credit} />
+  <div class="px-4 lg:px-10 wide:px-12">
+    <FeedHeader title="最新文章" moreHref="/archive/" moreLabel="所有文章 ›" />
+    {lead && <LeadPost post={lead} series={series} />}
+    <PostGrid posts={rest.slice(0, PAGE_SIZE - 1)} />
+    {posts.length > PAGE_SIZE && <FeedPager nextHref="/2/" moreLabel="更多文章" />}
   </div>
+  <HomeRightRail slot="right" />
 </Layout>

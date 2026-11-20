@@ -1,0 +1,226 @@
+---
+/**
+ * Sticky glass header. From 1024px it becomes a grid whose segments line up with
+ * the rails below (same data-left / data-right contract as the shell).
+ * Spec: docs/redesign/02-layout.md §3
+ */
+import ThemeToggle from '../ThemeToggle';
+import SearchButton from './SearchButton.astro';
+import ReadingProgress from './ReadingProgress.astro';
+import { SITE_TITLE } from '../../config/site';
+import type { NavKey, RailLeft, RailRight } from './nav';
+import { NAV_ITEMS } from './nav';
+
+interface Props {
+  left: RailLeft;
+  right: RailRight;
+  current?: NavKey;
+  progress?: boolean;
+}
+
+const { left, right, current, progress = false } = Astro.props;
+---
+
+<header class="hdr glass" data-left={left} data-right={right}>
+  <div class="hdr-brand">
+    <a href="/" class="brand">{SITE_TITLE}</a>
+  </div>
+  <div class="hdr-nav">
+    <a href="/" class="brand brand-inline">{SITE_TITLE}</a>
+    <nav class="links" aria-label="主要導覽">
+      {
+        NAV_ITEMS.map((item) => (
+          <a href={item.href} aria-current={item.key === current ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+  <div class="hdr-acts">
+    <SearchButton />
+    <ThemeToggle client:load />
+    <button
+      type="button"
+      class="menu-btn"
+      aria-label="開啟選單"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-toggle
+    >
+      <span class="burger" aria-hidden="true"><span></span><span></span></span>
+    </button>
+  </div>
+  {progress && <ReadingProgress />}
+</header>
+
+<style>
+  .hdr {
+    --hdr-left: 0px;
+    --hdr-right: auto;
+    position: relative;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-2) 0 var(--space-4);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+  .brand {
+    font-size: var(--text-ui);
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    color: var(--color-fg-default);
+    white-space: nowrap;
+  }
+  .hdr-brand {
+    display: flex;
+    align-items: center;
+  }
+  .hdr-nav,
+  .brand-inline {
+    display: none;
+  }
+  .links {
+    display: flex;
+    gap: var(--space-7);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+  .links a {
+    transition: color var(--duration-fast);
+  }
+  .links a:hover,
+  .links a[aria-current='page'] {
+    color: var(--color-fg-default);
+  }
+  .links a[aria-current='page'] {
+    font-weight: 600;
+  }
+  .hdr-acts {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .menu-btn {
+    width: var(--touch-target);
+    height: var(--touch-target);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-fg-default);
+  }
+  .menu-btn:hover {
+    background: var(--color-bg-muted);
+  }
+  /* Two bars (the menu icon) that rotate into an X when the menu is open. */
+  .burger {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+  .burger span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      top var(--duration-base) var(--ease-standard),
+      transform var(--duration-base) var(--ease-standard);
+  }
+  .burger span:first-child {
+    top: 1px;
+  }
+  .burger span:last-child {
+    top: 9px;
+  }
+  .menu-btn[aria-expanded='true'] .burger span {
+    top: 5px;
+  }
+  .menu-btn[aria-expanded='true'] .burger span:first-child {
+    transform: rotate(45deg);
+  }
+  .menu-btn[aria-expanded='true'] .burger span:last-child {
+    transform: rotate(-45deg);
+  }
+
+  @media (min-width: 1024px) {
+    .hdr {
+      display: grid;
+      grid-template-columns: var(--hdr-left) minmax(0, 1fr) var(--hdr-right);
+      padding: 0;
+    }
+    /* Each segment sets its own display so the brand can stay hidden without overrides. */
+    .hdr > div {
+      height: 100%;
+      align-items: center;
+      min-width: 0;
+    }
+    .hdr-brand {
+      grid-column: 1;
+      display: none;
+      padding: 0 var(--space-6);
+      border-right: 1px solid var(--color-border-default);
+    }
+    .hdr-nav {
+      grid-column: 2;
+      display: flex;
+      gap: var(--space-10);
+      padding: 0 var(--space-8);
+    }
+    .brand-inline {
+      display: inline;
+    }
+    .hdr-acts {
+      grid-column: 3;
+      gap: 6px;
+      padding: 0 var(--space-3);
+    }
+    .menu-btn {
+      display: none;
+    }
+
+    .hdr[data-left='lg'] {
+      --hdr-left: var(--rail-left-width);
+    }
+    .hdr[data-left='lg'] .hdr-brand {
+      display: flex;
+    }
+    .hdr[data-left='lg'] .brand-inline {
+      display: none;
+    }
+    .hdr[data-right='toc'] {
+      --hdr-right: var(--toc-width);
+    }
+    .hdr[data-right='toc'] .hdr-acts {
+      justify-content: space-between;
+      padding: 0 var(--space-3) 0 var(--space-5);
+      border-left: 1px solid var(--color-border-default);
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .hdr[data-left='wide'] {
+      --hdr-left: var(--rail-left-width);
+    }
+    .hdr[data-left='wide'] .hdr-brand {
+      display: flex;
+    }
+    .hdr[data-left='wide'] .brand-inline {
+      display: none;
+    }
+    .hdr[data-right='rail'] {
+      --hdr-right: var(--rail-right-width);
+    }
+    .hdr[data-right='rail'] .hdr-acts {
+      justify-content: space-between;
+      padding: 0 var(--space-3) 0 var(--space-5);
+      border-left: 1px solid var(--color-border-default);
+    }
+  }
+</style>

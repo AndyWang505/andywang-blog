@@ -1,373 +1,248 @@
 ---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
 import FormattedDate from '../components/FormattedDate.astro';
 import Layout from '../layouts/Layout.astro';
-import Section from '../components/Section.astro';
+import NavRail from '../components/rail/NavRail.astro';
+import HomeRightRail from '../components/rail/HomeRightRail.astro';
+import Icon from '../components/ui/Icon.astro';
+import { AUTHOR } from '../config/site';
+import macbookPro from '../assets/setup/macbook-pro.jpg';
+import rtx2060 from '../assets/setup/rtx-2060.jpg';
+import nuphyAir75 from '../assets/setup/nuphy-air75.jpg';
+import msiMag274 from '../assets/setup/msi-mag274.png';
+import dellP2719h from '../assets/setup/dell-p2719h.jpg';
+import screenbarPro from '../assets/setup/screenbar-pro.png';
+import seirenMini from '../assets/setup/seiren-mini.png';
+import airpodsPro3 from '../assets/setup/airpods-pro-3.png';
+import g309 from '../assets/setup/g309.png';
 
-const setupItems = [
+interface SetupItem {
+  name: string;
+  description: string;
+  image: ImageMetadata;
+  /** Photos fill the thumbnail; product cut-outs sit inside it. */
+  fit?: 'cover' | 'contain';
+}
+
+const setupItems: { category: string; items: SetupItem[] }[] = [
   {
     category: '主機設備',
     items: [
-      {
-        name: 'MacBook Pro (14-inch) - Apple M1 Pro',
-        description: '現役工作用電腦，生產力好夥伴',
-        src: 'https://img.freepik.com/free-photo/still-life-device-table_23-2150994379.jpg?semt=ais_hybrid&w=740&q=80',
-      },
-      {
-        name: 'GeForce RTX 2060',
-        description: '桌機顯卡，平時遊戲用途',
-        src: 'https://img.youtube.com/vi/BFPweXoKZEI/hqdefault.jpg',
-      },
+      { name: 'MacBook Pro (14-inch) - Apple M1 Pro', description: '現役工作用電腦，生產力好夥伴', image: macbookPro, fit: 'cover' },
+      { name: 'GeForce RTX 2060', description: '桌機顯卡，平時遊戲用途', image: rtx2060, fit: 'cover' },
     ],
   },
   {
     category: '周邊',
     items: [
-      {
-        name: 'NuPhy Air75 V2 - 月光灰 / 紫藤軸',
-        description: '家用 75% 無線鍵盤，辦公、遊戲用途',
-        src: 'https://m.media-amazon.com/images/I/61ybbKUahoL._AC_UF350,350_QL80_.jpg',
-      },
-      {
-        name: '主螢幕 - MSI MAG-274QRFW-X32',
-        description: '少數CP值高的白色2K螢幕',
-        src: 'https://storage-asset.msi.com/global/picture/image/feature/monitor/MAG-274QRFW-X32/feature-main.png',
-      },
-      {
-        name: '副螢幕 - Dell P2719H-4Y',
-        description: '適合閱讀長文的直立式螢幕',
-        src: 'https://sunfar.blob.core.windows.net/webimage/jpg360/271/271A40YF10.jpg',
-      },
-      {
-        name: 'BenQ ScreenBar Pro',
-        description: '顧眼睛超強掛燈無可挑剔',
-        src: 'https://image.benq.com/is/image/benqco/screenbar-pro-product?$ResponsivePreset$&fmt=png-alpha',
-      },
-      {
-        name: 'Razer Seiren Mini - Black',
-        description: '',
-        src: 'https://assets2.razerzone.com/images/pnx.assets/f8f3ac10a074900c7cfe474208c36126/razer-seiren-mini_500x500_200323.png',
-      },
-      {
-        name: 'AirPods Pro 3',
-        description: '',
-        src: 'https://ucarecdn.com/a59911ee-7455-4bcf-8ee3-9b384bf5aeba/-/format/auto/-/preview/3000x3000/-/quality/lighter/%E5%8E%BB%E8%83%8CAirPods%20Pro%203.png',
-      },
-      {
-        name: 'Logitech G309 - White',
-        description: '',
-        src: 'https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/G309-Lightspeed-Gaming-Mouse/gallery/g309-lightspeed-wireless-mouse-white-gallery-1.png',
-      },
+      { name: 'NuPhy Air75 V2 - 月光灰 / 紫藤軸', description: '家用 75% 無線鍵盤，辦公、遊戲用途', image: nuphyAir75 },
+      { name: '主螢幕 - MSI MAG-274QRFW-X32', description: '少數CP值高的白色2K螢幕', image: msiMag274 },
+      { name: '副螢幕 - Dell P2719H-4Y', description: '適合閱讀長文的直立式螢幕', image: dellP2719h },
+      { name: 'BenQ ScreenBar Pro', description: '顧眼睛超強掛燈無可挑剔', image: screenbarPro },
+      { name: 'Razer Seiren Mini - Black', description: '', image: seirenMini },
+      { name: 'AirPods Pro 3', description: '', image: airpodsPro3 },
+      { name: 'Logitech G309 - White', description: '', image: g309 },
     ],
   },
 ];
+
+const location = AUTHOR.role.split('·').pop()?.trim();
+const links = [
+  { href: AUTHOR.links.github, label: 'GitHub', icon: 'github', external: true },
+  { href: AUTHOR.links.x, label: 'X', icon: 'x', external: true },
+  { href: AUTHOR.links.email, label: 'Email', icon: 'mail', external: false },
+  { href: AUTHOR.links.kofi, label: '贊助 Ko-fi', icon: 'coffee', external: true },
+  { href: AUTHOR.links.rss, label: 'RSS', icon: 'rss', external: false },
+] as const;
+
+const linkClass = 'text-accent underline underline-offset-2 hover:opacity-80';
+const releasesHref = 'https://github.com/AndyWang505/andywang-blog/releases';
+const releaseClass = 'mt-2 inline-flex items-center gap-1.5 text-sm text-accent hover:underline';
+const blogPostHref =
+  'https://andywangtw.dev/post/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%83%A8%E8%90%BD%E6%A0%BC%E8%87%AA%E5%B7%B1%E6%9E%B6/';
 ---
 
-<Layout>
-  <div class="onload-animation">
-    <!-- Hero Section -->
-    <Section class="overflow-hidden mb-4">
-      <div class="relative bg-white dark:bg-purple-900/10 p-8 md:p-12">
-        <div class="absolute top-4 right-4 opacity-20">
-          <svg
-            width="80"
-            height="80"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            class="text-blue-600 dark:text-blue-400"
-          >
-            <path
-              d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-            <circle
-              cx="12"
-              cy="7"
-              r="4"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></circle>
-          </svg>
-        </div>
-        <div class="relative">
-          <nav class="text-sm text-blue-600 dark:text-blue-400 mb-4 font-medium">
-            <span class="opacity-60">Pages</span> / <span>About</span>
-          </nav>
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Andy Wang
-          </h1>
-          <p class="text-base text-gray-500 dark:text-gray-400 mb-2">
-            Software Engineer / Web Developer
-          </p>
-          <p class="text-base text-gray-600 dark:text-gray-300 leading-7 mb-5 max-w-2xl">
-            自由軟體愛好者兼拉麵 &
-            咖哩資深獵人，也曾在補教業授課及擔任助教，經常在不同領域中來回走跳，覺得累了就休息一會吧
-            ☕。
-          </p>
-          <div
-            class="flex items-start gap-2 md:gap-3 p-3 md:p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border-l-4 border-green-500 mb-5 max-w-2xl"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class="text-green-600 dark:text-green-400 mt-0.5 shrink-0"
-            >
-              <path
-                d="M8.3767 15.6163L2.71985 21.2732M11.6944 6.64181L10.1335 8.2027C10.0062 8.33003 9.94252 8.39369 9.86999 8.44427C9.80561 8.48917 9.73616 8.52634 9.66309 8.555C9.58077 8.58729 9.49249 8.60495 9.31592 8.64026L5.65145 9.37315C4.69915 9.56361 4.223 9.65884 4.00024 9.9099C3.80617 10.1286 3.71755 10.4213 3.75771 10.7109C3.8038 11.0434 4.14715 11.3867 4.83387 12.0735L11.9196 19.1592C12.6063 19.8459 12.9497 20.1893 13.2821 20.2354C13.5718 20.2755 13.8645 20.1869 14.0832 19.9928C14.3342 19.7701 14.4294 19.2939 14.6199 18.3416L15.3528 14.6771C15.3881 14.5006 15.4058 14.4123 15.4381 14.33C15.4667 14.2569 15.5039 14.1875 15.5488 14.1231C15.5994 14.0505 15.663 13.9869 15.7904 13.8596L17.3512 12.2987C17.4326 12.2173 17.4734 12.1766 17.5181 12.141C17.5578 12.1095 17.5999 12.081 17.644 12.0558C17.6936 12.0274 17.7465 12.0048 17.8523 11.9594L20.3467 10.8904C21.0744 10.5785 21.4383 10.4226 21.6035 10.1706C21.7481 9.95025 21.7998 9.68175 21.7474 9.42348C21.6875 9.12813 21.4076 8.84822 20.8478 8.28839L15.7047 3.14526C15.1448 2.58543 14.8649 2.30552 14.5696 2.24565C14.3113 2.19329 14.0428 2.245 13.8225 2.38953C13.5705 2.55481 13.4145 2.91866 13.1027 3.64636L12.0337 6.14071C11.9883 6.24653 11.9656 6.29944 11.9373 6.34905C11.9121 6.39313 11.8836 6.43522 11.852 6.47496C11.8165 6.51971 11.7758 6.56041 11.6944 6.64181Z"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            <p
-              class="text-sm md:text-base font-medium text-green-800 dark:text-green-200 leading-6"
-            >
-              熱衷學習新技術，不將自己限於單一項目，喜歡交流與分享技術，善於解決問題。
+<Layout variant="list" current="about" title="關於">
+  <NavRail slot="left" />
+  <article class="px-4 pb-14 lg:px-12">
+    <div class="mx-auto max-w-measure">
+      <header class="pt-6 lg:pt-12">
+        <div class="flex items-center gap-5">
+          <img
+            src={AUTHOR.avatar}
+            alt={`${AUTHOR.name} 頭像`}
+            width="88"
+            height="88"
+            class="h-20 w-20 shrink-0 rounded-full object-cover lg:h-[88px] lg:w-[88px]"
+          />
+          <div class="min-w-0">
+            <h1 class="m-0 text-3xl font-bold leading-tight tracking-tight text-fg">{AUTHOR.name}</h1>
+            <p class="m-0 mt-1 text-base text-fg-muted">
+              Software Engineer / Web Developer{location && <span> · {location}</span>}
             </p>
           </div>
-
-          <div class="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 mb-5">
-            <span
-              >Profile picture：<a
-                href="https://x.com/Ame_929"
-                target="_blank"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-                >Ame_929</a
-              ></span
-            >
-            <span
-              >Banner：<a
-                href="https://x.com/nathuo101102"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-                >夏生(なつお)@nathuo101102</a
-              ></span
-            >
-          </div>
-
-          <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="3"
-                y="4"
-                width="18"
-                height="18"
-                rx="2"
-                ry="2"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></rect>
-              <line
-                x1="16"
-                y1="2"
-                x2="16"
-                y2="6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></line>
-              <line
-                x1="8"
-                y1="2"
-                x2="8"
-                y2="6"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></line>
-              <line
-                x1="3"
-                y1="10"
-                x2="21"
-                y2="10"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"></line>
-            </svg>
-            Updated <FormattedDate date={new Date('April 05 2026')} />
-          </div>
         </div>
-      </div>
-    </Section>
+        <ul class="m-0 mt-5 flex list-none flex-wrap gap-2 p-0">
+          {
+            links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  class="inline-flex h-9 items-center gap-2 rounded-full bg-bg-muted px-3.5 text-sm text-fg transition-colors duration-fast hover:text-accent"
+                  {...(l.external ? { target: '_blank', rel: 'noopener' } : {})}
+                >
+                  <Icon name={l.icon} size={15} />
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="m-0 mt-6 text-prose leading-relaxed text-fg-body">
+          自由軟體愛好者兼拉麵 &
+          咖哩資深獵人，也曾在補教業授課及擔任助教，經常在不同領域中來回走跳，覺得累了就休息一會吧
+          ☕。
+        </p>
+        <p class="m-0 mt-5 rounded-lg bg-bg-subtle px-5 py-4 text-base font-medium leading-relaxed text-fg">
+          熱衷學習新技術，不將自己限於單一項目，喜歡交流與分享技術，善於解決問題。
+        </p>
+      </header>
 
-    <!-- Setup Card -->
-    <Section class="p-6 md:p-8 mb-4">
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="flex items-center justify-center p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            class="text-blue-600 dark:text-blue-400"
-          >
-            <rect
-              x="2"
-              y="3"
-              width="20"
-              height="14"
-              rx="2"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></rect>
-            <line
-              x1="8"
-              y1="21"
-              x2="16"
-              y2="21"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"></line>
-            <line
-              x1="12"
-              y1="17"
-              x2="12"
-              y2="21"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"></line>
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">My Setup</h2>
-      </div>
-
-      <div class="space-y-6">
+      <section class="@container mt-12 border-t border-line-muted pt-10">
+        <h2 class="m-0 mb-2 text-xl font-bold tracking-tight text-fg">My Setup</h2>
         {
-          setupItems.map((group, index) => (
-            <div>
-              {index !== 0 && <div class="mb-6" />}
-              <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                {group.category}
-              </h3>
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          setupItems.map((group) => (
+            <div class="mt-6">
+              <h3 class="m-0 mb-1 text-sm font-semibold text-fg-muted">{group.category}</h3>
+              <ul class="m-0 grid list-none grid-cols-1 gap-x-8 p-0 @lg:grid-cols-2">
                 {group.items.map((item) => (
-                  <div class="flex flex-col rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-800/30">
-                    <div class="aspect-[4/3] bg-gray-200 dark:bg-gray-700/50 overflow-hidden">
-                      {item.src ? (
-                        <img src={item.src} alt={item.name} class="w-full h-full object-cover" />
-                      ) : (
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-xs">
-                          image
-                        </div>
-                      )}
+                  <li class="flex min-w-0 items-center gap-3.5 border-b border-line-muted py-2.5">
+                    <div class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md border border-line-muted bg-plate">
+                      <Image
+                        src={item.image}
+                        alt=""
+                        width={128}
+                        height={128}
+                        format="webp"
+                        class:list={['h-full w-full', item.fit === 'cover' ? 'object-cover' : 'object-contain p-1']}
+                      />
                     </div>
-                    <div class="p-2">
-                      <p class="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-0.5 leading-4">
-                        {item.name}
-                      </p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400 leading-4">
-                        {item.description}
-                      </p>
+                    <div class="min-w-0">
+                      <p class="m-0 text-sm font-semibold leading-snug text-fg">{item.name}</p>
+                      {item.description && <p class="m-0 mt-0.5 text-xs leading-snug text-fg-muted">{item.description}</p>}
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ))
         }
-      </div>
-    </Section>
+      </section>
 
-    <!-- About Blog Card -->
-    <Section class="p-6 md:p-8">
-      <div class="flex items-center gap-3 mb-6">
-        <div
-          class="flex items-center justify-center p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            class="text-orange-600 dark:text-orange-400"
-          >
-            <path
-              d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-            <path
-              d="M6.5 2H20V22H6.5A2.5 2.5 0 0 1 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2Z"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">About Blog</h2>
-      </div>
-
-      <div class="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
-        <p>
-          在早期，這個部落格是使用 Jekyll 架設的，中間也嘗試了幾個不同的 theme，可以參考這篇
-          <a
-            href="https://andywangtw.dev/post/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%83%A8%E8%90%BD%E6%A0%BC%E8%87%AA%E5%B7%B1%E6%9E%B6/"
-            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-            target="_blank">文章</a
-          > 有簡短的介紹。
-        </p>
-
-        <div class="grid md:grid-cols-2 gap-4">
-          <div class="p-4 bg-gray-100 dark:bg-gray-800/50 rounded-lg">
-            <p class="text-md">
+      <section class="mt-12 border-t border-line-muted pt-10">
+        <h2 class="m-0 mb-6 text-xl font-bold tracking-tight text-fg">About Blog</h2>
+        <ol class="history">
+          <li class="stop">
+            <p class="when">2021</p>
+            <p class="what">
+              在早期，這個部落格是使用 Jekyll 架設的，中間也嘗試了幾個不同的 theme，可以參考這篇
+              <a href={blogPostHref} class={linkClass} target="_blank">文章</a> 有簡短的介紹。
+            </p>
+          </li>
+          <li class="stop">
+            <p class="when">2024</p>
+            <p class="what">
               到了 2024 年，決定重寫部落格架構。現在的部落格主要是使用 Astro、React 和 Tailwind
               開發。如果有興趣，可以參考
-              <a
-                href="https://www.youtube.com/@devaslife"
-                target="_blank"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-                >@devaslife</a
-              >
-              上的示範影片，另外我也在這篇 <a
-                href="https://andywangtw.dev/post/%E8%87%AA%E5%B7%B1%E7%9A%84%E9%83%A8%E8%90%BD%E6%A0%BC%E8%87%AA%E5%B7%B1%E6%9E%B6/"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-                target="_blank">短文</a
-              > 中分享了關於重構部落格的一些心得。
+              <a href="https://www.youtube.com/@devaslife" target="_blank" class={linkClass}>@devaslife</a>
+              上的示範影片，另外我也在這篇 <a href={blogPostHref} class={linkClass} target="_blank">短文</a> 中分享了關於重構部落格的一些心得。
             </p>
-          </div>
-
-          <div class="p-4 bg-gray-100 dark:bg-gray-800/50 rounded-lg">
-            <p class="text-md">
+          </li>
+          <li class="stop">
+            <p class="when">2025</p>
+            <p class="what">
               2025
               年後半，腦中又開始浮出想要計畫大改版的念頭，一直覺得元素太少太單調有些無聊，現在的版本參考了
-              <a
-                href="https://github.com/saicaca/fuwari"
-                target="_blank"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
-                >Fuwari</a
-              >
+              <a href="https://github.com/saicaca/fuwari" target="_blank" class={linkClass}>Fuwari</a>
               的設計，再搭配一些自己的風格整合而成。讚嘆 AI Agent 幫我省下不少開發時間 :D
             </p>
-          </div>
-        </div>
+            <a href={`${releasesHref}/tag/v1.0.0`} target="_blank" rel="noopener" class={releaseClass}>
+              <Icon name="github" size={14} />
+              Release v1.0.0
+            </a>
+          </li>
+          <li class="stop">
+            <p class="when">2026</p>
+            <p class="what">
+              2026 年，以 v1 為基礎重新設計了整個版面：滿版三欄排版、Apple 風格的淺色主題與 Tokyo Night
+              深色主題，文章頁也加上可以選章節的目錄。
+            </p>
+            <a href={`${releasesHref}/tag/v2.0.0`} target="_blank" rel="noopener" class={releaseClass}>
+              <Icon name="github" size={14} />
+              Release v2.0.0
+            </a>
+          </li>
+        </ol>
+        <p class="m-0 mt-6 rounded-lg bg-bg-subtle p-4 text-base leading-relaxed text-fg">
+          不知道未來會不會又搬家，但可以確定的是，會將這邊慢慢優化成自己喜歡的樣子！
+        </p>
+      </section>
 
-        <div
-          class="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/10 dark:to-blue-900/10 rounded-lg border border-green-200 dark:border-green-800/30"
-        >
-          <p class="text-md text-gray-700 dark:text-gray-300">
-            不知道未來會不會又搬家，但可以確定的是，會將這邊慢慢優化成自己喜歡的樣子！
-          </p>
-        </div>
-      </div>
-    </Section>
-  </div>
+      <footer class="mt-10 flex flex-col gap-1 text-xs text-fg-muted">
+        <span>Profile picture：<a href="https://x.com/Ame_929" target="_blank" class={linkClass}>Ame_929</a></span>
+        <span>Banner：<a href="https://x.com/nathuo101102" class={linkClass}>夏生(なつお)@nathuo101102</a></span>
+        <span>Updated <FormattedDate date={new Date('April 05 2026')} /></span>
+      </footer>
+    </div>
+  </article>
+  <HomeRightRail slot="right" />
 </Layout>
+
+<style>
+  /* Blog history: dots on a vertical line, matching the archive tree. */
+  .history {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stop {
+    position: relative;
+    padding: 0 0 var(--space-7) var(--space-7);
+  }
+  .stop::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 14px;
+    bottom: -6px;
+    border-left: 1px solid var(--color-border-default);
+  }
+  .stop:last-child::before {
+    display: none;
+  }
+  .stop::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 11px;
+    height: 11px;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-default);
+  }
+  .when {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-default);
+  }
+  .what {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-body);
+  }
+</style>

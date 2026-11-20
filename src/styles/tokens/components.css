@@ -1,0 +1,30 @@
+/*
+ * Layer 3 — component tokens.
+ * Sizes owned by one layout or component. Built from semantic tokens where possible.
+ * Spec: docs/redesign/01-foundations.md §2
+ *
+ * Breakpoints (media queries cannot read CSS variables; keep in sync with tailwind-theme.mjs `screens`):
+ *   lg   1024px  two columns
+ *   wide 1440px  three columns
+ *   ultra 1920px wider rails
+ * Center-column container breakpoints: 640px, 1080px, 1600px.
+ */
+:root {
+  --header-height: 56px;
+  --rail-left-width: 280px;
+  --rail-right-width: 320px;
+  --toc-width: var(--rail-right-width); /* same as the list rail so the header does not shift between page types */
+  --content-measure: 720px;
+  --content-wide: 960px;
+  --chip-height: 36px;
+  --tag-height: 28px;
+  --touch-target: 44px;
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --rail-left-width: 300px;
+    --rail-right-width: 360px;
+    --content-measure: 880px; /* ~46 CJK chars per line at 19px */
+  }
+}

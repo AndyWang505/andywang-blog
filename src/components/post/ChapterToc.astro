@@ -1,0 +1,283 @@
+---
+/**
+ * Chapter TOC. From 1024px: sticky right column with progress, chapter list and actions.
+ * Below 1024px: sticky glass bar showing the current chapter that expands into the list.
+ * Renders nothing for articles with fewer than two h2 chapters.
+ * Behaviour: src/scripts/toc.ts. Spec: docs/redesign/03-components.md D4
+ */
+import type { MarkdownHeading } from 'astro';
+import Icon from '../ui/Icon.astro';
+import SectionLabel from '../ui/SectionLabel.astro';
+import { buildChapters, padChapter } from '../../lib/toc';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const chapters = buildChapters(Astro.props.headings);
+const total = chapters.length;
+const first = chapters[0];
+---
+
+{
+  total >= 2 && (
+    <div class="toc" data-toc data-total={total}>
+      <button type="button" class="toc-bar" aria-expanded="false" aria-controls="toc-panel" data-toc-toggle>
+        <Icon name="list" size={16} />
+        <span class="cur" data-toc-current>
+          {padChapter(first.no)} · {first.text}
+        </span>
+        <span class="text-xs tabular-nums text-fg-muted" data-toc-count>
+          1 / {total}
+        </span>
+        <span class="chev text-fg-muted"><Icon name="chevron-down" size={14} /></span>
+      </button>
+
+      <div id="toc-panel" class="toc-panel" data-toc-panel>
+        <div class="toc-head">
+          <SectionLabel as="h2" text="章節目錄">
+            <span slot="after" class="text-xs tabular-nums text-fg-muted" data-toc-count>
+              1 / {total}
+            </span>
+          </SectionLabel>
+          <div
+            class="h-[3px] overflow-hidden rounded-full bg-line-muted"
+            role="progressbar"
+            aria-label="閱讀進度"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-toc-progress
+          >
+            <span class="block h-full w-0 bg-accent" data-toc-bar />
+          </div>
+        </div>
+
+        <nav aria-label="章節">
+          {chapters.map((c, i) => (
+            <>
+              <a href={`#${c.slug}`} class="chap" style={`--i:${i}`} data-toc-link={c.slug} data-chapter={c.no}>
+                <i>{padChapter(c.no)}</i>
+                <span>{c.text}</span>
+              </a>
+              {c.children.map((child) => (
+                <a href={`#${child.slug}`} class="chap sub" style={`--i:${i}`} data-toc-link={child.slug} data-chapter={c.no}>
+                  <span>{child.text}</span>
+                </a>
+              ))}
+            </>
+          ))}
+        </nav>
+
+        <div class="toc-acts">
+          <button type="button" class="act" data-copy-link>
+            <Icon name="link" size={13} />
+            <span data-copy-label>複製連結</span>
+          </button>
+          <a href="#main" class="act" data-back-top data-no-swup>
+            <span class="lift" aria-hidden="true"><Icon name="arrow-up" size={13} /></span>
+            回到頂端
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .toc {
+    position: sticky;
+    top: var(--header-height);
+    z-index: var(--z-sticky);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+  /* Glass only for the mobile sticky bar; the desktop column stays transparent. */
+  @media (max-width: 1023.98px) {
+    .toc {
+      background: var(--color-surface-glass-fallback);
+    }
+    @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .toc {
+        background: var(--color-surface-glass);
+        backdrop-filter: var(--blur-glass);
+        -webkit-backdrop-filter: var(--blur-glass);
+      }
+    }
+  }
+  .toc-bar {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 var(--space-4);
+    border: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    text-align: left;
+    color: var(--color-fg-default);
+  }
+  .cur {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chev {
+    display: inline-flex;
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+  .toc-bar[aria-expanded='true'] .chev {
+    transform: rotate(180deg);
+  }
+  .toc-panel {
+    display: none;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: var(--space-1) var(--space-4) var(--space-4);
+  }
+  .toc-panel.open {
+    display: block;
+  }
+  /* Mobile panel: shared sheet motion (sheet-* keyframes in global.css). Closing keeps .open
+     for the fold; scripts/toc.ts removes it afterwards. */
+  @media (max-width: 1023.98px) {
+    .toc-panel.open {
+      animation: sheet-in var(--duration-base) var(--ease-standard);
+    }
+    .toc-panel.open:not(.closing) .chap {
+      animation: sheet-item-in 260ms var(--ease-standard) backwards;
+      animation-delay: calc(40ms + var(--i, 0) * 25ms);
+    }
+    .toc-panel.open.closing {
+      animation: sheet-out var(--duration-fast) var(--ease-standard) forwards;
+    }
+  }
+  .toc-head,
+  .toc-acts {
+    display: none;
+  }
+
+  .chap {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding: 9px 10px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-fg-body);
+    transition:
+      background var(--duration-fast),
+      color var(--duration-fast);
+  }
+  .chap:hover {
+    background: var(--color-bg-muted);
+    color: var(--color-fg-default);
+  }
+  .chap i {
+    width: 20px;
+    flex-shrink: 0;
+    font-style: normal;
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg-subtle);
+  }
+  .chap.sub {
+    padding-left: 42px;
+    font-size: var(--text-ui-sm);
+  }
+  .chap.done {
+    color: var(--color-fg-muted);
+  }
+  .chap.done:not(.sub) span::after {
+    content: '✓';
+    margin-left: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--color-fg-subtle);
+  }
+  .chap.on {
+    background: var(--color-bg-muted);
+    color: var(--color-fg-default);
+    font-weight: 600;
+  }
+  .chap.on i {
+    color: var(--color-accent);
+  }
+
+  .act {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-full);
+    background: transparent;
+    font-size: var(--text-xs);
+    color: var(--color-fg-default);
+    transition: background var(--duration-fast);
+  }
+  .act:hover {
+    background: var(--color-bg-muted);
+  }
+  /* Back to top: the arrow nudges up on hover and launches on click (scripts/toc.ts adds .launch). */
+  .lift {
+    display: inline-flex;
+    transition: translate var(--duration-fast) var(--ease-standard);
+  }
+  .act:hover .lift {
+    translate: 0 -2px;
+  }
+  .act.launch .lift {
+    animation: lift-off 460ms var(--ease-standard);
+  }
+  @keyframes lift-off {
+    40% {
+      translate: 0 -10px;
+      opacity: 0;
+    }
+    41% {
+      translate: 0 8px;
+      opacity: 0;
+    }
+    100% {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .toc {
+      max-height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      scrollbar-width: thin;
+      padding: var(--space-8) var(--space-5);
+      border-bottom: 0;
+    }
+    .toc-bar {
+      display: none;
+    }
+    .toc-panel {
+      display: block;
+      max-height: none;
+      overflow: visible;
+      padding: 0;
+    }
+    .toc-head {
+      display: block;
+      margin-bottom: 14px;
+      padding: 0 10px;
+    }
+    .toc-acts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-6);
+      padding: var(--space-5) 10px 0;
+      border-top: 1px solid var(--color-border-muted);
+    }
+  }
+</style>

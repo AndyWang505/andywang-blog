@@ -1,0 +1,69 @@
+---
+/**
+ * Left rail shared by home, list and article pages.
+ * Below 1024px only what the page opts into shows above its content (the menu already carries
+ * navigation, categories and tags): the author row on the home page, the category bar where it
+ * filters the page (home, category pages).
+ * Spec: docs/redesign/03-components.md B1
+ */
+import AuthorBlock from './AuthorBlock.astro';
+import CategoryNav from './CategoryNav.astro';
+import TagCloud from './TagCloud.astro';
+
+interface Props {
+  variant?: 'full' | 'compact';
+  currentCategory?: string;
+  currentTags?: string[];
+  /** Phones/tablets: show the author row above the page. */
+  mobileAuthor?: boolean;
+  /** Phones/tablets: show the sticky category bar above the page. */
+  mobileCategories?: boolean;
+  /** Where "全部" leads; category pages point it at the category index. */
+  allHref?: string;
+}
+
+const {
+  variant = 'full',
+  currentCategory,
+  currentTags,
+  mobileAuthor = false,
+  mobileCategories = false,
+  allHref,
+} = Astro.props;
+---
+
+{
+  variant === 'compact' ? (
+    <div class="nav-rail nav-rail--compact">
+      <AuthorBlock variant="compact" />
+      <CategoryNav current={currentCategory} listOnly />
+      <TagCloud current={currentTags} compact />
+    </div>
+  ) : (
+    <div class="nav-rail">
+      <AuthorBlock mobile={mobileAuthor} />
+      <CategoryNav current={currentCategory} mobileBar={mobileCategories} allHref={allHref} />
+      <TagCloud current={currentTags} />
+    </div>
+  )
+}
+
+<style>
+  /* Below 1024px the rail's children join the page grid so the category bar can stay sticky. */
+  .nav-rail {
+    display: contents;
+  }
+  .nav-rail--compact {
+    padding: var(--space-7) var(--space-6) var(--space-8);
+  }
+  @media (min-width: 1024px) {
+    .nav-rail {
+      display: block;
+      position: sticky;
+      top: var(--header-height);
+      max-height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+  }
+</style>

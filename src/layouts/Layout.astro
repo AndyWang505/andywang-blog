@@ -1,290 +1,93 @@
 ---
+/**
+ * App layout: sticky header, flush rails separated by lines, footer.
+ * Pages fill the `left`, default (center) and `right` slots.
+ * Spec: docs/redesign/02-layout.md §1
+ */
 import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Banner from '../components/Banner.astro';
-import Aside from './Aside.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import MobileMenu from '../components/layout/MobileMenu.astro';
+import type { NavKey, RailLeft, RailRight } from '../components/layout/nav';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../config/site';
-import { 
-  BANNER_CONFIG, 
-  BANNER_HEIGHT, 
-  BANNER_HEIGHT_EXTEND, 
-  BANNER_HEIGHT_HOME, 
-  MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
-  PAGE_WIDTH 
-} from '../config/banner';
+import '../styles/tokens/index.css';
+import '../styles/global.css';
+import '../styles/shell.css';
 import '../styles/transition.css';
 import '../styles/photoswipe.css';
 
 export interface Props {
   title?: string;
-  image?: string;
   description?: string;
-  banner?: string;
-  hasSidebar?: boolean;
+  image?: string;
+  /** home/list: left rail from 1024px, right rail beside it from 1440px. post: left rail from 1440px, chapter TOC on the right. */
+  variant?: 'home' | 'post' | 'list';
+  current?: NavKey;
+  /** Image to preload (the home hero). */
+  preloadImage?: string;
 }
 
-const { title, image, description, banner, hasSidebar = true } = Astro.props;
-const dynamicTitle = title || SITE_TITLE;
-const dynamicDescription = description || SITE_DESCRIPTION;
+const {
+  title,
+  description,
+  image,
+  variant = 'list',
+  current,
+  preloadImage,
+} = Astro.props;
 
-const isHomePage = Astro.url.pathname === '/' || Astro.url.pathname === '';
-
-const mainPanelTop = BANNER_CONFIG.enable 
-  ? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)` 
-  : "5.5rem";
-const bannerOffset = (() => {
-  const positions = {
-    top: `${BANNER_HEIGHT_EXTEND}vh`,
-    center: `${BANNER_HEIGHT_EXTEND / 2}vh`,
-    bottom: "0",
-  };
-  return positions[BANNER_CONFIG.position as keyof typeof positions] || positions.center;
-})();
+const pageTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE;
+const hasLeft = Astro.slots.has('left');
+const hasRight = Astro.slots.has('right');
+const left: RailLeft = !hasLeft ? 'none' : variant === 'post' ? 'wide' : 'lg';
+const right: RailRight = !hasRight ? 'none' : variant === 'post' ? 'toc' : 'rail';
 ---
 
-<html lang="zh_TW">
+<html lang="zh-Hant">
   <head>
-    <BaseHead title={dynamicTitle} description={dynamicDescription} image={image} />
     <script is:inline>
       (function () {
-        const theme = (() => {
-          if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-            return localStorage.getItem('theme');
-          }
-          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-          }
-          return 'light';
-        })();
-
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        var param = new URLSearchParams(location.search).get('theme');
+        var stored = null;
+        try { stored = localStorage.getItem('theme'); } catch (e) {}
+        var theme =
+          param === 'dark' || param === 'light'
+            ? param
+            : stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        window.__theme = theme;
       })();
     </script>
-    
-    <script is:inline define:vars={{
-      BANNER_HEIGHT_EXTEND, 
-      PAGE_WIDTH, 
-      BANNER_HEIGHT, 
-      BANNER_HEIGHT_HOME
-    }}>
-      let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
-      offset = offset - offset % 4;
-      document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
-      
-      document.documentElement.style.setProperty('--banner-height', `${BANNER_HEIGHT}vh`);
-      document.documentElement.style.setProperty('--banner-height-home', `${BANNER_HEIGHT_HOME}vh`);
-      const currentPath = window.location.pathname;
-      const isHome = currentPath === '/' || currentPath === '';
-      if (isHome && !document.body.classList.contains('is-home')) {
-        document.body.classList.add('is-home');
-      } else if (!isHome && document.body.classList.contains('is-home')) {
-        document.body.classList.remove('is-home');
-      }
-    </script>
-    
-    <style define:vars={{
-      'page-width': `${PAGE_WIDTH}rem`,
-      'main-panel-top': mainPanelTop,
-      bannerOffset,
-    }}>
-      :root {
-        --page-width: var(--page-width);
-        --main-panel-top: var(--main-panel-top);
-        --banner-offset: var(--bannerOffset);
-      }
-    </style>
+    <BaseHead title={pageTitle} description={description ?? SITE_DESCRIPTION} image={image} preloadImage={preloadImage} />
   </head>
-
-  <body class="min-h-screen transition-colors duration-300 relative" class:list={[
-    {"is-home": isHomePage, "enable-banner": BANNER_CONFIG.enable}
-  ]}>
-    <!-- Header -->
-    <div id="top-row" class="z-50 pointer-events-none relative max-w-[var(--page-width)] px-0 mx-auto">
-      <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
-        <Header />
-      </div>
+  <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <div id="swup-header" class="sticky top-0 z-header">
+      <SiteHeader left={left} right={right} current={current} progress={variant === 'post'} />
+      <MobileMenu current={current} />
     </div>
-
-    <!-- Banner -->
-    <Banner />
-
-    <!-- Main Content -->
-    <div class="absolute w-full z-30 pointer-events-none" style={`top: var(--main-panel-top)`}>
-      <div id="main-grid" class="w-full px-0 grid grid-rows-[1fr_auto] min-h-[calc(100vh-var(--main-panel-top))]">
-        <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto w-full px-4 lg:px-0">
-
-          <!-- Banner credit -->
-          {BANNER_CONFIG.enable && BANNER_CONFIG.credit.enable && BANNER_CONFIG.credit.text && (
-            <a
-              href={BANNER_CONFIG.credit.url || undefined}
-              id="banner-credit"
-              target="_blank"
-              rel="noopener"
-              aria-label="Visit image source"
-              class:list={[
-                "group onload-animation transition-all absolute flex justify-center items-center rounded-full",
-                "px-2 sm:px-3 right-4 -top-[2.75rem] sm:-top-[3.25rem] bg-black/60 hover:bg-black/70 h-7 sm:h-9 z-10 pointer-events-auto",
-                { "hover:pr-8 sm:hover:pr-9 active:bg-black/80": !!BANNER_CONFIG.credit.url }
-              ]}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-white/75 mr-1 shrink-0">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M14.83 14.83a4 4 0 1 1 0-5.66"/>
-              </svg>
-              <div class="text-white/75 text-[10px] sm:text-xs whitespace-nowrap">{BANNER_CONFIG.credit.text}</div>
-              {BANNER_CONFIG.credit.url && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="transition absolute right-3 sm:right-4 w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-0 group-hover:opacity-100 text-white/75">
-                  <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
-                </svg>
-              )}
-            </a>
-          )}
-
-          {hasSidebar ? (
-            <div class="w-full grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4">
-              <Aside />
-              <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 p-0 overflow-hidden">
-                <div id="content-wrapper">
-                  <slot />
-                </div>
-              </main>
-            </div>
-          ) : (
-            <main id="swup-container" class="transition-swup-fade overflow-hidden">
-              <div id="content-wrapper">
-                <slot />
-              </div>
-            </main>
-          )}
-        </div>
-        
-        <!-- Full-width Footer -->
-        <div class="footer-wrapper pointer-events-auto w-full pt-16">
-          <Footer />
-        </div>
-      </div>
+    <div id="swup-shell" class="shell" data-left={left} data-right={right}>
+      {
+        hasLeft && (
+          <aside class="shell-left" aria-label="側欄導覽">
+            <slot name="left" />
+          </aside>
+        )
+      }
+      <main id="main" class="shell-center transition-swup-fade">
+        <slot />
+      </main>
+      {
+        hasRight && (
+          <aside class="shell-right" aria-label={right === 'toc' ? '章節目錄' : '補充資訊'}>
+            <slot name="right" />
+          </aside>
+        )
+      }
     </div>
-    
-    <!-- Page height extend for smooth transitions -->
-    <div id="page-height-extend" class="hidden h-[300vh]"></div>
+    <SiteFooter />
+    <script>
+      import '../scripts/main';
+    </script>
   </body>
 </html>
-
-<!-- dynamic banner height style -->
-<style is:global define:vars={{bannerOffset}}>
-@tailwind components;
-
-@layer components {
-  body {
-    @apply min-h-screen;
-    overflow-anchor: none;
-  }
-
-  .enable-banner #banner-wrapper {
-    height: var(--banner-height-home);
-    top: calc(-1 * var(--banner-height-extend));
-    transform: translateY(0);
-    will-change: transform;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .enable-banner #banner {
-    --anim-translate-y: var(--banner-offset);
-    height: 100%;
-    transform: translateY(var(--anim-translate-y));
-    will-change: transform;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  #main-grid {
-    transform: translateY(0);
-    will-change: transform;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .enable-banner #top-row {
-    height: calc(var(--banner-height) - 4.5rem);
-    will-change: height;
-    transition: height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  body.is-home.enable-banner #top-row {
-    height: calc(var(--banner-height-home) - 4.5rem);
-  }
-
-  /* Mobile: disable banner expansion */
-  @media (max-width: 768px) {
-    body.is-home.enable-banner #banner-wrapper {
-      transform: translateY(0) !important;
-    }
-
-    .enable-banner #top-row {
-      height: calc(var(--banner-height) - 4.5rem) !important;
-    }
-  }
-
-  /* Desktop: banner expansion on home page */
-  @media (min-width: 769px) {
-    body.is-home.enable-banner #banner-wrapper {
-      transform: translateY(var(--banner-height-extend));
-    }
-
-    body.is-home.enable-banner #banner {
-      --anim-translate-y: 0px;
-      transform: translateY(0);
-    }
-
-    body.is-home.enable-banner #main-grid {
-      transform: translateY(var(--banner-height-extend));
-    }
-
-    body.is-home.enable-banner #top-row {
-      height: calc(var(--banner-height-home) - 4.5rem) !important;
-    }
-  }
-
-  .enable-banner #banner {
-    opacity: 0;
-    animation: bannerFadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  }
-
-  .enable-banner #banner.loaded {
-    animation: none;
-    opacity: 1;
-  }
-  
-  .navbar-hidden {
-    opacity: 0;
-    transform: translateY(-4rem);
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-  }
-  
-  @keyframes bannerFadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(var(--anim-translate-y)) scale(1.05);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(var(--anim-translate-y)) scale(1);
-    }
-  }
-
-  .footer-wrapper {
-    @apply relative z-10 w-full;
-  }
-  
-  #content-wrapper {
-    @apply pb-8;
-  }
-}
-</style>
-
-<script>
-  import '../scripts/main';
-</script>

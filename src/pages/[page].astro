@@ -1,108 +1,29 @@
 ---
-import { getCollection } from 'astro:content';
+import type { GetStaticPaths, Page } from 'astro';
 import Layout from '../layouts/Layout.astro';
-import CardItem from '../components/CardItem.astro';
+import NavRail from '../components/rail/NavRail.astro';
+import HomeRightRail from '../components/rail/HomeRightRail.astro';
+import FeedHeader from '../components/home/FeedHeader.astro';
+import PostGrid from '../components/post-list/PostGrid.astro';
+import FeedPager from '../components/post-list/FeedPager.astro';
+import { getSortedPosts, type Post } from '../lib/posts';
+import { PAGE_SIZE } from '../config/pagination';
 
-interface PageProps {
-  size: number;
-  currentPage: number;
-  total: number;
-}
+export const getStaticPaths = (async ({ paginate }) => {
+  return paginate(await getSortedPosts(), { pageSize: PAGE_SIZE });
+}) satisfies GetStaticPaths;
 
-const blog = await getCollection('blog');
-
-const postsWithContent = await Promise.all(
-  blog.map(async (post) => {
-    const { Content } = await post.render();
-    return {
-      ...post,
-      content: post.body
-    };
-  })
-);
-
-const posts = postsWithContent.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-export async function getStaticPaths({ paginate }: { paginate: any }) {
-  const blog = await getCollection('blog');
-  
-  const postsWithContent = await Promise.all(
-    blog.map(async (post) => {
-      const { Content } = await post.render();
-      return {
-        ...post,
-        content: post.body
-      };
-    })
-  );
-  
-  const posts = postsWithContent.sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-  );
-  
-  return paginate(posts, {
-    pageSize: 10,
-  });
-}
-
-const { page } = Astro.props as { page: PageProps };
-
-const postsPerPage = page.size;
-const currentPage = page.currentPage;
-const totalPages = Math.ceil(page.total / postsPerPage);
-const startIndex = (currentPage - 1) * postsPerPage;
-const endIndex = startIndex + postsPerPage;
-const paginatedPosts = posts.slice(startIndex, endIndex);
+const { page } = Astro.props as { page: Page<Post> };
+const prevHref = page.currentPage === 2 ? '/' : page.url.prev;
 ---
 
-<Layout>
-  <div class="onload-animation">
-    <section>
-      <ul>
-        {paginatedPosts.map((post: any) => (
-          <CardItem
-            slug={post.slug}
-            title={post.data.title}
-            heroImage={post.data.heroImage}
-            pubDate={post.data.pubDate}
-            category={post.data.category}
-            tags={post.data.tags}
-            description={post.data.description}
-            content={post.content}
-          />
-        ))}
-      </ul>
-
-      <nav class="my-6">
-        <ul class="mx-auto flex justify-center">
-          {
-            currentPage > 1 && (
-              <li>
-                <a
-                  class="p-2 mx-2 bg-white dark:bg-zinc-800 shadow-md rounded-lg text-orange-400 hover:text-orange-600 transition-colors"
-                  href={`/${currentPage - 1}`}
-                >
-                  &lt;&lt; Previous
-                </a>
-              </li>
-            )
-          }
-          {
-            currentPage < totalPages && (
-              <li>
-                <a
-                  class="p-2 mx-2 bg-white dark:bg-zinc-800 shadow-md rounded-lg text-blue-400 hover:text-blue-600 transition-colors"
-                  href={`/${currentPage + 1}`}
-                >
-                  Next &gt;&gt;
-                </a>
-              </li>
-            )
-          }
-        </ul>
-      </nav>
-    </section>
+<Layout variant="list" current="home" title={`文章列表 第 ${page.currentPage} 頁`}>
+  <NavRail slot="left" mobileAuthor mobileCategories />
+  <div class="px-4 lg:px-10 wide:px-12">
+    <h1 class="sr-only">文章列表 第 {page.currentPage} 頁</h1>
+    <FeedHeader title="文章" />
+    <PostGrid posts={page.data} />
+    <FeedPager prevHref={prevHref} nextHref={page.url.next} page={{ current: page.currentPage, total: page.lastPage }} />
   </div>
+  <HomeRightRail slot="right" />
 </Layout>

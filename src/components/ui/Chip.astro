@@ -1,0 +1,34 @@
+---
+/**
+ * Pill-shaped link for categories (md) and tags (sm).
+ * Spec: docs/redesign/03-components.md A2
+ */
+interface Props {
+  href: string;
+  label: string;
+  count?: number;
+  active?: boolean;
+  size?: 'md' | 'sm';
+  /** aria-current value when active: 'page' for categories, 'true' for tags. */
+  current?: 'page' | 'true';
+}
+
+const { href, label, count, active = false, size = 'md', current = 'page' } = Astro.props;
+---
+
+<a
+  href={href}
+  aria-current={active ? current : undefined}
+  class:list={[
+    'inline-flex items-center justify-between whitespace-nowrap rounded-full transition-colors duration-fast',
+    size === 'md' ? 'min-h-chip gap-2.5 px-3.5 text-sm' : 'min-h-tag gap-1.5 px-2.5 text-xs',
+    active ? 'bg-fg text-bg' : ['bg-bg-muted', size === 'sm' ? 'text-fg-body hover:text-fg' : 'text-fg'],
+  ]}
+>
+  <span>{label}</span>
+  {
+    count !== undefined && (
+      <span class:list={['tabular-nums text-xs', active ? 'opacity-70' : 'text-fg-muted']}>{count}</span>
+    )
+  }
+</a>
