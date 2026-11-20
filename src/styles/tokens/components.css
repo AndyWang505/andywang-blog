@@ -2,11 +2,8 @@
  * Layer 3 — component tokens.
  * Sizes owned by one layout or component. Built from semantic tokens where possible.
  *
- * Breakpoints (media queries cannot read CSS variables; keep in sync with tailwind-theme.mjs `screens`):
- *   lg   1024px  two columns
- *   wide 1440px  three columns
- *   ultra 1920px wider rails
- * Center-column container breakpoints: 640px, 1080px, 1600px.
+ * Breakpoints live in tailwind-theme.mjs (`breakpoints`, `centerBreakpoints`). Media queries
+ * cannot read CSS variables, so tokens.test.ts checks every query value in src/ against them.
  */
 :root {
   --header-height: 56px;

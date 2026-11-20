@@ -2,9 +2,9 @@
  * Token layering rules (written out in src/styles/tokens/index.css).
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { referencedVariables } from '../../styles/tokens/tailwind-theme.mjs';
+import { breakpoints, centerBreakpoints, referencedVariables } from '../../styles/tokens/tailwind-theme.mjs';
 
 const root = process.cwd();
 const tokenDir = join(root, 'src', 'styles', 'tokens');
@@ -43,6 +43,20 @@ function exists(dir: string): boolean {
 const V2_DIRS = ['ui', 'layout', 'rail', 'home', 'post-list', 'post'].map((d) => join(root, 'src', 'components', d));
 /** HomeHero sets white text and a dark credit pill over the photo. */
 const HEX_ALLOWED = [/HomeHero\.astro$/];
+/** The link page is a standalone design with its own breakpoints, outside the site layout. */
+const BREAKPOINT_EXEMPT = [/[\\/]pages[\\/]link[\\/]/];
+
+/** Every source file under src/, tests excluded. */
+function sourceFiles(): string[] {
+  return walk(join(root, 'src')).filter((p) => /\.(astro|css|ts|tsx|mjs)$/.test(p) && !p.includes('__tests__'));
+}
+
+/** px values in a query that are not in `allowed` (a max-width query may use value - 0.02). */
+function strayPx(query: string, allowed: number[]): number[] {
+  return [...query.matchAll(/(\d+(?:\.\d+)?)px/g)]
+    .map((m) => Number(m[1]))
+    .filter((px) => !allowed.includes(px) && !allowed.includes(Number((px + 0.02).toFixed(2))));
+}
 
 describe('design tokens', () => {
   const defined = new Set(tokenFiles.flatMap((f) => [...definedIn(read(f))]));
@@ -73,6 +87,22 @@ describe('design tokens', () => {
       .flatMap(walk)
       .filter((p) => !HEX_ALLOWED.some((re) => re.test(p)))
       .filter((p) => /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/.test(read(p).replace(/href="#[^"]*"/g, '')));
+    expect(offenders).toEqual([]);
+  });
+
+  it('media and container queries only use the shared breakpoints', () => {
+    const media = Object.values(breakpoints) as number[];
+    const offenders = sourceFiles()
+      .filter((p) => !BREAKPOINT_EXEMPT.some((re) => re.test(p)))
+      .flatMap((p) => {
+        const src = read(p);
+        const mediaQueries = [...src.matchAll(/@media([^{]*)\{/g), ...src.matchAll(/matchMedia\(\s*['"`]([^'"`]*)/g)];
+        const containerQueries = [...src.matchAll(/@container\s+center([^{]*)\{/g)];
+        return [
+          ...mediaQueries.flatMap((m) => strayPx(m[1], media)),
+          ...containerQueries.flatMap((m) => strayPx(m[1], centerBreakpoints)),
+        ].map((px) => `${relative(root, p)}: ${px}px`);
+      });
     expect(offenders).toEqual([]);
   });
 });

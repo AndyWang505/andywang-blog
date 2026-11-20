@@ -6,11 +6,24 @@
 
 const v = (name, fallback) => (fallback ? `var(--${name}, ${fallback})` : `var(--${name})`);
 
+/**
+ * Breakpoints, in px. The single source: Tailwind screens are built from `breakpoints`, and
+ * tokens.test.ts checks every @media, matchMedia and `@container center` value in src/ against
+ * these lists (media queries cannot read CSS variables). A max-width query uses value - 0.02.
+ */
+export const breakpoints = {
+  sm: 640, // phone vs. larger: search sheet becomes a dialog, prev/next go side by side
+  md: 768, // right rail sections go three across under the center column
+  lg: 1024, // two columns: left rail beside the content
+  wide: 1440, // three columns
+  ultra: 1920, // wider rails
+  '2k': 2400, // wider search palette
+};
+/** Center-column container query widths (`@container center`). */
+export const centerBreakpoints = [640, 768, 820, 1080, 1200, 1600];
+
 export const tokenTheme = {
-  screens: {
-    wide: '1440px',
-    ultra: '1920px',
-  },
+  screens: Object.fromEntries(Object.entries(breakpoints).map(([name, px]) => [name, `${px}px`])),
   colors: {
     bg: { DEFAULT: v('color-bg-default'), subtle: v('color-bg-subtle'), muted: v('color-bg-muted') },
     fg: { DEFAULT: v('color-fg-default'), body: v('color-fg-body'), muted: v('color-fg-muted'), subtle: v('color-fg-subtle') },

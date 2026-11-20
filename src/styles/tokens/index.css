@@ -19,7 +19,8 @@
  * - every variable tailwind-theme.mjs references is defined in these files;
  * - every light --color-* has a dark counterpart;
  * - --palette-* appears nowhere in src/ outside this directory;
- * - the v2 directories under src/components/ contain no hex colors (HomeHero.astro excepted).
+ * - the v2 directories under src/components/ contain no hex colors (HomeHero.astro excepted);
+ * - every @media, matchMedia and `@container center` value uses a breakpoint from tailwind-theme.mjs.
  */
 @import './primitives.css';
 @import './semantic.css';
