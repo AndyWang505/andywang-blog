@@ -32,7 +32,7 @@ export default defineConfig({
     globalInstance: true,
   }), ExpressiveCode(
     {
-      // v2: light uses github-light, dark uses tokyo-night (docs/redesign/01-foundations.md §6)
+      // v2: light uses github-light, dark uses tokyo-night
       themes: ['github-light', 'tokyo-night'],
       useDarkModeMediaQuery: false,
       // EC prefixes this with :root, so use class-only selectors (.dark is set on <html>)

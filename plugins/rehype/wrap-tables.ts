@@ -1,6 +1,6 @@
 /**
  * Wrap every <table> in <div class="table-wrap"> so wide tables scroll inside
- * their own box instead of the page. Spec: docs/redesign/03-components.md D3
+ * their own box instead of the page.
  */
 interface HastNode {
   type: string;
